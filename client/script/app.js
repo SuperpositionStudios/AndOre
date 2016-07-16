@@ -1,21 +1,15 @@
 //load view.js before running this
 var apiUrl = "http://localhost:7001";
 
-var internetOff = true;
+var internetOff = false;
 
 var app = {
   userId: null,
 
 
   Init: function() {
-    if(internetOff){
-      view.SetupView();
-      view.Draw(testData.world);
-      return;      
-    }
-
   	app.GetUserId(function(){
-  		view.SetupView(GetDisplay);
+  		view.SetupView(app.GetDisplay);
   	});
   },
 
@@ -48,6 +42,10 @@ function CallCallback (callback){
 
 
 function AjaxCall(endpoint, data, callback){
+  if(internetOff){
+    callback(testData);    
+  }
+
   var ajax = $.ajax({
     method: "GET",
     url: apiUrl + endpoint,

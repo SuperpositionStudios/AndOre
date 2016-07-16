@@ -14,6 +14,7 @@ var view = {
     var out = "";
     for (var rowKey in world){
       var row = world[rowKey];
+      console.log(row);
       out += row.join("") + "\n";
     }
     view.contentDiv.html(out);
