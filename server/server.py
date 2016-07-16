@@ -55,6 +55,7 @@ class OreDeposit(GameObject):
 
 class EmptySpace(GameObject):
     def __init__(self):
+        super().__init__()
         self.icon = '#'
 
 
@@ -68,8 +69,6 @@ class World:
         for l in range(0, world_size['row']):
             self.world.append(row)
 
-        print(len(self.world))
-
     def get_world(self):
         rendered_world = []
         e_r = []
@@ -82,14 +81,11 @@ class World:
         for row in range(0, world_size['row']):
             for col in range(0, world_size['col']):
                 rendered_world[row][col] = self.world[row][col].render()
-                #print(row)
-                #print(col)
-                #print(self.world[row][col].render())
         return rendered_world
 
 
 world = World()
-world.world[4][4].add_ore_deposit()
+print(world.world[4][4].add_ore_deposit())
 
 
 def home_cor(obj):
