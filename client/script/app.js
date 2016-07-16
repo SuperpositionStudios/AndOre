@@ -1,5 +1,5 @@
 //load view.js before running this
-var apiUrl = "http://localhost:7001";
+var apiUrl = "http://wow.iwanttorule.space:7001";
 
 var internetOff = false;
 
@@ -27,9 +27,8 @@ var app = {
   	});
   },
   SendCommand: function(command){
-  	AjaxCall("/action", {id: userId, action: command}, function(data){ 
+  	AjaxCall("/action", {id: userId, action: command, sendState:true}, function(data){ 
       view.Draw(data.world);
-      CallCallback(callback);
   	});
   }
 }
@@ -50,7 +49,6 @@ function AjaxCall(endpoint, data, callback){
     method: "GET",
     url: apiUrl + endpoint,
     data: data,
-    cache: false,
   });
   ajax.done(function(data) {
     console.log("from " + apiUrl + endpoint + " returned: " + data);
