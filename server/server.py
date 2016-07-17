@@ -11,6 +11,7 @@ world_size = {
 
 class Cell:
     def __init__(self):
+        self.obj_id = str(uuid.uuid4())
         self.contents = []
         empty_space = EmptySpace()
         self.contents.append(empty_space)
@@ -21,6 +22,7 @@ class Cell:
     def add_ore_deposit(self):
         a = OreDeposit()
         self.contents.append(a)
+        print(a.obj_id)
 
     def remove_object(self, object_id):
         for i in range(0, len(self.contents)):
@@ -30,12 +32,12 @@ class Cell:
     def contains_object_type(self, obj_type_name):
         for obj in self.contents:
             if obj.__class__.__name__ == obj_type_name:
-                return True
+                return (True, obj.obj_id)
 
     def render(self):
         priority = ['Player', 'OreDeposit', 'EmptySpace']
         for i in priority:
-            if self.contains_object_type(i):
+            if self.contains_object_type(i)[0]:
                 for obj in self.contents:
                     if obj.__class__.__name__ == i:
                         return obj.icon
@@ -84,8 +86,13 @@ class World:
         return rendered_world
 
 
-world = World()
-print(world.world[4][4].add_ore_deposit())
+the_world = World()
+#print(the_world.world[1][2].add_ore_deposit())
+#print(the_world.world[0][0].obj_id)
+the_world.world[0][0].add_ore_deposit()
+the_world.world[0][0].remove_object(the_world.world[0][0].contains_object_type('OreDeposit')[1])
+#print(the_world.world[0][1].obj_id)
+
 
 
 def home_cor(obj):
@@ -122,8 +129,8 @@ def move_in_bounds(pos, axis):
 
 class Player:
 
-    def __init__(self, id):
-        self.id = id
+    def __init__(self, _id):
+        self.id = _id
         self.health = 100
         self.ore_quantity = 0
         self.inner_icon = '@'
@@ -150,7 +157,7 @@ class Player:
     def world_state(self):
         los = self.line_of_stats().ljust(world_size['row'])
         los = list(los)
-        worldmap = world.get_world()
+        worldmap = the_world.get_world()
         worldmap.append(los)
         return worldmap
 
