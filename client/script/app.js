@@ -1,5 +1,6 @@
 //load view.js before running this
-var apiUrl = "http://wow.iwanttorule.space:7001";
+//var apiUrl = "http://wow.iwanttorule.space:7001";
+var apiUrl = "http://localhost:8000";
 
 var internetOff = false;
 
