@@ -1,6 +1,7 @@
 import uuid, random
 from cell import Cell
-import gameObject
+from gameObject import GameObject
+
 
 class World:
     def __init__(self):

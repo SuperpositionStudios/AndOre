@@ -1,8 +1,10 @@
 import uuid, random
+
+
 class Player:
 
     def __init__(self, _id, _world):
-        assert(_world != None)
+        assert(_world is not None)
 
         self.id = _id
         self.world = _world
@@ -13,21 +15,21 @@ class Player:
         self.x_position = self.generate_starting_x_position()
         self.y_position = self.generate_starting_y_position()
 
-    def input(self, dir):
-        if dir == 'w':
+    def input(self, _dir):
+        if _dir == 'w':
             self.y_position = move_in_bounds(self.y_position + 1, 'col')
-        elif dir == 's':
+        elif _dir == 's':
             self.y_position = move_in_bounds(self.y_position - 1, 'col')
-        elif dir == 'a':
+        elif _dir == 'a':
             self.x_position = move_in_bounds(self.x_position - 1, 'row')
-        elif dir == 'd':
+        elif _dir == 'd':
             self.x_position = move_in_bounds(self.x_position + 1, 'row')
 
     def line_of_stats(self):
         return 'hp: {health} ore: {ore} x: {x} y: {y}'.format(health=self.health,
-                                                                  ore=self.ore_quantity,
-                                                                  x=self.x_position,
-                                                                  y=self.y_position)
+                                                              ore=self.ore_quantity,
+                                                              x=self.x_position,
+                                                              y=self.y_position)
 
     def world_state(self):
         los = self.line_of_stats().ljust(self.world.rows)
@@ -38,7 +40,6 @@ class Player:
 
     def generate_starting_x_position(self):
         return random.randint(0, self.world.rows)
-
 
     def generate_starting_y_position(self):
         return random.randint(0, self.world.cols)
