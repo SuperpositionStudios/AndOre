@@ -3,7 +3,7 @@ import uuid, random
 from player import Player
 from cell import Cell
 from world import World
-from gameObject import GameObject, OreDeposit, EmptySpace
+from gameObject import GameObject, OreDeposit
 
 app = Flask(__name__)
 
@@ -24,25 +24,6 @@ def home_cor(obj):
     return_response.headers['Access-Control-Allow-Origin'] = web_server_domain
     return_response.headers['Access-Control-Allow-Headers'] = "Content-Type, Access-Control-Allow-Origin"
     return return_response
-
-
-
-
-def move_in_bounds(pos, axis):
-    if axis == 'col':
-        if pos < 0:
-            return 0
-        elif pos > world_size['col']:
-            return world_size['col']
-        else:
-            return pos
-    elif axis == 'row':
-        if pos < 0:
-            return 0
-        elif pos > world_size['row']:
-            return world_size['row']
-        else:
-            return pos
 
 def valid_id(_id):
     if _id in player_ids:

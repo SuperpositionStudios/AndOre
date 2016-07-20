@@ -1,5 +1,6 @@
 import uuid, random
-class Player:
+import gameObject
+class Player(gameObject.GameObject):
 
     def __init__(self, _id, _world):
         assert(_world != None)
@@ -10,24 +11,32 @@ class Player:
         self.ore_quantity = 0
         self.inner_icon = '@'
         self.icon = '!'
-        self.x_position = self.generate_starting_x_position()
-        self.y_position = self.generate_starting_y_position()
+        self.cell = self.get_starting_cell()
 
-    def input(self, dir):
-        if dir == 'w':
-            self.y_position = move_in_bounds(self.y_position + 1, 'col')
-        elif dir == 's':
-            self.y_position = move_in_bounds(self.y_position - 1, 'col')
-        elif dir == 'a':
-            self.x_position = move_in_bounds(self.x_position - 1, 'row')
-        elif dir == 'd':
-            self.x_position = move_in_bounds(self.x_position + 1, 'row')
+
+    def input(self, key):
+
+        if key == 'w':
+            self.try_move(0, 1, 'col')
+        elif key == 's':
+            self.try_move(0, -1, 'col')
+        elif key == 'a':
+            self.try_move(-1, 0, 'row')
+        elif key == 'd':
+           self.try_move(1, 0, 'row')
 
     def line_of_stats(self):
         return 'hp: {health} ore: {ore} x: {x} y: {y}'.format(health=self.health,
                                                                   ore=self.ore_quantity,
-                                                                  x=self.x_position,
-                                                                  y=self.y_position)
+                                                                  x=self.cell.x,
+                                                                  y=self.cell.y)
+
+    def try_move(xOffset, yOffset):
+        new_cell = self.try_get_cell_by_offset(xOffset, yOffset)
+        if(new_cell):
+            self.change_cell(new_cell)
+            return True
+        return False
 
     def world_state(self):
         los = self.line_of_stats().ljust(self.world.rows)
@@ -36,9 +45,5 @@ class Player:
         worldmap.append(los)
         return worldmap
 
-    def generate_starting_x_position(self):
-        return random.randint(0, self.world.rows)
-
-
-    def generate_starting_y_position(self):
-        return random.randint(0, self.world.cols)
+    def get_starting_cell(self):
+        return self.world.get_random_cell()
