@@ -12,7 +12,7 @@ class Cell:
         empty_space = gameObject.EmptySpace(self)
         self.contents.append(empty_space)
 
-    def add_object(self, x):
+    def add_game_object(self, x):
         self.contents.append(x)
 
     def add_ore_deposit(self):
