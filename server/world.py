@@ -1,24 +1,18 @@
 import uuid, random
 from cell import Cell
-import gameObject
+from gameObject import GameObject
+
 
 class World:
     def __init__(self):
         self.rows = 31
         self.cols = 32
         self.world = []
-        """
-        row = []
-        for l in range(0, world_size['col']):
-            a = Cell()
-            row.append(a)
-        for l in range(0, world_size['row']):
-            self.world.append(row)"""
 
-        for i in range(self.rows):
+        for row in range(self.rows):
             current_row = []
-            for i in range(self.cols):
-                current_cell = Cell()
+            for col in range(self.cols):
+                current_cell = Cell(row, col)
                 current_row.append(current_cell)
             self.world.append(current_row)
 

@@ -1,20 +1,23 @@
-
 import uuid, random
 import gameObject
+
+
 class Cell:
-    def __init__(self):
+    def __init__(self, _row, _col):
         self.obj_id = str(uuid.uuid4())
+        self.row = _row
+        self.col = _col
         self.contents = []
-        empty_space = gameObject.EmptySpace()
+
+        empty_space = gameObject.EmptySpace(self)
         self.contents.append(empty_space)
 
     def add_object(self, x):
         self.contents.append(x)
 
     def add_ore_deposit(self):
-        a = gameObject.OreDeposit()
+        a = gameObject.OreDeposit(self)
         self.contents.append(a)
-        print(a.obj_id)
 
     def remove_object(self, object_id):
         for i in range(0, len(self.contents)):

@@ -18,7 +18,6 @@ the_world = World()
 #print(the_world.world[0][1].obj_id)
 
 
-
 def home_cor(obj):
     return_response = make_response(obj)
     return_response.headers['Access-Control-Allow-Origin'] = web_server_domain
@@ -26,23 +25,22 @@ def home_cor(obj):
     return return_response
 
 
-
-
 def move_in_bounds(pos, axis):
     if axis == 'col':
         if pos < 0:
             return 0
-        elif pos > world_size['col']:
-            return world_size['col']
+        elif pos > the_world.cols:
+            return the_world.cols
         else:
             return pos
     elif axis == 'row':
         if pos < 0:
             return 0
-        elif pos > world_size['row']:
-            return world_size['row']
+        elif pos > the_world.rows:
+            return the_world.rows
         else:
             return pos
+
 
 def valid_id(_id):
     if _id in player_ids:
