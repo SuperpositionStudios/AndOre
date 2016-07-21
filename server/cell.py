@@ -26,6 +26,8 @@ class Cell:
 
     def contains_object_type(self, obj_type_name):
         for obj in self.contents:
+            if obj.__class__.__name__ == 'Player':
+                print("Row: {} Col: {} Type: {}".format(self.row, self.col, obj.__class__.__name__))
             if obj.__class__.__name__ == obj_type_name:
                 return True, obj.obj_id
             else:
