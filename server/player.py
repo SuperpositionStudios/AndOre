@@ -6,6 +6,7 @@ class Player:
         assert (_world is not None)
 
         self.id = _id
+        self.obj_id = _id
         self.world = _world
         self.cell = _cell
         self.health = 100
