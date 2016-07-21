@@ -23,8 +23,8 @@ class World:
     def new_player(self):
         row = random.randint(0, self.rows - 1)  # randint is inclusive
         col = random.randint(0, self.cols - 1)  # randint is inclusive
-        print(row)
-        print(col)
+        #print(row)
+        #print(col)
         player_id = str(uuid.uuid4())
 
         new_player = Player(player_id, self, self.world[row][col])
