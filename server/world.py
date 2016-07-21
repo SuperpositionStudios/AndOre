@@ -18,6 +18,8 @@ class World:  # World is not really world, it's more Level
                 current_row.append(current_cell)
             self.world.append(current_row)
 
+        self.respawn_cell = self.get_cell(0, 0)
+
         assert(len(self.world) == self.rows)
         assert(len(self.world[0]) == self.cols)
 
