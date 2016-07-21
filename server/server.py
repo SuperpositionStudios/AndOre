@@ -79,7 +79,7 @@ def action():
         response["error"] = "Invalid ID"
         return home_cor(jsonify(**response))
 
-    _act = request.args.get('act', '')
+    _act = request.args.get('action', '')
     world.players[_id].action(_act)
 
     _sendState = request.args.get('sendState', 'false')

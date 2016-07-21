@@ -29,10 +29,11 @@ var view = {
   },
   SetupInput: function() {
     $("body").keydown(function(e){
-      console.log(e);
-      //if(validKeys[e.char]){
-        app.SendCommand(e.char);        
-      //}
+      command = String.fromCharCode(e.which).toLowerCase()
+      console.log(command);
+      if(validKeys[command]) {
+        app.SendCommand(command);
+      }
     });
 
   }
