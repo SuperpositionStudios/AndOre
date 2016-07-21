@@ -30,8 +30,8 @@ class Cell:
                 print("Row: {} Col: {} Type: {}".format(self.row, self.col, obj.__class__.__name__))
             if obj.__class__.__name__ == obj_type_name:
                 return True, obj.obj_id
-            else:
-                return False, ''
+        else:
+            return False, ''
 
     def render(self):
         priority = ['Player', 'OreDeposit', 'EmptySpace']
