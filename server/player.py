@@ -35,19 +35,47 @@ class Player(gameObject.GameObject):
     def tick(self):
         # Movement
         if self.next_action == 'w':
-            self.try_move(-1, 0)
+            self.affect(-1, 0)
         elif self.next_action == 's':
-            self.try_move(1, 0)
+            self.affect(1, 0)
         elif self.next_action == 'a':
-            self.try_move(0, -1)
+            self.affect(0, -1)
         elif self.next_action == 'd':
-            self.try_move(0, 1)
+            self.affect(0, 1)
 
-    def try_move(self, row_offset, col_offset):
-        new_cell = self.try_get_cell_by_offset(row_offset, col_offset)
-        if new_cell is not None:
-            if new_cell.can_enter():
-                self.change_cell(new_cell)
+    def affect(self, row_offset, col_offset):  # Horrible function name but I'll let Hal rename it
+        affected_cell = self.try_get_cell_by_offset(row_offset, col_offset)
+        if affected_cell is not None:
+            # Movement
+            if self.try_move(affected_cell):
+                return True
+            # Cannot move, something interactive must be in the way.
+            elif self.try_mining(affected_cell):
+                return True
+            else:
+                return False
+        else:
+            return False
+
+    def try_mining(self, _cell):
+        if _cell is not None:
+            struct = _cell.contains_object_type('OreDeposit')
+            if struct[0]:
+                ore_deposit = _cell.get_game_object_by_obj_id(struct[1])
+                if ore_deposit[0]:
+                    self.ore_quantity += ore_deposit[1].ore_per_turn
+                    return True
+                else:
+                    return False
+            else:
+                return False
+        else:
+            return False
+
+    def try_move(self, _cell):
+        if _cell is not None:
+            if _cell.can_enter():
+                self.change_cell(_cell)
                 return True
             else:
                 return False
