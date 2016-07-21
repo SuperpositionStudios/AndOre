@@ -3,7 +3,7 @@
 
 //called by app.js after id is populated, etc
 var contentId = "content";
-var pollDelay = 2000;
+var pollDelay = 1000;
 var validKeys = {"w":true,"a":true,"s":true,"d":true};
 var view = {
   contentDiv: null,
@@ -25,7 +25,7 @@ var view = {
   Poll: function(){
     setTimeout(function() { 
       app.GetDisplay(view.Poll, pollDelay);
-    });
+    }, pollDelay);
   },
   SetupInput: function() {
     $("body").keydown(function(e){
