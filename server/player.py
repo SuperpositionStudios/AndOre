@@ -39,6 +39,6 @@ class Player:
     def world_state(self):
         los = self.line_of_stats().ljust(self.world.rows)
         los = list(los)
-        worldmap = self.world.get_world()
+        worldmap = self.world.get_world(player_id=self.id)
         worldmap.append(los)
         return worldmap

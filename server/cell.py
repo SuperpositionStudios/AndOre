@@ -26,17 +26,31 @@ class Cell:
 
     def contains_object_type(self, obj_type_name):
         for obj in self.contents:
-            if obj.__class__.__name__ == 'Player':
-                print("Row: {} Col: {} Type: {}".format(self.row, self.col, obj.__class__.__name__))
+            #if obj.__class__.__name__ == 'Player':
+            #    print("Row: {} Col: {} Type: {}".format(self.row, self.col, obj.__class__.__name__))
             if obj.__class__.__name__ == obj_type_name:
                 return True, obj.obj_id
         else:
             return False, ''
 
-    def render(self):
+    def render(self, **keyword_parameters):
+
         priority = ['Player', 'OreDeposit', 'EmptySpace']
-        for i in priority:
-            if self.contains_object_type(i)[0]:
-                for obj in self.contents:
-                    if obj.__class__.__name__ == i:
-                        return obj.icon
+
+        if 'player_id' in keyword_parameters:
+            player_id = keyword_parameters['player_id']
+
+            for i in priority:
+                if self.contains_object_type(i)[0]:
+                    for obj in self.contents:
+                        if obj.__class__.__name__ == i:
+                            if obj.obj_id == player_id:
+                                return obj.inner_icon
+                            else:
+                                return obj.icon
+        else:
+            for i in priority:
+                if self.contains_object_type(i)[0]:
+                    for obj in self.contents:
+                        if obj.__class__.__name__ == i:
+                            return obj.icon

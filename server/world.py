@@ -31,14 +31,24 @@ class World:
 
         return player_id
 
-    def get_world(self):
+    def get_world(self, **keyword_parameters):
+
         rendered_world = []
 
-        for row in range(self.rows):
-            current_row = []
-            for col in range(self.cols):
-                rendered = self.world[row][col].render()
-                current_row.append(rendered)
-            rendered_world.append(current_row)
+        if 'player_id' in keyword_parameters:
+            player_id = keyword_parameters['player_id']
 
+            for row in range(self.rows):
+                current_row = []
+                for col in range(self.cols):
+                    rendered = self.world[row][col].render(player_id=player_id)
+                    current_row.append(rendered)
+                rendered_world.append(current_row)
+        else:
+            for row in range(self.rows):
+                current_row = []
+                for col in range(self.cols):
+                    rendered = self.world[row][col].render()
+                    current_row.append(rendered)
+                rendered_world.append(current_row)
         return rendered_world
