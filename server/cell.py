@@ -10,8 +10,6 @@ class Cell:
         self.row = _row
         self.col = _col
         self.contents = []
-        #empty_space = gameObject.EmptySpace(self)
-        #self.contents.append(empty_space)
 
     def add_game_object(self, x):
         self.contents.append(x)
@@ -39,8 +37,6 @@ class Cell:
 
     def contains_object_type(self, obj_type_name):
         for obj in self.contents:
-            #if obj.__class__.__name__ == 'Player':
-            #    print("Row: {} Col: {} Type: {}".format(self.row, self.col, obj.__class__.__name__))
             if obj.__class__.__name__ == obj_type_name:
                 return True, obj.obj_id
         return False, ''

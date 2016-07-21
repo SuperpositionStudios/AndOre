@@ -3,8 +3,8 @@ from cell import Cell
 from player import Player
 
 
-#world is not really world, it's more Level
-class World:
+class World:  # World is not really world, it's more Level
+
     def __init__(self):
         self.rows = 31
         self.cols = 32
@@ -53,16 +53,13 @@ class World:
                     current_row.append(rendered)
                 rendered_world.append(current_row)
         return rendered_world
-    """
-    def get_cell(self, x, y):
-        if x < 0 or x >= self.cols:
-            return false
-        if y < 0 or y >= self.rows:
-            return false
-        return self.world[x][y]
+
+    def get_cell(self, row, col):
+        if row < 0 or row >= self.rows or col < 0 or col >= self.cols:
+            return False
+        return self.world[row][col]
 
     def get_random_cell(self):
-        x = random.randint(0, self.rows)
-        y = random.randint(0, self.cols)
-        return self.get_cell(x,y)
-    """
+        row = random.randint(0, self.rows - 1)  # randint is inclusive
+        col = random.randint(0, self.cols - 1)  # randint is inclusive
+        return self.get_cell(row, col)
