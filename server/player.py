@@ -1,4 +1,5 @@
 import uuid, random
+from cell import Cell
 
 
 class Player:
