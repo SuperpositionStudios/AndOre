@@ -5,6 +5,7 @@ import gameObject
 
 class Player(gameObject.GameObject):
     def __init__(self, _id, _world, _cell):
+        super().__init__(_cell)
         assert (_world is not None)
 
         self.id = _id
@@ -21,34 +22,35 @@ class Player(gameObject.GameObject):
 
     def action(self, _dir):
         self.next_action = _dir
-        #print(self.next_action)
+        self.tick()
 
     def line_of_stats(self):
         return 'hp {health} ore {ore} row {row} col {col} m {next_action}'.format(health=self.health,
-                                                                  ore=self.ore_quantity,
-                                                                  row=self.row,
-                                                                  col=self.col,
-                                                                  next_action=self.next_action)
+                                                                                  ore=self.ore_quantity,
+                                                                                  row=self.row,
+                                                                                  col=self.col,
+                                                                                  next_action=self.next_action)
 
-    """  # Commented out functions for moving for this conflict fix
-    def input(self, key):
+    def tick(self):
 
-        if key == 'w':
-            self.try_move(0, 1, 'col')
-        elif key == 's':
-            self.try_move(0, -1, 'col')
-        elif key == 'a':
-            self.try_move(-1, 0, 'row')
-        elif key == 'd':
-           self.try_move(1, 0, 'row')
+        if self.next_action == 'w':
+            self.try_move(-1, 0)
+        elif self.next_action == 's':
+            self.try_move(1, 0)
+        elif self.next_action == 'a':
+            self.try_move(0, -1)
+        elif self.next_action == 'd':
+            self.try_move(0, 1)
 
-    def try_move(xOffset, yOffset):
-        new_cell = self.try_get_cell_by_offset(xOffset, yOffset)
-        if(new_cell):
+    def try_move(self, row_offset, col_offset):
+        new_cell = self.try_get_cell_by_offset(row_offset, col_offset)
+        if new_cell is not None:
             self.change_cell(new_cell)
             return True
         return False
-    """
+
+    def try_get_cell_by_offset(self, row_offset, col_offset):
+        return self.world.get_cell(self.row + row_offset, self.col + col_offset)
 
     def world_state(self):
         los = self.line_of_stats().ljust(self.world.rows)
