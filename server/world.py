@@ -22,12 +22,19 @@ class World:  # World is not really world, it's more Level
         assert(len(self.world[0]) == self.cols)
 
     def new_player(self):
-        row = random.randint(0, self.rows - 1)  # randint is inclusive
-        col = random.randint(0, self.cols - 1)  # randint is inclusive
+        random_cell = self.get_random_cell()
+        max_tries = self.rows * self.cols
+        attempt = 1
+        while random_cell.can_enter() is False:
+            random_cell = self.get_random_cell()
+            attempt += 1
+            if attempt == max_tries:
+                return 'too many players'
+
         player_id = str(uuid.uuid4())
 
-        new_player = Player(player_id, self, self.world[row][col])
-        self.world[row][col].add_game_object(new_player)
+        new_player = Player(player_id, self, random_cell)
+        random_cell.add_game_object(new_player)
         self.players[player_id] = new_player
 
         return player_id
