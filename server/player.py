@@ -18,7 +18,6 @@ class Player(gameObject.GameObject):
         self.row = self.cell.row
         self.col = self.cell.col
         self.next_action = ''
-        # self.cell = self.get_starting_cell()
 
     def action(self, _dir):
         self.next_action = _dir
@@ -57,8 +56,3 @@ class Player(gameObject.GameObject):
         worldmap = self.world.get_world(player_id=self.id)
         worldmap.append(los)
         return worldmap
-
-    """
-    def get_starting_cell(self):
-        return self.world.get_random_cell()
-    """
