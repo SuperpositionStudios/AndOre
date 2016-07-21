@@ -22,13 +22,14 @@ class Player(gameObject.GameObject):
 
     def action(self, _dir):
         self.next_action = _dir
-        print(self.next_action)
+        #print(self.next_action)
 
     def line_of_stats(self):
-        return 'hp: {health} ore: {ore} row: {row} col: {col}'.format(health=self.health,
-                                                                      ore=self.ore_quantity,
-                                                                      row=self.row,
-                                                                      col=self.col)
+        return 'hp {health} ore {ore} row {row} col {col} m {next_action}'.format(health=self.health,
+                                                                  ore=self.ore_quantity,
+                                                                  row=self.row,
+                                                                  col=self.col,
+                                                                  next_action=self.next_action)
 
     """  # Commented out functions for moving for this conflict fix
     def input(self, key):
