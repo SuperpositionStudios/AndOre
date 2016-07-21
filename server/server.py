@@ -3,7 +3,7 @@ import uuid, random
 from player import Player
 from cell import Cell
 from world import World
-from gameObject import GameObject, OreDeposit, EmptySpace
+from gameObject import GameObject, OreDeposit
 
 app = Flask(__name__)
 
