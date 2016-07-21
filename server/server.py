@@ -3,19 +3,15 @@ import uuid, random
 from player import Player
 from cell import Cell
 from world import World
-from gameObject import GameObject, OreDeposit, EmptySpace
+from gameObject import GameObject, OreDeposit
 
 app = Flask(__name__)
 
 web_server_domain = "*"
 
 
-the_world = World()
-#print(the_world.world[1][2].add_ore_deposit())
-#print(the_world.world[0][0].obj_id)
-#the_world.world[0][0].add_ore_deposit()
-#the_world.world[0][0].remove_object(the_world.world[0][0].contains_object_type('OreDeposit')[1])
-#print(the_world.world[0][1].obj_id)
+world = World()
+world.world[4][4].add_ore_deposit()
 
 
 def home_cor(obj):
@@ -29,15 +25,15 @@ def move_in_bounds(pos, axis):
     if axis == 'col':
         if pos < 0:
             return 0
-        elif pos > the_world.cols:
-            return the_world.cols
+        elif pos > world.cols:
+            return world.cols
         else:
             return pos
     elif axis == 'row':
         if pos < 0:
             return 0
-        elif pos > the_world.rows:
-            return the_world.rows
+        elif pos > world.rows:
+            return world.rows
         else:
             return pos
 
@@ -52,27 +48,24 @@ def valid_id(_id):
         print("####")
         return False
 
-
-players = dict()
 player_ids = []
 
 
 @app.route('/join')
 def join():
-    assert(the_world)
+    assert(world)
     response = dict()
-    new_id = str(uuid.uuid4())
-    new_player = Player(new_id, the_world)
-    player_ids.append(new_id)
-    players[new_id] = new_player
 
-    response['id'] = new_id
+    new_player_id = world.new_player()
+
+    player_ids.append(new_player_id)
+    response['id'] = new_player_id
 
     _sendState = request.args.get('sendState', 'false')
 
     if _sendState == 'true':
-        response['world'] = players[new_id].world_state()
-        return send_state(_id=new_id)
+        response['world'] = world.players[new_player_id].world_state()
+        return send_state(_id=new_player_id)
     else:
         return home_cor(jsonify(**response))
 
@@ -87,11 +80,11 @@ def action():
         return home_cor(jsonify(**response))
 
     _act = request.args.get('act', '')
-    players[_id].input(_act)
+    world.players[_id].action(_act)
 
     _sendState = request.args.get('sendState', 'false')
     if _sendState == 'true':
-        response['world'] = players[_id].world_state()
+        response['world'] = world.players[_id].world_state()
     return home_cor(jsonify(**response))
 
 
@@ -110,9 +103,9 @@ def send_state(**keyword_parameters):
         return home_cor(jsonify(**response))
 
     response = dict()
-    response['world'] = players[_id].world_state()
+    response['world'] = world.players[_id].world_state()
     response['id'] = _id
     return home_cor(jsonify(**response))
 
 
-app.run(debug=True, host='0.0.0.0', port=7001,threaded=True)
+app.run(debug=True, host='0.0.0.0', port=7001, threaded=True)
