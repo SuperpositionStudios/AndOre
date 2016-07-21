@@ -12,7 +12,9 @@ class Player(gameObject.GameObject):
         self.obj_id = _id
         self.world = _world
         self.cell = _cell
+        self.starting_health = 100
         self.health = 100
+        self.attack_power = 10
         self.ore_quantity = 0
         self.inner_icon = '@'
         self.icon = '!'
@@ -52,10 +54,41 @@ class Player(gameObject.GameObject):
             # Cannot move, something interactive must be in the way.
             elif self.try_mining(affected_cell):
                 return True
+            # Since there's nothing to mine, the player must be trying to attack another player
+            elif self.try_attacking(affected_cell):
+                return True
             else:
                 return False
         else:
             return False
+
+    def try_attacking(self, _cell):
+        if _cell is not None:
+            struct = _cell.contains_object_type('Player')
+            if struct[0]:
+                other_player = _cell.get_game_object_by_obj_id(struct[1])
+                if other_player[0]:
+                    struct = other_player[1].take_damage(self.attack_power)
+                    if struct[0]:  # Means we killed the other player
+                        self.add_ore(struct[1])
+                        return True
+        return False
+
+    def add_ore(self, amount):
+        self.ore_quantity += amount
+        return True
+
+    def reset_ore(self):
+        old_ore = int(self.ore_quantity)
+        self.ore_quantity = 0
+        return old_ore
+
+    def take_damage(self, damage):
+        self.health -= damage
+        if self.check_if_dead():
+            return True, self.reset_ore()
+        else:
+            return False, 0
 
     def try_mining(self, _cell):
         if _cell is not None:
@@ -65,12 +98,7 @@ class Player(gameObject.GameObject):
                 if ore_deposit[0]:
                     self.ore_quantity += ore_deposit[1].ore_per_turn
                     return True
-                else:
-                    return False
-            else:
-                return False
-        else:
-            return False
+        return False
 
     def try_move(self, _cell):
         if _cell is not None:
@@ -90,3 +118,11 @@ class Player(gameObject.GameObject):
         worldmap = self.world.get_world(player_id=self.id)
         worldmap.append(los)
         return worldmap
+
+    def check_if_dead(self):
+        if self.health <= 0:
+            self.change_cell(self.world.respawn_cell)
+            self.health += self.starting_health
+            return True
+        else:
+            return False
