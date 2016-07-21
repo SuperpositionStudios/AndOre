@@ -16,19 +16,11 @@ class Player:
         self.icon = '!'
         self.row = self.cell.row
         self.col = self.cell.col
+        self.next_action = ''
 
     def action(self, _dir):
-        pass
-        """
-        if _dir == 'w':
-            self.y_position = move_in_bounds(self.y_position + 1, 'col')
-        elif _dir == 's':
-            self.y_position = move_in_bounds(self.y_position - 1, 'col')
-        elif _dir == 'a':
-            self.x_position = move_in_bounds(self.x_position - 1, 'row')
-        elif _dir == 'd':
-            self.x_position = move_in_bounds(self.x_position + 1, 'row')
-        """
+        self.next_action = _dir
+        print(self.next_action)
 
     def line_of_stats(self):
         return 'hp: {health} ore: {ore} row: {row} col: {col}'.format(health=self.health,
