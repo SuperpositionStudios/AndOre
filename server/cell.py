@@ -41,6 +41,12 @@ class Cell:
                 return True, obj.obj_id
         return False, ''
 
+    def get_game_object_by_obj_id(self, obj_id):
+        for obj in self.contents:
+            if obj.obj_id == obj_id:
+                return True, obj
+        return False
+
     def render(self, **keyword_parameters):
 
         priority = ['Player', 'OreDeposit', 'EmptySpace']

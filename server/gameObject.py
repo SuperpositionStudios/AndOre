@@ -35,3 +35,4 @@ class OreDeposit(GameObject):
         self.cell = _cell
         self.passable = False
         self.blocking = True
+        self.ore_per_turn = 3
