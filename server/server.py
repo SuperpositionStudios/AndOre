@@ -11,11 +11,7 @@ web_server_domain = "*"
 
 
 world = World()
-#print(world.world[1][2].add_ore_deposit())
-#print(world.world[0][0].obj_id)
-#world.world[0][0].add_ore_deposit()
-#world.world[0][0].remove_object(world.world[0][0].contains_object_type('OreDeposit')[1])
-#print(world.world[0][1].obj_id)
+world.world[4][4].add_ore_deposit()
 
 
 def home_cor(obj):
