@@ -19,6 +19,7 @@ class Player(gameObject.GameObject):
         self.row = self.cell.row
         self.col = self.cell.col
         self.next_action = ''
+        self.passable = False
 
     def action(self, _dir):
         self.next_action = _dir
@@ -32,7 +33,7 @@ class Player(gameObject.GameObject):
                                                                                   next_action=self.next_action)
 
     def tick(self):
-
+        # Movement
         if self.next_action == 'w':
             self.try_move(-1, 0)
         elif self.next_action == 's':
@@ -45,8 +46,11 @@ class Player(gameObject.GameObject):
     def try_move(self, row_offset, col_offset):
         new_cell = self.try_get_cell_by_offset(row_offset, col_offset)
         if new_cell is not None:
-            self.change_cell(new_cell)
-            return True
+            if new_cell.can_enter():
+                self.change_cell(new_cell)
+                return True
+            else:
+                return False
         return False
 
     def try_get_cell_by_offset(self, row_offset, col_offset):

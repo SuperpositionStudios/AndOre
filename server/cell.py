@@ -64,14 +64,13 @@ class Cell:
                         if obj.__class__.__name__ == i:
                             return obj.icon
             return '#'  # Returns Empty Space
-    """
+
     def can_enter(self):
         for obj in self.contents:
-            if not obj.can_enter:
+            if obj.passable is False:
                 return False
-
         return True
-
+    """
     def try_get_cell_by_offset(self, row_offset, col_offset):
         return self.world.get_cell(self.row + row_offset, self.col + col_offset)
     """

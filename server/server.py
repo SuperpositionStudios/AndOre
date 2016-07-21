@@ -42,10 +42,10 @@ def valid_id(_id):
     if _id in player_ids:
         return True
     else:
-        print("####")
-        print("Invalid ID: " + _id)
-        print(player_ids)
-        print("####")
+        #print("####")
+        #print("Invalid ID: " + _id)
+        #print(player_ids)
+        #print("####")
         return False
 
 player_ids = []
