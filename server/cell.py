@@ -1,29 +1,34 @@
-
 import uuid, random
 import gameObject
+
+
 class Cell:
-    def __init__(self, world, x, y):
-        self.x = x
-        self.y = y
-        self.world = world
+
+    def __init__(self, _world, _row, _col):
+        self.world = _world
         self.obj_id = str(uuid.uuid4())
+        self.row = _row
+        self.col = _col
         self.contents = []
+
+    def add_game_object(self, x):
+        self.contents.append(x)
+
+    def add_ore_deposit(self):
+        a = gameObject.OreDeposit(self)
+        self.contents.append(a)
 
     def destroy(self):
         self.world = None
         self.contents = None
         for obj in self.contents:
-            i.leave_cell(self)
+            obj.leave_cell(self)
 
-    def add_object(self,obj):
-        if(obj.cell != self):
+    def add_object(self, obj):
+        if obj.cell != self:
             obj.cell = self
 
         self.contents.append(obj)
-
-    def add_ore_deposit(self):
-        ore = gameObject.OreDeposit()
-        self.add_object(ore)
 
     def remove_object(self, object_id):
         for i in range(0, len(self.contents)):
@@ -36,24 +41,42 @@ class Cell:
                 return True, obj.obj_id
         return False, ''
 
+    def get_game_object_by_obj_id(self, obj_id):
+        for obj in self.contents:
+            if obj.obj_id == obj_id:
+                return True, obj
+        return False
+
+    def render(self, **keyword_parameters):
+
+        priority = ['Player', 'OreDeposit', 'EmptySpace']
+
+        if 'player_id' in keyword_parameters:
+            player_id = keyword_parameters['player_id']
+
+            for i in priority:
+                if self.contains_object_type(i)[0]:
+                    for obj in self.contents:
+                        if obj.__class__.__name__ == i:
+                            if obj.obj_id == player_id:
+                                return obj.inner_icon
+                            else:
+                                return obj.icon
+            return '#'  # Returns Empty Space
+        else:
+            for i in priority:
+                if self.contains_object_type(i)[0]:
+                    for obj in self.contents:
+                        if obj.__class__.__name__ == i:
+                            return obj.icon
+            return '#'  # Returns Empty Space
+
     def can_enter(self):
         for obj in self.contents:
-            if not obj.can_enter:
+            if obj.passable is False:
                 return False
-
         return True
-
-
-    def try_get_cell_by_offset(self, xOffset, yOffset):
-        return self.world.get_cell(self.x + xOffset, self.y + yOffset)
-        
-
-    def render(self):
-        priority = ['Player', 'OreDeposit']
-        for i in priority:
-            if self.contains_object_type(i)[0]:
-                for obj in self.contents:
-                    if obj.__class__.__name__ == i:
-                        return obj.icon
-        return '#'
-
+    """
+    def try_get_cell_by_offset(self, row_offset, col_offset):
+        return self.world.get_cell(self.row + row_offset, self.col + col_offset)
+    """

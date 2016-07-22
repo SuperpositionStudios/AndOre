@@ -1,52 +1,74 @@
 import uuid, random
 from cell import Cell
-import gameObject
+from player import Player
 
-#world is not really world, it's more Level
-class World:
+
+class World:  # World is not really world, it's more Level
+
     def __init__(self):
         self.rows = 31
         self.cols = 32
         self.world = []
-        """
-        row = []
-        for l in range(0, world_size['col']):
-            a = Cell()
-            row.append(a)
-        for l in range(0, world_size['row']):
-            self.world.append(row)"""
+        self.players = dict()
 
-        for i in range(self.rows):
+        for row in range(self.rows):
             current_row = []
-            x = i
-            for i in range(self.cols):
-                y = i
-                current_cell = Cell(self, x, y)
+            for col in range(self.cols):
+                current_cell = Cell(self, row, col)
                 current_row.append(current_cell)
             self.world.append(current_row)
 
-    def get_world(self):
+        self.respawn_cell = self.get_cell(0, 0)
+
+        assert(len(self.world) == self.rows)
+        assert(len(self.world[0]) == self.cols)
+
+    def new_player(self):
+        random_cell = self.get_random_cell()
+        max_tries = self.rows * self.cols
+        attempt = 1
+        while random_cell.can_enter() is False:
+            random_cell = self.get_random_cell()
+            attempt += 1
+            if attempt == max_tries:
+                return 'too many players'
+
+        player_id = str(uuid.uuid4())
+
+        new_player = Player(player_id, self, random_cell)
+        random_cell.add_game_object(new_player)
+        self.players[player_id] = new_player
+
+        return player_id
+
+    def get_world(self, **keyword_parameters):
+
         rendered_world = []
-        e_r = []
-        for l in range(0, self.cols):
-            e_r.append(" ")
 
-        for l in range(0, self.rows):
-            rendered_world.append(e_r)
+        if 'player_id' in keyword_parameters:
+            player_id = keyword_parameters['player_id']
 
-        for row in range(0, self.rows):
-            for col in range(0, self.cols):
-                rendered_world[row][col] = self.world[row][col].render()
+            for row in range(self.rows):
+                current_row = []
+                for col in range(self.cols):
+                    rendered = self.world[row][col].render(player_id=player_id)
+                    current_row.append(rendered)
+                rendered_world.append(current_row)
+        else:
+            for row in range(self.rows):
+                current_row = []
+                for col in range(self.cols):
+                    rendered = self.world[row][col].render()
+                    current_row.append(rendered)
+                rendered_world.append(current_row)
         return rendered_world
 
-    def get_cell(self, x, y):
-        if x < 0 or x >= self.cols:
-            return false
-        if y < 0 or y >= self.rows:
-            return false
-        return self.world[x][y]
+    def get_cell(self, row, col):
+        if row < 0 or row >= self.rows or col < 0 or col >= self.cols:
+            return False
+        return self.world[row][col]
 
     def get_random_cell(self):
-        x = random.randint(0, self.rows)
-        y = random.randint(0, self.cols)
-        return self.get_cell(x,y)
+        row = random.randint(0, self.rows - 1)  # randint is inclusive
+        col = random.randint(0, self.cols - 1)  # randint is inclusive
+        return self.get_cell(row, col)

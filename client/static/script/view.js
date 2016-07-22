@@ -3,7 +3,7 @@
 
 //called by app.js after id is populated, etc
 var contentId = "content";
-var pollDelay = 200;
+var pollDelay = 1000;
 var validKeys = {"w":true,"a":true,"s":true,"d":true};
 var view = {
   contentDiv: null,
@@ -25,14 +25,15 @@ var view = {
   Poll: function(){
     setTimeout(function() { 
       app.GetDisplay(view.Poll, pollDelay);
-    });
+    }, pollDelay);
   },
   SetupInput: function() {
     $("body").keydown(function(e){
-      console.log(e);
-      //if(validKeys[e.char]){
-        app.SendCommand(e.char);        
-      //}
+      command = String.fromCharCode(e.which).toLowerCase()
+      console.log(command);
+      if(validKeys[command]) {
+        app.SendCommand(command);
+      }
     });
 
   }
