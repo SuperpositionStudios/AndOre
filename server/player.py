@@ -151,7 +151,8 @@ class Player(gameObject.GameObject):
         response = {
             'ore_quantity': self.ore_quantity,
             'delta_ore': self.delta_ore,
-            'health': self.health
+            'health': self.health,
+            'world_age': self.world.world_age
         }
         return response
 
