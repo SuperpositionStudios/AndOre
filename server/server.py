@@ -105,6 +105,7 @@ def send_state(**keyword_parameters):
     response = dict()
     response['world'] = world.players[_id].world_state()
     response['id'] = _id
+    response['vitals'] = world.players[_id].get_vitals()
     return home_cor(jsonify(**response))
 
 

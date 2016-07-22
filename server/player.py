@@ -16,6 +16,7 @@ class Player(gameObject.GameObject):
         self.health = 100
         self.attack_power = 10
         self.ore_quantity = 0
+        self.delta_ore = self.ore_quantity  # The ore lost/gained in the last tick
         self.inner_icon = '@'
         self.icon = '!'
         self.row = self.cell.row
@@ -35,6 +36,7 @@ class Player(gameObject.GameObject):
                                                                                   next_action=self.next_action)
 
     def tick(self):
+        ore_before_tick = int(self.ore_quantity)
         # Movement
         if self.next_action == 'w':
             self.affect(-1, 0)
@@ -44,6 +46,7 @@ class Player(gameObject.GameObject):
             self.affect(0, -1)
         elif self.next_action == 'd':
             self.affect(0, 1)
+        self.delta_ore = int(self.ore_quantity - ore_before_tick)
 
     def affect(self, row_offset, col_offset):  # Horrible function name but I'll let Hal rename it
         affected_cell = self.try_get_cell_by_offset(row_offset, col_offset)
@@ -118,6 +121,14 @@ class Player(gameObject.GameObject):
         worldmap = self.world.get_world(player_id=self.id)
         worldmap.append(los)
         return worldmap
+
+    def get_vitals(self):
+        response = {
+            'ore_quantity': self.ore_quantity,
+            'delta_ore': self.delta_ore,
+            'health': self.health
+        }
+        return response
 
     def check_if_dead(self):
         if self.health <= 0:
