@@ -126,7 +126,6 @@ class Player(gameObject.GameObject):
 
     def try_move(self, _cell):
         if _cell is not None:
-            print(_cell)
             if _cell.can_enter():
                 self.change_cell(_cell)
                 return True
