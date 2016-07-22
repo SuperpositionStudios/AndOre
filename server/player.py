@@ -13,6 +13,8 @@ class Player(gameObject.GameObject):
         self.world = _world
         self.cell = _cell
         self.starting_health = 100
+        self.health_cap = 100
+        self.health_loss_per_turn = 1
         self.health = 100
         self.attack_power = 10
         self.ore_quantity = 0
@@ -47,6 +49,12 @@ class Player(gameObject.GameObject):
         elif self.next_action == 'd':
             self.affect(0, 1)
         self.delta_ore = int(self.ore_quantity - ore_before_tick)
+        self.next_action = ''
+        self.health_decay()
+
+    def health_decay(self):
+        self.health -= self.health_loss_per_turn
+        self.check_if_dead()
 
     def affect(self, row_offset, col_offset):  # Horrible function name but I'll let Hal rename it
         affected_cell = self.try_get_cell_by_offset(row_offset, col_offset)
@@ -56,6 +64,8 @@ class Player(gameObject.GameObject):
                 return True
             # Cannot move, something interactive must be in the way.
             elif self.try_mining(affected_cell):
+                return True
+            elif self.try_going_to_hospital(affected_cell):
                 return True
             # Since there's nothing to mine, the player must be trying to attack another player
             elif self.try_attacking(affected_cell):
@@ -100,6 +110,16 @@ class Player(gameObject.GameObject):
                 ore_deposit = _cell.get_game_object_by_obj_id(struct[1])
                 if ore_deposit[0]:
                     self.ore_quantity += ore_deposit[1].ore_per_turn
+                    return True
+        return False
+
+    def try_going_to_hospital(self, _cell):
+        if _cell is not None:
+            struct = _cell.contains_object_type('Hospital')
+            if struct[0]:
+                hospital = _cell.get_game_object_by_obj_id(struct[1])
+                if hospital[0]:
+                    self.health = min(self.health + hospital[1].health_regen_per_turn, self.health_cap)
                     return True
         return False
 

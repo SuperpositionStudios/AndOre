@@ -36,3 +36,14 @@ class OreDeposit(GameObject):
         self.passable = False
         self.blocking = True
         self.ore_per_turn = 3
+
+
+class Hospital(GameObject):
+
+    def __init__(self, _cell):
+        super().__init__(_cell)
+        self.icon = '+'
+        self.cell = _cell
+        self.passable = False
+        self.blocking = True
+        self.health_regen_per_turn = 5

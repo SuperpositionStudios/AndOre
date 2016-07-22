@@ -12,6 +12,7 @@ web_server_domain = "*"
 
 world = World()
 world.world[4][4].add_ore_deposit()
+world.world[8][8].add_hospital()
 
 
 def home_cor(obj):
@@ -111,6 +112,7 @@ def send_state(**keyword_parameters):
 
 @app.route('/tick')
 def run_ticks():
+    world.world_age += 1
     response = dict()
 
     for player_id in world.players:
