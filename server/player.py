@@ -58,7 +58,7 @@ class Player(gameObject.GameObject):
 
     def affect(self, row_offset, col_offset):  # Horrible function name but I'll let Hal rename it
         affected_cell = self.try_get_cell_by_offset(row_offset, col_offset)
-        if affected_cell is not None:
+        if affected_cell is not None and affected_cell is not False:
             # Movement
             if self.try_move(affected_cell):
                 return True
@@ -125,6 +125,7 @@ class Player(gameObject.GameObject):
 
     def try_move(self, _cell):
         if _cell is not None:
+            print(_cell)
             if _cell.can_enter():
                 self.change_cell(_cell)
                 return True
@@ -133,7 +134,11 @@ class Player(gameObject.GameObject):
         return False
 
     def try_get_cell_by_offset(self, row_offset, col_offset):
-        return self.world.get_cell(self.row + row_offset, self.col + col_offset)
+        fetched_cell = self.world.get_cell(self.row + row_offset, self.col + col_offset)
+        if fetched_cell is False or fetched_cell is None:
+            return False
+        else:
+            return fetched_cell
 
     def world_state(self):
         los = self.line_of_stats().ljust(self.world.rows)
