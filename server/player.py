@@ -28,14 +28,15 @@ class Player(gameObject.GameObject):
 
     def action(self, _dir):
         self.next_action = _dir
-        #self.tick()
+        # self.tick()
 
     def line_of_stats(self):
-        return 'hp {health} ore {ore} row {row} col {col} m {next_action}'.format(health=self.health,
-                                                                                  ore=self.ore_quantity,
-                                                                                  row=self.row,
-                                                                                  col=self.col,
-                                                                                  next_action=self.next_action)
+        return '[hp {health} ore {ore}] [{row} {col}] [{next_action}][{world_age}] '.format(health=self.health,
+                                                                                       ore=self.ore_quantity,
+                                                                                       row=self.row,
+                                                                                       col=self.col,
+                                                                                       next_action=self.next_action,
+                                                                                       world_age=self.world.world_age)
 
     def tick(self):
         ore_before_tick = int(self.ore_quantity)
