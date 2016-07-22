@@ -109,4 +109,15 @@ def send_state(**keyword_parameters):
     return home_cor(jsonify(**response))
 
 
+@app.route('/tick')
+def run_ticks():
+    response = dict()
+
+    for player_id in world.players:
+        world.players[player_id].tick()
+
+    response['status'] = 'ticking'
+    return home_cor(jsonify(**response))
+
+
 app.run(debug=True, host='0.0.0.0', port=7001, threaded=True)

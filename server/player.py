@@ -26,7 +26,7 @@ class Player(gameObject.GameObject):
 
     def action(self, _dir):
         self.next_action = _dir
-        self.tick()
+        #self.tick()
 
     def line_of_stats(self):
         return 'hp {health} ore {ore} row {row} col {col} m {next_action}'.format(health=self.health,
