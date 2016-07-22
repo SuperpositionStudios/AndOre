@@ -9,6 +9,7 @@ class World:  # World is not really world, it's more Level
         self.rows = 31
         self.cols = 32
         self.world = []
+        self.world_age = 1
         self.players = dict()
 
         for row in range(self.rows):

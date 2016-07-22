@@ -18,6 +18,10 @@ class Cell:
         a = gameObject.OreDeposit(self)
         self.contents.append(a)
 
+    def add_hospital(self):
+        a = gameObject.Hospital(self)
+        self.contents.append(a)
+
     def destroy(self):
         self.world = None
         self.contents = None
@@ -49,7 +53,7 @@ class Cell:
 
     def render(self, **keyword_parameters):
 
-        priority = ['Player', 'OreDeposit', 'EmptySpace']
+        priority = ['Player', 'OreDeposit', 'Hospital', 'EmptySpace']
 
         if 'player_id' in keyword_parameters:
             player_id = keyword_parameters['player_id']
