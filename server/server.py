@@ -4,7 +4,7 @@ from player import Player
 from cell import Cell
 from world import World
 from gameObject import GameObject, OreDeposit
-
+import datetime
 app = Flask(__name__)
 
 web_server_domain = "*"
@@ -49,12 +49,19 @@ def valid_id(_id):
         #print("####")
         return False
 
+
+def tick_server_if_needed():
+    now = datetime.datetime.now()
+    if (now - world.last_tick).microseconds >= world.microseconds_per_tick:
+        run_ticks()
+
 player_ids = []
 
 
 @app.route('/join')
 def join():
     assert(world)
+    tick_server_if_needed()
     response = dict()
 
     new_player_id = world.new_player()
@@ -73,6 +80,7 @@ def join():
 
 @app.route('/action')
 def action():
+    tick_server_if_needed()
     response = dict()
 
     _id = request.args.get('id', '')
@@ -91,7 +99,7 @@ def action():
 
 @app.route('/sendState')
 def send_state(**keyword_parameters):
-
+    tick_server_if_needed()
     response = dict()
 
     if '_id' in keyword_parameters:
@@ -120,6 +128,5 @@ def run_ticks():
 
     response['status'] = 'ticking'
     return home_cor(jsonify(**response))
-
 
 app.run(debug=True, host='0.0.0.0', port=7001, threaded=True)
