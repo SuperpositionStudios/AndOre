@@ -1,4 +1,4 @@
-import uuid, random
+import uuid, random, datetime
 from cell import Cell
 from player import Player
 
@@ -10,6 +10,8 @@ class World:  # World is not really world, it's more Level
         self.cols = 32
         self.world = []
         self.world_age = 1
+        self.last_tick = datetime.datetime.now()
+        self.microseconds_per_tick = 400000
         self.players = dict()
 
         for row in range(self.rows):
