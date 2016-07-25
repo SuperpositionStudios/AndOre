@@ -11,7 +11,7 @@ class World:  # World is not really world, it's more Level
         self.world = []
         self.world_age = 1
         self.last_tick = datetime.datetime.now()
-        self.microseconds_per_tick = 400000
+        self.microseconds_per_tick = 250000
         self.players = dict()
 
         for row in range(self.rows):
@@ -43,6 +43,34 @@ class World:  # World is not really world, it's more Level
         self.players[player_id] = new_player
 
         return player_id
+
+    def spawn_ore_deposits(self, num=1):
+        assert(num <= self.rows * self.cols)
+
+        for i in range(num):
+            random_cell = self.get_random_cell()
+            max_tries = self.rows * self.cols
+            attempt = 1
+            while random_cell.can_enter() is False:
+                random_cell = self.get_random_cell()
+                attempt += 1
+                if attempt == max_tries:
+                    return
+            random_cell.add_ore_deposit()
+
+    def spawn_hospitals(self, num=1):
+        assert (num <= self.rows * self.cols)
+
+        for i in range(num):
+            random_cell = self.get_random_cell()
+            max_tries = self.rows * self.cols
+            attempt = 1
+            while random_cell.can_enter() is False:
+                random_cell = self.get_random_cell()
+                attempt += 1
+                if attempt == max_tries:
+                    return
+            random_cell.add_hospital()
 
     def get_world(self, **keyword_parameters):
 

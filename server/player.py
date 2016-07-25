@@ -14,7 +14,7 @@ class Player(gameObject.GameObject):
         self.cell = _cell
         self.starting_health = 100
         self.health_cap = 100
-        self.health_loss_per_turn = 1
+        self.health_loss_per_turn = 0.1
         self.health = 100
         self.attack_power = 10
         self.ore_quantity = 0
@@ -31,7 +31,7 @@ class Player(gameObject.GameObject):
         # self.tick()
 
     def line_of_stats(self):
-        return '[hp {health} ore {ore}] [{row} {col}] [{next_action}][{world_age}] '.format(health=self.health,
+        return '[hp {health} ore {ore}] [{row} {col}] [{next_action}][{world_age}] '.format(health=int(self.health),
                                                                                        ore=self.ore_quantity,
                                                                                        row=self.row,
                                                                                        col=self.col,
