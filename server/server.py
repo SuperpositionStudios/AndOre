@@ -94,8 +94,9 @@ def action():
     world.players[_id].action(_act)
 
     _sendState = request.args.get('sendState', 'false')
+
     if _sendState == 'true':
-        response['world'] = world.players[_id].world_state()
+        return send_state(_id=_id)
     return home_cor(jsonify(**response))
 
 
