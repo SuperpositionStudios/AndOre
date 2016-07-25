@@ -3,7 +3,7 @@
 
 //called by app.js after id is populated, etc
 var contentId = "content";
-var pollDelay = 1000;
+var pollDelay = 350;
 var validKeys = {"w":true,"a":true,"s":true,"d":true};
 var view = {
   contentDiv: null,

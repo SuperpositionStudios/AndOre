@@ -5,16 +5,35 @@ from cell import Cell
 from world import World
 from gameObject import GameObject, OreDeposit
 import datetime
+import os
+import sys
+import psutil
+import logging
+
 app = Flask(__name__)
 
 web_server_domain = "*"
 
 
 world = World()
-#world.world[4][4].add_ore_deposit()
 world.spawn_ore_deposits(20)
 world.spawn_hospitals(20)
-#world.world[8][8].add_hospital()
+
+
+def restart_program():
+    """Restarts the current program, with file objects and descriptors
+       cleanup
+    """
+
+    try:
+        p = psutil.Process(os.getpid())
+        for handler in p.get_open_files() + p.connections():
+            os.close(handler.fd)
+    except Exception as e:
+        logging.error(e)
+
+    python = sys.executable
+    os.execl(python, python, *sys.argv)
 
 
 def home_cor(obj):
@@ -131,5 +150,11 @@ def run_ticks():
 
     response['status'] = 'ticking'
     return home_cor(jsonify(**response))
+
+
+@app.route('/restart')
+def restart_route():
+    restart_program()
+    return "Restarted but since this restarted you won't be seeing this"
 
 app.run(debug=True, host='0.0.0.0', port=7001, threaded=True)
