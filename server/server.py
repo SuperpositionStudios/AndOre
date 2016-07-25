@@ -16,10 +16,8 @@ web_server_domain = "*"
 
 
 world = World()
-#world.world[4][4].add_ore_deposit()
 world.spawn_ore_deposits(20)
 world.spawn_hospitals(20)
-#world.world[8][8].add_hospital()
 
 
 def restart_program():
