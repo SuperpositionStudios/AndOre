@@ -13,7 +13,7 @@ class World:  # World is not really world, it's more Level
         self.world_age_when_world_was_rendered = 0
         self.world_age = 1
         self.last_tick = datetime.datetime.now()
-        self.microseconds_per_tick = 250000
+        self.microseconds_per_tick = 350000
         self.players = dict()
 
         for row in range(self.rows):
@@ -92,9 +92,10 @@ class World:  # World is not really world, it's more Level
             assert(self.world_age_when_world_was_rendered != self.world_age)
             self.cache_world()
         assert(self.world_age_when_world_was_rendered == self.world_age)
-        temp_world = list(self.rendered_world)
         assert(len(self.rendered_world) == 31, "Age: {} Len: {} Full: {}".format(self.world_age, len(self.rendered_world), self.rendered_world))
+        temp_world = list(self.rendered_world)
         assert(len(temp_world) == 31)
+        assert(id(temp_world) != id(self.rendered_world))
         if 'player_id' in keyword_parameters:
             player_id = keyword_parameters['player_id']
             _player = self.players[player_id]
