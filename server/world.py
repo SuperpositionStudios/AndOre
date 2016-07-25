@@ -9,6 +9,8 @@ class World:  # World is not really world, it's more Level
         self.rows = 31
         self.cols = 32
         self.world = []
+        self.rendered_world = []
+        self.world_age_when_world_was_rendered = 0
         self.world_age = 1
         self.last_tick = datetime.datetime.now()
         self.microseconds_per_tick = 250000
@@ -25,6 +27,18 @@ class World:  # World is not really world, it's more Level
 
         assert(len(self.world) == self.rows)
         assert(len(self.world[0]) == self.cols)
+
+    def cache_world(self):
+        rendered_world = []
+        for row in range(self.rows):
+            current_row = []
+            for col in range(self.cols):
+                rendered = self.world[row][col].render()
+                current_row.append(rendered)
+            rendered_world.append(current_row)
+        assert(len(rendered_world) == 31, "Age: {} Len: {} Full: {}".format(self.world_age, len(rendered_world), rendered_world))
+        self.rendered_world = rendered_world
+        self.world_age_when_world_was_rendered = int(self.world_age)
 
     def new_player(self):
         random_cell = self.get_random_cell()
@@ -74,25 +88,21 @@ class World:  # World is not really world, it's more Level
 
     def get_world(self, **keyword_parameters):
 
-        rendered_world = []
-
+        if self.world_age_when_world_was_rendered != self.world_age:
+            assert(self.world_age_when_world_was_rendered != self.world_age)
+            self.cache_world()
+        assert(self.world_age_when_world_was_rendered == self.world_age)
+        temp_world = list(self.rendered_world)
+        assert(len(self.rendered_world) == 31, "Age: {} Len: {} Full: {}".format(self.world_age, len(self.rendered_world), self.rendered_world))
+        assert(len(temp_world) == 31)
         if 'player_id' in keyword_parameters:
             player_id = keyword_parameters['player_id']
-
-            for row in range(self.rows):
-                current_row = []
-                for col in range(self.cols):
-                    rendered = self.world[row][col].render(player_id=player_id)
-                    current_row.append(rendered)
-                rendered_world.append(current_row)
-        else:
-            for row in range(self.rows):
-                current_row = []
-                for col in range(self.cols):
-                    rendered = self.world[row][col].render()
-                    current_row.append(rendered)
-                rendered_world.append(current_row)
-        return rendered_world
+            _player = self.players[player_id]
+            player_row = _player.row
+            player_col = _player.col
+            temp_world[player_row][player_col] = _player.inner_icon
+        assert(len(temp_world) == 31)
+        return temp_world
 
     def get_cell(self, row, col):
         if row < 0 or row >= self.rows or col < 0 or col >= self.cols:
