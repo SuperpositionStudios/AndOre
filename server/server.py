@@ -43,23 +43,6 @@ def home_cor(obj):
     return return_response
 
 
-def move_in_bounds(pos, axis):
-    if axis == 'col':
-        if pos < 0:
-            return 0
-        elif pos > world.cols:
-            return world.cols
-        else:
-            return pos
-    elif axis == 'row':
-        if pos < 0:
-            return 0
-        elif pos > world.rows:
-            return world.rows
-        else:
-            return pos
-
-
 def valid_id(_id):
     if _id in player_ids:
         return True
