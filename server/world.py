@@ -1,6 +1,7 @@
 import uuid, random, datetime
 from cell import Cell
 from player import Player
+import helper_functions
 
 
 class World:  # World is not really world, it's more Level
@@ -91,17 +92,22 @@ class World:  # World is not really world, it's more Level
         if self.world_age_when_world_was_rendered != self.world_age:
             assert(self.world_age_when_world_was_rendered != self.world_age)
             self.cache_world()
+
         assert(self.world_age_when_world_was_rendered == self.world_age)
         assert(len(self.rendered_world) == 31, "Age: {} Len: {} Full: {}".format(self.world_age, len(self.rendered_world), self.rendered_world))
+        try:
+            assert(helper_functions.flatten_2d_list(self.rendered_world).count('@') == 0)
+        except AssertionError as e:
+            print("Had to render the world against due to pointer issues")
+            self.cache_world()
+
         temp_world = list(self.rendered_world)
         assert(len(temp_world) == 31)
         assert(id(temp_world) != id(self.rendered_world))
         if 'player_id' in keyword_parameters:
             player_id = keyword_parameters['player_id']
             _player = self.players[player_id]
-            player_row = _player.row
-            player_col = _player.col
-            temp_world[player_row][player_col] = _player.inner_icon
+            temp_world[_player.row][_player.col] = _player.inner_icon  # Duplicate '@' problem happens here
         assert(len(temp_world) == 31)
         return temp_world
 
