@@ -1,13 +1,19 @@
 //load view.js before running this
-//var apiUrl = "http://wow.iwanttorule.space:7001";
-var apiUrl = "http://localhost:7001";
+var apiUrl = "http://andore.iwanttorule.space:7001";
+//also uses rl.js
+
+//var apiUrl = "http://localhost:7001";
 
 var internetOff = false;
 
 var app = {
+  hasActed: false,
   userId: null,
-
-
+  env: {},
+  tick: 0,
+  actions: ["w", "a", "s", "d"],
+  lastAction: "a",
+  lastAge: 0,
   Init: function() {
   	app.GetUserId(function(){
   		view.SetupView(app.GetDisplay);
@@ -16,8 +22,10 @@ var app = {
 
 
   GetUserId:function(callback) {
+    var self = this;
     AjaxCall("/join", {sendState: false}, function(data) {
       userId = data.id;
+      self.StartAi();
       CallCallback(callback);
     });
   },
@@ -28,10 +36,52 @@ var app = {
   	});
   },
   SendCommand: function(command){
-  	AjaxCall("/action", {id: userId, action: command, sendState:true}, function(data){ 
+    AjaxCall("/action", {id: userId, action: command, sendState:true}, function(data){ 
       view.Draw(data.world);
-  	});
-  }
+    });
+  },
+
+  StartAi: function(){
+    var self = this;
+    this.env.getNumStates = function() { return 1024; }
+    this.env.getMaxNumActions = function() { return self.actions.length; }
+
+    var spec = { alpha: 0.1 };
+    this.agent = new RL.DQNAgent(self.env, spec);  
+    this.AiTick(); 
+  },
+  AiTick: function(){
+    var self = this;
+    var repeat;
+    var command = this.lastAction;
+    repeat = function() {
+      AjaxCall("/action", {id: userId, action: command, sendState:true}, function(data){ 
+        var worldAge = data.vitals.world_age;
+        if (worldAge > self.lastAge) {
+          view.Draw(data.world);
+          self.UpdateAi(data, repeat);
+        } else {
+          view.Draw(data.world);
+          setTimeout(repeat, 500);
+        }
+      });
+    }
+    repeat();
+  },
+  UpdateAi: function(data, callback){
+    var env = this.env;
+    this.lastAge = data.vitals.world_age;
+    var states = FlattenWorld(data.world);
+    reward = 0.5 + data.vitals.delta_ore * 1;
+    if(this.hasActed){  
+      this.agent.learn(reward);      
+    }
+    var action = this.agent.act(this.actions);
+    console.log(action);
+    this.hasActed = true;
+    this.lastAction = this.actions[action];
+    setTimeout(callback, 500);
+  } 
 }
 
 function CallCallback (callback){
@@ -41,6 +91,23 @@ function CallCallback (callback){
 }
 
 
+function FlattenWorld(world){
+  var state = [];
+  for (var i in world){
+    var line = world[i];
+    for (var key in line){
+      state.push(line[key].charCodeAt(0));
+    }    
+  }
+  while( state.length < 1024){
+    state.push(" ");
+  }
+  while( state.length > 1024){
+    state.pop();
+  }
+  return state;
+
+}
 function AjaxCall(endpoint, data, callback){
   if(internetOff){
     callback(testData);    
@@ -52,11 +119,11 @@ function AjaxCall(endpoint, data, callback){
     data: data,
   });
   ajax.done(function(data) {
-    console.log("from " + apiUrl + endpoint + " returned: " + data);
+    //console.log("from " + apiUrl + endpoint + " returned: " + data);
     callback(data);
   });
   ajax.fail(function(req, status, error){
-    console.log("bad req to " + apiUrl + endpoint + ":  " + status + " | " + error);
+    //console.log("bad req to " + apiUrl + endpoint + ":  " + status + " | " + error);
   });
 }
 

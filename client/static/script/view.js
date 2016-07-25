@@ -10,7 +10,7 @@ var view = {
   SetupView : function(callback) {
     view.contentDiv = $(DivNameToId(contentId));
     view.SetupInput();
-    view.Poll();
+    //view.Poll();
     CallCallback(callback);
   },
   Draw: function(world){
@@ -19,7 +19,7 @@ var view = {
       var row = world[rowKey];
       out += row.join("") + "\n";
     }
-    console.log(out);
+    //console.log(out);
     view.contentDiv.html(out);
   },
   Poll: function(){
@@ -30,7 +30,7 @@ var view = {
   SetupInput: function() {
     $("body").keydown(function(e){
       command = String.fromCharCode(e.which).toLowerCase()
-      console.log(command);
+      //console.log(command);
       if(validKeys[command]) {
         app.SendCommand(command);
       }
