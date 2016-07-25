@@ -1,6 +1,7 @@
 import uuid, random, datetime
 from cell import Cell
 from player import Player
+import helper_functions
 
 
 class World:  # World is not really world, it's more Level
@@ -91,8 +92,10 @@ class World:  # World is not really world, it's more Level
         if self.world_age_when_world_was_rendered != self.world_age:
             assert(self.world_age_when_world_was_rendered != self.world_age)
             self.cache_world()
+
         assert(self.world_age_when_world_was_rendered == self.world_age)
         assert(len(self.rendered_world) == 31, "Age: {} Len: {} Full: {}".format(self.world_age, len(self.rendered_world), self.rendered_world))
+        assert(helper_functions.flatten_2d_list(self.rendered_world).count('@') == 0)
         temp_world = list(self.rendered_world)
         assert(len(temp_world) == 31)
         assert(id(temp_world) != id(self.rendered_world))
