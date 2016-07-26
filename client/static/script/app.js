@@ -1,6 +1,6 @@
 //load view.js before running this
 var apiUrl = "http://andore.iwanttorule.space:7001";
-//also uses rl.js
+//also uses rl.js -- http://cs.stanford.edu/people/karpathy/reinforcejs/
 
 //var apiUrl = "http://localhost:7001";
 
