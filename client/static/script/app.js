@@ -7,12 +7,16 @@ var apiUrl = "http://andore.iwanttorule.space:7001";
 var internetOff = false;
 
 var app = {
+  delay: 20,
   hasActed: false,
   userId: null,
   env: {},
   tick: 0,
-  actions: ["w", "a", "s", "d"],
+  newAction: false,
+  keys: ["a", "w", "s", "d"],
+  actions: [0, 1, 2, 3],
   lastAction: "a",
+  lastHealth: 100,
   lastAge: 0,
   Init: function() {
   	app.GetUserId(function(){
@@ -45,16 +49,21 @@ var app = {
     var self = this;
     this.env.getNumStates = function() { return 1024; }
     this.env.getMaxNumActions = function() { return self.actions.length; }
+    this.env.allowedActions = function() { return self.actions; }
 
-    var spec = { alpha: 0.1 };
+    var oldBrain = localStorage.getItem("aiModel");
+    var spec = { alpha: 0.01 };
     this.agent = new RL.DQNAgent(self.env, spec);  
+    if(oldBrain != null){
+      this.agent.fromJSON(JSON.parse(oldBrain));
+    }
     this.AiTick(); 
   },
   AiTick: function(){
     var self = this;
     var repeat;
-    var command = this.lastAction;
     repeat = function() {
+      var command = self.keys[self.lastAction];
       AjaxCall("/action", {id: userId, action: command, sendState:true}, function(data){ 
         var worldAge = data.vitals.world_age;
         if (worldAge > self.lastAge) {
@@ -62,9 +71,9 @@ var app = {
           self.UpdateAi(data, repeat);
         } else {
           view.Draw(data.world);
-          setTimeout(repeat, 500);
+          setTimeout(repeat, self.delay);
         }
-      });
+      }, repeat);
     }
     repeat();
   },
@@ -72,15 +81,31 @@ var app = {
     var env = this.env;
     this.lastAge = data.vitals.world_age;
     var states = FlattenWorld(data.world);
-    reward = 0.5 + data.vitals.delta_ore * 1;
+    var deltaHealth = data.vitals.health - this.lastHealth;
+    var reward = data.vitals.delta_ore; //(0.1 + data.vitals.delta_ore * 2 + deltaHealth * 1) / 3;
+    this.lastHealth = data.vitals.health;
+
+    if(this.newAction){
+      reward += 0.2;
+    }
+    if(this.lastHealth < 10) {
+      //reward = -2;
+    }
     if(this.hasActed){  
       this.agent.learn(reward);      
     }
     var action = this.agent.act(this.actions);
-    console.log(action);
+    if(this.lastAction != action){
+      this.newAction = true;
+    } else {
+
+      this.newAction = false;
+    }
     this.hasActed = true;
-    this.lastAction = this.actions[action];
-    setTimeout(callback, 500);
+    this.lastAction = action;
+    console.log(this.agent.toJSON());
+    localStorage.setItem("aiModel",JSON.stringify(this.agent.toJSON()));
+    setTimeout(callback, self.delay);
   } 
 }
 
@@ -108,7 +133,7 @@ function FlattenWorld(world){
   return state;
 
 }
-function AjaxCall(endpoint, data, callback){
+function AjaxCall(endpoint, data, callback, failCallback){
   if(internetOff){
     callback(testData);    
   }
@@ -124,6 +149,10 @@ function AjaxCall(endpoint, data, callback){
   });
   ajax.fail(function(req, status, error){
     //console.log("bad req to " + apiUrl + endpoint + ":  " + status + " | " + error);
+    if(failCallback != null){
+
+      failCallback();      
+    }
   });
 }
 
