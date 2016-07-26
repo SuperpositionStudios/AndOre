@@ -18,6 +18,10 @@ class Cell:
         a = gameObject.OreDeposit(self)
         self.contents.append(a)
 
+    def add_hospital(self):
+        a = gameObject.Hospital(self)
+        self.contents.append(a)
+
     def destroy(self):
         self.world = None
         self.contents = None
@@ -49,7 +53,7 @@ class Cell:
 
     def render(self, **keyword_parameters):
 
-        priority = ['Player', 'OreDeposit', 'EmptySpace']
+        priority = ['Player', 'OreDeposit', 'Hospital', 'EmptySpace']
 
         if 'player_id' in keyword_parameters:
             player_id = keyword_parameters['player_id']
@@ -62,14 +66,14 @@ class Cell:
                                 return obj.inner_icon
                             else:
                                 return obj.icon
-            return '#'  # Returns Empty Space
+            return '.'  # Returns Empty Space
         else:
             for i in priority:
                 if self.contains_object_type(i)[0]:
                     for obj in self.contents:
                         if obj.__class__.__name__ == i:
                             return obj.icon
-            return '#'  # Returns Empty Space
+            return '.'  # Returns Empty Space
 
     def can_enter(self):
         for obj in self.contents:

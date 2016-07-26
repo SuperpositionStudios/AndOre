@@ -4,6 +4,11 @@ from player import Player
 from cell import Cell
 from world import World
 from gameObject import GameObject, OreDeposit
+import datetime
+import os
+import sys
+import psutil
+import logging
 
 app = Flask(__name__)
 
@@ -11,7 +16,24 @@ web_server_domain = "*"
 
 
 world = World()
-world.world[4][4].add_ore_deposit()
+world.spawn_ore_deposits(20)
+world.spawn_hospitals(20)
+
+
+def restart_program():
+    """Restarts the current program, with file objects and descriptors
+       cleanup
+    """
+
+    try:
+        p = psutil.Process(os.getpid())
+        for handler in p.get_open_files() + p.connections():
+            os.close(handler.fd)
+    except Exception as e:
+        logging.error(e)
+
+    python = sys.executable
+    os.execl(python, python, *sys.argv)
 
 
 def home_cor(obj):
@@ -19,23 +41,6 @@ def home_cor(obj):
     return_response.headers['Access-Control-Allow-Origin'] = web_server_domain
     return_response.headers['Access-Control-Allow-Headers'] = "Content-Type, Access-Control-Allow-Origin"
     return return_response
-
-
-def move_in_bounds(pos, axis):
-    if axis == 'col':
-        if pos < 0:
-            return 0
-        elif pos > world.cols:
-            return world.cols
-        else:
-            return pos
-    elif axis == 'row':
-        if pos < 0:
-            return 0
-        elif pos > world.rows:
-            return world.rows
-        else:
-            return pos
 
 
 def valid_id(_id):
@@ -48,12 +53,21 @@ def valid_id(_id):
         #print("####")
         return False
 
+
+def tick_server_if_needed():
+    now = datetime.datetime.now()
+    if (now - world.last_tick).microseconds >= world.microseconds_per_tick:
+        #run_ticks()
+        world.tick()
+
+
 player_ids = []
 
 
 @app.route('/join')
 def join():
     assert(world)
+    tick_server_if_needed()
     response = dict()
 
     new_player_id = world.new_player()
@@ -72,6 +86,7 @@ def join():
 
 @app.route('/action')
 def action():
+    tick_server_if_needed()
     response = dict()
 
     _id = request.args.get('id', '')
@@ -83,14 +98,15 @@ def action():
     world.players[_id].action(_act)
 
     _sendState = request.args.get('sendState', 'false')
+
     if _sendState == 'true':
-        response['world'] = world.players[_id].world_state()
+        return send_state(_id=_id)
     return home_cor(jsonify(**response))
 
 
 @app.route('/sendState')
 def send_state(**keyword_parameters):
-
+    tick_server_if_needed()
     response = dict()
 
     if '_id' in keyword_parameters:
@@ -108,5 +124,22 @@ def send_state(**keyword_parameters):
     response['vitals'] = world.players[_id].get_vitals()
     return home_cor(jsonify(**response))
 
+
+@app.route('/tick')
+def run_ticks():
+    world.world_age += 1
+    response = dict()
+
+    for player_id in world.players:
+        world.players[player_id].tick()
+
+    response['status'] = 'ticking'
+    return home_cor(jsonify(**response))
+
+
+@app.route('/restart')
+def restart_route():
+    restart_program()
+    return "Restarted but since this restarted you won't be seeing this"
 
 app.run(debug=True, host='0.0.0.0', port=7001, threaded=True)

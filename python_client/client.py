@@ -1,6 +1,7 @@
 import urllib.request, cgi, json, urllib.parse
 
-server_address = "http://localhost:7001"
+#server_address = "http://localhost:7001"
+server_address = "http://andore.iwanttorule.space:7001"
 
 
 class Player:
@@ -52,3 +53,6 @@ class Player:
 
 player = Player()
 player.action('w')
+player.action('a')
+player.action('s')
+player.action('d')

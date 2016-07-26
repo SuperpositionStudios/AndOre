@@ -13,6 +13,8 @@ class Player(gameObject.GameObject):
         self.world = _world
         self.cell = _cell
         self.starting_health = 100
+        self.health_cap = 100
+        self.health_loss_per_turn = 0.1
         self.health = 100
         self.attack_power = 10
         self.ore_quantity = 0
@@ -23,17 +25,20 @@ class Player(gameObject.GameObject):
         self.col = self.cell.col
         self.next_action = ''
         self.passable = False
+        self.last_action_at_world_age = 0
 
     def action(self, _dir):
         self.next_action = _dir
-        self.tick()
+        if self.last_action_at_world_age < self.world.world_age:
+            self.tick()
 
     def line_of_stats(self):
-        return 'hp {health} ore {ore} row {row} col {col} m {next_action}'.format(health=self.health,
-                                                                                  ore=self.ore_quantity,
-                                                                                  row=self.row,
-                                                                                  col=self.col,
-                                                                                  next_action=self.next_action)
+        return '[hp {health} ore {ore}] [{row} {col}] [{next_action}][{world_age}] '.format(health=int(self.health),
+                                                                                       ore=self.ore_quantity,
+                                                                                       row=self.row,
+                                                                                       col=self.col,
+                                                                                       next_action=self.next_action,
+                                                                                       world_age=self.world.world_age)
 
     def tick(self):
         ore_before_tick = int(self.ore_quantity)
@@ -47,15 +52,23 @@ class Player(gameObject.GameObject):
         elif self.next_action == 'd':
             self.affect(0, 1)
         self.delta_ore = int(self.ore_quantity - ore_before_tick)
+        self.next_action = ''
+        self.health_decay()
+
+    def health_decay(self):
+        self.health -= self.health_loss_per_turn
+        self.check_if_dead()
 
     def affect(self, row_offset, col_offset):  # Horrible function name but I'll let Hal rename it
         affected_cell = self.try_get_cell_by_offset(row_offset, col_offset)
-        if affected_cell is not None:
+        if affected_cell is not None and affected_cell is not False:
             # Movement
             if self.try_move(affected_cell):
                 return True
             # Cannot move, something interactive must be in the way.
             elif self.try_mining(affected_cell):
+                return True
+            elif self.try_going_to_hospital(affected_cell):
                 return True
             # Since there's nothing to mine, the player must be trying to attack another player
             elif self.try_attacking(affected_cell):
@@ -103,6 +116,16 @@ class Player(gameObject.GameObject):
                     return True
         return False
 
+    def try_going_to_hospital(self, _cell):
+        if _cell is not None:
+            struct = _cell.contains_object_type('Hospital')
+            if struct[0]:
+                hospital = _cell.get_game_object_by_obj_id(struct[1])
+                if hospital[0]:
+                    self.health = min(self.health + hospital[1].health_regen_per_turn, self.health_cap)
+                    return True
+        return False
+
     def try_move(self, _cell):
         if _cell is not None:
             if _cell.can_enter():
@@ -113,7 +136,11 @@ class Player(gameObject.GameObject):
         return False
 
     def try_get_cell_by_offset(self, row_offset, col_offset):
-        return self.world.get_cell(self.row + row_offset, self.col + col_offset)
+        fetched_cell = self.world.get_cell(self.row + row_offset, self.col + col_offset)
+        if fetched_cell is False or fetched_cell is None:
+            return False
+        else:
+            return fetched_cell
 
     def world_state(self):
         los = self.line_of_stats().ljust(self.world.rows)
@@ -126,7 +153,8 @@ class Player(gameObject.GameObject):
         response = {
             'ore_quantity': self.ore_quantity,
             'delta_ore': self.delta_ore,
-            'health': self.health
+            'health': self.health,
+            'world_age': self.world.world_age
         }
         return response
 
