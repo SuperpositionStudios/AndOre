@@ -25,10 +25,12 @@ class Player(gameObject.GameObject):
         self.col = self.cell.col
         self.next_action = ''
         self.passable = False
+        self.last_action_at_world_age = 0
 
     def action(self, _dir):
         self.next_action = _dir
-        # self.tick()
+        if self.last_action_at_world_age < self.world.world_age:
+            self.tick()
 
     def line_of_stats(self):
         return '[hp {health} ore {ore}] [{row} {col}] [{next_action}][{world_age}] '.format(health=int(self.health),

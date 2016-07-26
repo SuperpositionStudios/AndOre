@@ -29,6 +29,9 @@ class World:  # World is not really world, it's more Level
         assert(len(self.world) == self.rows)
         assert(len(self.world[0]) == self.cols)
 
+    def tick(self):
+        self.world_age += 1
+
     def cache_world(self):
         rendered_world = []
         for row in range(self.rows):
