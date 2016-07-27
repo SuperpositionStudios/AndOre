@@ -62,6 +62,7 @@ class Player(gameObject.GameObject):
             self.died()
 
     def affect(self, row_offset, col_offset):  # Horrible function name but I'll let Hal rename it
+#it's not the worst thing in the world, just not clear what it's returning from the function name
         affected_cell = self.try_get_cell_by_offset(row_offset, col_offset)
         if affected_cell is not None and affected_cell is not False:
             # Movement
@@ -197,4 +198,4 @@ class Player(gameObject.GameObject):
             self.go_to_respawn_location()
 
     def go_to_respawn_location(self):
-        self.change_cell(self.world.respawn_cell)
+        self.change_cell(self.world.get_random_cell())
