@@ -122,8 +122,12 @@ class Player(gameObject.GameObject):
             if struct[0]:
                 hospital = _cell.get_game_object_by_obj_id(struct[1])
                 if hospital[0]:
-                    self.health = min(self.health + hospital[1].health_regen_per_turn, self.health_cap)
-                    return True
+                    assert(hospital[1].__class__.__name__ == 'Hospital')
+                    if self.ore_quantity >= 10:
+                        self.health = min(self.health + hospital[1].health_regen_per_turn, self.health_cap)
+                        self.ore_quantity -= hospital[1].ore_usage_cost
+                        return True
+                    return False
         return False
 
     def try_move(self, _cell):
