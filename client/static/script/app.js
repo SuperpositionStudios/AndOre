@@ -1,8 +1,8 @@
 //load view.js before running this
-var apiUrl = "http://andore.iwanttorule.space:7001";
+//var apiUrl = "http://andore.iwanttorule.space:7001";
 //also uses rl.js -- http://cs.stanford.edu/people/karpathy/reinforcejs/
 
-//var apiUrl = "http://localhost:7001";
+var apiUrl = "http://localhost:7001";
 
 var internetOff = false;
 
@@ -10,6 +10,7 @@ var app = {
   delay: 20,
   hasActed: false,
   userId: null,
+  startAiKey: '~',
   env: {},
   tick: 0,
   newAction: false,
@@ -29,7 +30,11 @@ var app = {
     var self = this;
     AjaxCall("/join", {sendState: false}, function(data) {
       userId = data.id;
-      self.StartAi();
+      $("body").keypress(function(e) {
+        if (String.fromCharCode(e.which) == self.startAiKey) {
+            self.StartAi();
+        }
+      });
       CallCallback(callback);
     });
   },
