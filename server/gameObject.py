@@ -47,3 +47,4 @@ class Hospital(GameObject):
         self.passable = False
         self.blocking = True
         self.health_regen_per_turn = 5
+        self.ore_usage_cost = 10
