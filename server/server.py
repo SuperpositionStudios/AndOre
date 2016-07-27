@@ -9,6 +9,7 @@ import os
 import sys
 import psutil
 import logging
+import warnings
 
 app = Flask(__name__)
 
@@ -44,6 +45,7 @@ def home_cor(obj):
 
 
 def valid_id(_id):
+    warnings.warn("Switch over to valid_player_id in World", DeprecationWarning)  #
     if _id in player_ids:
         return True
     else:
