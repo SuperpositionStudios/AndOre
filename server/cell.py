@@ -1,5 +1,6 @@
 import uuid, random
 import gameObject
+import warnings
 
 
 class Cell:
@@ -20,7 +21,7 @@ class Cell:
 
     def add_hospital(self):
         a = gameObject.Hospital(self)
-        self.contents.append(a)
+        self.add_game_object(a)
 
     def destroy(self):
         self.world = None
@@ -29,6 +30,7 @@ class Cell:
             obj.leave_cell(self)
 
     def add_object(self, obj):
+        warnings.warn("Use add_game_object instead", DeprecationWarning)  #
         if obj.cell != self:
             obj.cell = self
 
@@ -36,8 +38,10 @@ class Cell:
 
     def remove_object(self, object_id):
         for i in range(0, len(self.contents)):
+            #print("{} out of {}".format(i, len(self.contents)))
             if self.contents[i].obj_id == object_id:
                 del self.contents[i]
+                return
 
     def contains_object_type(self, obj_type_name):
         for obj in self.contents:
@@ -53,7 +57,7 @@ class Cell:
 
     def render(self, **keyword_parameters):
 
-        priority = ['Player', 'OreDeposit', 'Hospital', 'EmptySpace']
+        priority = ['Player', 'OreDeposit', 'Hospital', 'Loot', 'EmptySpace']
 
         if 'player_id' in keyword_parameters:
             player_id = keyword_parameters['player_id']

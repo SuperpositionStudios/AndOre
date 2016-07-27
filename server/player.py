@@ -58,13 +58,16 @@ class Player(gameObject.GameObject):
 
     def health_decay(self):
         self.health -= self.health_loss_per_turn
-        self.check_if_dead()
+        if self.check_if_dead():
+            self.died()
 
     def affect(self, row_offset, col_offset):  # Horrible function name but I'll let Hal rename it
         affected_cell = self.try_get_cell_by_offset(row_offset, col_offset)
         if affected_cell is not None and affected_cell is not False:
             # Movement
             if self.try_move(affected_cell):
+                return True
+            elif self.try_looting(affected_cell):
                 return True
             # Cannot move, something interactive must be in the way.
             elif self.try_mining(affected_cell):
@@ -79,33 +82,16 @@ class Player(gameObject.GameObject):
         else:
             return False
 
-    def try_attacking(self, _cell):
+    def try_looting(self, _cell):
         if _cell is not None:
-            struct = _cell.contains_object_type('Player')
+            struct = _cell.contains_object_type('Loot')
             if struct[0]:
-                other_player = _cell.get_game_object_by_obj_id(struct[1])
-                if other_player[0]:
-                    struct = other_player[1].take_damage(self.attack_power)
-                    if struct[0]:  # Means we killed the other player
-                        self.add_ore(struct[1])
-                        return True
+                loot_object = _cell.get_game_object_by_obj_id(struct[1])
+                if loot_object[0]:
+                    self.ore_quantity += loot_object[1].ore_quantity
+                    loot_object[1].delete()
+                    return True
         return False
-
-    def add_ore(self, amount):
-        self.ore_quantity += amount
-        return True
-
-    def reset_ore(self):
-        old_ore = int(self.ore_quantity)
-        self.ore_quantity = 0
-        return old_ore
-
-    def take_damage(self, damage):
-        self.health -= damage
-        if self.check_if_dead():
-            return True, self.reset_ore()
-        else:
-            return False, 0
 
     def try_mining(self, _cell):
         if _cell is not None:
@@ -116,6 +102,41 @@ class Player(gameObject.GameObject):
                     self.ore_quantity += ore_deposit[1].ore_per_turn
                     return True
         return False
+
+    def try_attacking(self, _cell):
+        if _cell is not None:
+            struct = _cell.contains_object_type('Player')
+            if struct[0]:
+                other_player = _cell.get_game_object_by_obj_id(struct[1])
+                if other_player[0]:
+                    other_player[1].take_damage(self.attack_power)
+                    #struct = other_player[1].take_damage(self.attack_power)
+                    """
+                    if struct[0]:  # Means we killed the other player
+                        self.add_ore(struct[1])
+                        return True
+                    """
+        return False
+
+    def add_ore(self, amount):
+        self.ore_quantity += amount
+        return True
+
+    def reset_ore(self):
+        old_ore = int(self.ore_quantity)
+        self.drop_ore()
+        return old_ore
+
+    def drop_ore(self):
+        loot_object = gameObject.Loot(self.cell)
+        loot_object.ore_quantity = int(self.ore_quantity)
+        self.ore_quantity = 0
+        self.cell.add_game_object(loot_object)
+
+    def take_damage(self, damage):
+        self.health -= damage
+        if self.check_if_dead():
+            self.died()
 
     def try_going_to_hospital(self, _cell):
         if _cell is not None:
@@ -165,8 +186,15 @@ class Player(gameObject.GameObject):
 
     def check_if_dead(self):
         if self.health <= 0:
-            self.change_cell(self.world.respawn_cell)
-            self.health += self.starting_health
             return True
         else:
             return False
+
+    def died(self):
+        if self.health <= 0:
+            self.reset_ore()
+            self.health += self.starting_health
+            self.go_to_respawn_location()
+
+    def go_to_respawn_location(self):
+        self.change_cell(self.world.respawn_cell)
