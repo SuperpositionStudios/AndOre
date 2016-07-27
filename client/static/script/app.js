@@ -109,10 +109,10 @@ var app = {
       reward = -5;
     }
 
-    var oldBrain = localStorage.getItem("aiModel");
-    if(oldBrain != null){
-      this.agent.fromJSON(JSON.parse(oldBrain));
-    }
+   // var oldBrain = localStorage.getItem("aiModel");
+   // if(oldBrain != null){
+   //   this.agent.fromJSON(JSON.parse(oldBrain));
+   // }
 
     if(this.hasActed){  
       this.agent.learn(reward);      
