@@ -114,6 +114,12 @@ class World:  # World is not really world, it's more Level
         assert(len(temp_world) == 31)
         return temp_world
 
+    def valid_player_id(self, _id):
+        if _id in self.players:
+            return True
+        else:
+            return False
+
     def get_cell(self, row, col):
         if row < 0 or row >= self.rows or col < 0 or col >= self.cols:
             return False
