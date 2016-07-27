@@ -30,6 +30,7 @@ class World:  # World is not really world, it's more Level
         assert(len(self.world[0]) == self.cols)
 
     def tick(self):
+        self.last_tick = datetime.datetime.now()
         self.world_age += 1
 
     def cache_world(self):
