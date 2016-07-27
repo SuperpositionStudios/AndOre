@@ -3,26 +3,27 @@ import database_functions
 
 app = Flask(__name__)
 
-web_server_domain = "*"
-
 
 def home_cor(obj):
     return_response = make_response(obj)
-    return_response.headers['Access-Control-Allow-Origin'] = web_server_domain
-    return_response.headers['Access-Control-Allow-Headers'] = "Content-Type, Access-Control-Allow-Origin"
+    return_response.headers['Access-Control-Allow-Origin'] = "*"
+    return_response.headers['Access-Control-Allow-Methods'] = 'POST,GET,OPTIONS,PUT,DELETE'
+    return_response.headers['Access-Control-Allow-Headers'] = "Content-Type, Access-Control-Allow-Origin, Accept"
     return return_response
 
 
-@app.route('/retrieve')
+@app.route('/retrieve', methods=['GET', 'POST', 'OPTIONS'])
 def retrieve():
-    mid = request.args.get('mid', '')
-    response = {
-        'model': database_functions.retrieve_model(mid)
-    }
+    data = request.json
+    response = dict()
+    if data is not None:
+        print("Not none")
+        mid = data.get('mid', '')
+        response['model'] = database_functions.retrieve_model(mid)
     return home_cor(jsonify(**response))
 
 
-@app.route('/upload', methods=['GET', 'POST'])
+@app.route('/upload', methods=['GET', 'POST', 'OPTIONS'])
 def upload():
     data = request.json
     mid = request.args.get('mid', '')
