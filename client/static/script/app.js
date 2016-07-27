@@ -12,6 +12,8 @@ var dev_ai_storage_endpoint = ":7003";
 var use_dev_server = true  // Used for development
 var internetOff = false;  // Used for testing view.js
 
+var ai_name = '';
+
 if (use_dev_server) {
     var game_server_endpoint = devServerUrl + dev_game_server_endpoint;
     var ai_storage_endpoint = devServerUrl + dev_ai_storage_endpoint;
@@ -27,7 +29,6 @@ var app = {
   hasActed: false,
   userId: null,
   startAiKey: '~',
-  AiName: '',
   AiStarted: false,
   oldBrain: '',
   repeats: 0,  // Times updateAI has been called since last upload
@@ -83,7 +84,6 @@ var app = {
     var spec = { alpha: 0.01 };
     this.agent = new RL.DQNAgent(self.env, spec);  
     if(oldBrain != null){
-      //this.agent.fromJSON(JSON.parse(oldBrain));
       this.agent.fromJSON(oldBrain);
     }
     this.AiTick(); 
@@ -134,22 +134,28 @@ var app = {
     this.hasActed = true;
     this.lastAction = action;
     //console.log(this.agent.toJSON());
-    //this.uploadModel(JSON.stringify(this.agent.toJSON()));
+    this.repeats += 1;
+    if (this.repeats % this.repeatsUntilUpload == 0) {
+        this.uploadModel(JSON.stringify(this.agent.toJSON()));
+    }
     //localStorage.setItem("aiModel",JSON.stringify(this.agent.toJSON()));
     setTimeout(callback, self.delay);
   },
 
   uploadModel: function(ai_model) {
     console.log("Uploading Model...");
-
+    data = {
+        'mid': ai_name,
+        'model': ai_model
+    }
     $.ajax({
-      url: ai_storage_endpoint + "/upload?mid=" + this.AiName,
+      url: ai_storage_endpoint + "/upload",
       type: "POST",
-      data: {model: ai_model},
+      data: JSON.stringify(data),
       dataType: "json",
       contentType: "application/json; charset=utf-8",
-      success: function(data) {
-        console.log(data['response']);
+      success: function(_data) {
+        console.log(_data);
       },
       error: function(jqXHR, textStatus, errorThrown) {
         console.log("Error uploading the model");
@@ -161,15 +167,16 @@ var app = {
     data = {
         'mid': prompt("What is the AI's Name?")
     };
-    self.AiName = data['mid'];
+    ai_name = data['mid'];
     $.ajax({
         type: "POST",
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         url: ai_storage_endpoint + "/retrieve",
         data: JSON.stringify(data),
-        success: function(data) {
-            self.oldBrain = data['model'];
+        success: function(_data) {
+            console.log(_data);
+            self.oldBrain = _data['model'];
             console.log("Retrieved and saved AI Model into memory");
             self.StartAi();
         },

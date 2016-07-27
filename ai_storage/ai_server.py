@@ -26,11 +26,12 @@ def retrieve():
 @app.route('/upload', methods=['GET', 'POST', 'OPTIONS'])
 def upload():
     data = request.json
-    mid = request.args.get('mid', '')
-    model = data.get('model', '')
-    response = {
-        'response': database_functions.save_model(mid, model)
-    }
+    response = dict()
+    if data is not None:
+        print("Not none")
+        mid = data.get('mid', '')
+        model = data.get('model', '')
+        response['model'] = database_functions.save_model(mid, model)
     return home_cor(jsonify(**response))
 
-app.run(debug=True, host='0.0.0.0', port=7003, threaded=True)
+app.run(debug=True, host='0.0.0.0', port=7003)
