@@ -80,11 +80,11 @@ var app = {
     this.env.allowedActions = function() { return self.actions; }
 
     //var oldBrain = localStorage.getItem("aiModel");
-    var oldBrain = self.oldBrain
     var spec = { alpha: 0.01 };
     this.agent = new RL.DQNAgent(self.env, spec);  
-    if(oldBrain != null){
-      this.agent.fromJSON(oldBrain);
+    if(this.oldBrain != null){
+      this.agent.fromJSON(this.oldBrain);
+      console.log("Parsed stored model into Agent.");
     }
     this.AiTick(); 
   },
@@ -176,7 +176,7 @@ var app = {
         data: JSON.stringify(data),
         success: function(_data) {
             console.log(_data);
-            self.oldBrain = _data['model'];
+            self.oldBrain = JSON.parse(_data['model']);
             console.log("Retrieved and saved AI Model into memory");
             self.StartAi();
         },
