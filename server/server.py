@@ -59,7 +59,6 @@ def valid_id(_id):
 def tick_server_if_needed():
     now = datetime.datetime.now()
     if (now - world.last_tick).microseconds >= world.microseconds_per_tick:
-        #run_ticks()
         world.tick()
 
 
