@@ -29,7 +29,7 @@ class Player(gameObject.GameObject):
 
     def action(self, _dir):
         self.next_action = _dir
-        if self.last_action_at_world_age < self.world.world_age:
+        if self.world.world_age > self.last_action_at_world_age:
             self.tick()
 
     def line_of_stats(self):
@@ -41,6 +41,7 @@ class Player(gameObject.GameObject):
                                                                                        world_age=self.world.world_age)
 
     def tick(self):
+        self.last_action_at_world_age = self.world.world_age
         ore_before_tick = int(self.ore_quantity)
         # Movement
         if self.next_action == 'w':
