@@ -15,6 +15,10 @@ class GameObject:
         self.cell.remove_object(self.obj_id)
         self.cell = None
 
+    def delete(self):
+        self.leave_cell()
+        # hopefully garbage collection kicks in
+
     def change_cell(self, new_cell):
         if self.cell is not None and new_cell is not None:
             self.leave_cell()
@@ -48,3 +52,12 @@ class Hospital(GameObject):
         self.blocking = True
         self.health_regen_per_turn = 5
         self.ore_usage_cost = 10
+
+
+class Loot(GameObject):
+
+    def __init__(self, _cell):
+        super().__init__(_cell)
+        self.icon = '%'
+        self.passable = False  # False until we have a 'below' direction key
+        self.ore_quantity = 0
