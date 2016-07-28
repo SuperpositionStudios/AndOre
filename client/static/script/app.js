@@ -134,10 +134,6 @@ var app = {
       reward = -5;
     }
 
-    if(oldBrain != null){
-      this.agent.fromJSON(this.oldBrain);
-    }
-
     if(this.hasActed){  
       this.agent.learn(reward);      
     }
