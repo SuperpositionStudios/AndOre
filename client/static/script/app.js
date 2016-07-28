@@ -1,16 +1,38 @@
 //load view.js before running this
-//var apiUrl = "http://andore.iwanttorule.space:7001";
 //also uses rl.js -- http://cs.stanford.edu/people/karpathy/reinforcejs/
 
-var apiUrl = "http://localhost:7001";
+var productionServerUrl = "http://ao.iwanttorule.space";
+var production_game_server_endpoint = "/game-server";
+var production_ai_storage_endpoint = "/ai-storage-server";
 
-var internetOff = false;
+var devServerUrl = "http://localhost";
+var dev_game_server_endpoint = ":7001";
+var dev_ai_storage_endpoint = ":7003";
+
+var use_dev_server = true  // Used for development
+var internetOff = false;  // Used for testing view.js
+
+var ai_name = '';
+
+if (use_dev_server) {
+    var game_server_endpoint = devServerUrl + dev_game_server_endpoint;
+    var ai_storage_endpoint = devServerUrl + dev_ai_storage_endpoint;
+} else {
+    var game_server_endpoint = productionServerUrl + production_game_server_endpoint;
+    var ai_storage_endpoint = productionServerUrl + production_ai_storage_endpoint;
+}
+
+
 
 var app = {
   delay: 10,
   hasActed: false,
   userId: null,
   startAiKey: '~',
+  AiStarted: false,
+  oldBrain: '',
+  repeats: 0,  // Times updateAI has been called since last upload
+  repeatsUntilUpload: 50, // Times updateAI has to be called until the model is saved on the AI storage server
   env: {},
   tick: 0,
   newAction: false,
@@ -31,8 +53,9 @@ var app = {
     AjaxCall("/join", {sendState: false}, function(data) {
       userId = data.id;
       $("body").keypress(function(e) {
-        if (String.fromCharCode(e.which) == self.startAiKey) {
-            self.StartAi();
+        if (String.fromCharCode(e.which) == self.startAiKey && self.AiStarted == false) {
+            self.AiStarted = true;
+            app.getModel(self);
         }
       });
       CallCallback(callback);
@@ -56,11 +79,12 @@ var app = {
     this.env.getMaxNumActions = function() { return self.actions.length; }
     this.env.allowedActions = function() { return self.actions; }
 
-    var oldBrain = localStorage.getItem("aiModel");
+    //var oldBrain = localStorage.getItem("aiModel");
     var spec = { alpha: 0.01 };
     this.agent = new RL.DQNAgent(self.env, spec);  
-    if(oldBrain != null){
-      this.agent.fromJSON(JSON.parse(oldBrain));
+    if(this.oldBrain != null){
+      this.agent.fromJSON(this.oldBrain);
+      console.log("Parsed stored model into Agent.");
     }
     this.AiTick(); 
   },
@@ -85,19 +109,20 @@ var app = {
   UpdateAi: function(data, callback){
     var env = this.env;
 
-      if(this.lastVitals == null){
+    if(this.lastVitals == null){
 	  this.lastVitals = data.vitals;
-      }
+    }
+
     this.lastAge = data.vitals.world_age;
       
     var states = FlattenWorld(data.world);
     var deltaHealth = data.vitals.health - this.lastHealth;
-      var reward = (data.vitals.delta_ore * 2 + deltaHealth * 1) / 3;
+    var reward = (data.vitals.delta_ore * 2 + deltaHealth * 1) / 3;
 
     if (data.vitals.row == this.lastVitals.row && data.vitals.col == this.lastVitals.col){
-	reward -= 0.5;
+	    reward -= 0.5;
     } else {
-	reward += 0.2;
+	    reward += 0.2;
     }
 
 
@@ -108,11 +133,6 @@ var app = {
     if(this.lastHealth < 10) {
       reward = -5;
     }
-
-   // var oldBrain = localStorage.getItem("aiModel");
-   // if(oldBrain != null){
-   //   this.agent.fromJSON(JSON.parse(oldBrain));
-   // }
 
     if(this.hasActed){  
       this.agent.learn(reward);      
@@ -126,10 +146,55 @@ var app = {
     }
     this.hasActed = true;
     this.lastAction = action;
-    console.log(this.agent.toJSON());
-    localStorage.setItem("aiModel",JSON.stringify(this.agent.toJSON()));
+
+    this.repeats += 1;
+    if (this.repeats % this.repeatsUntilUpload == 0) {
+        this.uploadModel(JSON.stringify(this.agent.toJSON()));
+    }
+
     setTimeout(callback, self.delay);
-  } 
+  },
+
+  uploadModel: function(ai_model) {
+    console.log("Uploading Model...");
+    data = {
+        'mid': ai_name,
+        'model': ai_model
+    }
+    $.ajax({
+      url: ai_storage_endpoint + "/upload",
+      type: "POST",
+      data: JSON.stringify(data),
+      dataType: "json",
+      contentType: "application/json; charset=utf-8",
+      success: function(_data) {
+        console.log(_data);
+      },
+      error: function(jqXHR, textStatus, errorThrown) {
+        console.log("Error uploading the model");
+      }
+    });
+  },
+
+  getModel: function(self) {
+    data = {
+        'mid': prompt("What is the AI's Name?")
+    };
+    ai_name = data['mid'];
+    $.ajax({
+        type: "POST",
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        url: ai_storage_endpoint + "/retrieve",
+        data: JSON.stringify(data),
+        success: function(_data) {
+            console.log(_data);
+            self.oldBrain = JSON.parse(_data['model']);
+            console.log("Retrieved and saved AI Model into memory");
+            self.StartAi();
+        },
+    });
+  }
 }
 
 function CallCallback (callback){
@@ -163,7 +228,7 @@ function AjaxCall(endpoint, data, callback, failCallback){
 
   var ajax = $.ajax({
     method: "GET",
-    url: apiUrl + endpoint,
+    url: game_server_endpoint + endpoint,
     data: data,
   });
   ajax.done(function(data) {

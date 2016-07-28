@@ -63,6 +63,7 @@ class Player(gameObject.GameObject):
 
     def affect(self, row_offset, col_offset):  # Horrible function name but I'll let Hal rename it
 #it's not the worst thing in the world, just not clear what it's returning from the function name
+# It returns whether the player was able to affect anything
         affected_cell = self.try_get_cell_by_offset(row_offset, col_offset)
         if affected_cell is not None and affected_cell is not False:
             # Movement
