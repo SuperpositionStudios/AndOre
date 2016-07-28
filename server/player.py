@@ -23,37 +23,47 @@ class Player(gameObject.GameObject):
         self.icon = '!'
         self.row = self.cell.row
         self.col = self.cell.col
-        self.next_action = ''
+        self.dir_key = ''
+        self.modifier_key = 'm'
         self.passable = False
         self.last_action_at_world_age = 0
 
-    def action(self, _dir):
-        self.next_action = _dir
+    def action(self, key_pressed):
+        direction_keys = ['w', 'a', 's', 'd']
+        modifier_keys = {
+            'a': "for attacking",
+            'm': "for moving"
+        }
+        if key_pressed in direction_keys:
+            self.dir_key = key_pressed
+        else:
+            self.dir_key = ''
+            self.modifier_key = key_pressed
         if self.world.world_age > self.last_action_at_world_age:
             self.tick()
 
     def line_of_stats(self):
-        return '[hp {health} ore {ore}] [{row} {col}] [{next_action}][{world_age}] '.format(health=int(self.health),
+        return '[hp {health} ore {ore}] [{row} {col}] [{mod_key}][{world_age}] '.format(health=int(self.health),
                                                                                        ore=self.ore_quantity,
                                                                                        row=self.row,
                                                                                        col=self.col,
-                                                                                       next_action=self.next_action,
+                                                                                       mod_key=self.modifier_key,
                                                                                        world_age=self.world.world_age)
 
     def tick(self):
         self.last_action_at_world_age = self.world.world_age
-        ore_before_tick = int(self.ore_quantity)
+        ore_before_tick = int(self.ore_quantity)  # Used for calculating delta-ore
         # Movement
-        if self.next_action == 'w':
+        if self.dir_key == 'w':
             self.affect(-1, 0)
-        elif self.next_action == 's':
+        elif self.dir_key == 's':
             self.affect(1, 0)
-        elif self.next_action == 'a':
+        elif self.dir_key == 'a':
             self.affect(0, -1)
-        elif self.next_action == 'd':
+        elif self.dir_key == 'd':
             self.affect(0, 1)
         self.delta_ore = int(self.ore_quantity - ore_before_tick)
-        self.next_action = ''
+        self.dir_key = ''
         self.health_decay()
 
     def health_decay(self):
