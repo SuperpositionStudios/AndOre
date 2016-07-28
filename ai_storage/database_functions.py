@@ -27,3 +27,11 @@ def retrieve_model(mid):
         return None
     else:
         return session.query(Model).filter(Model.mid == mid).first().data
+
+
+def clone_model(original_mid, clone_mid):
+    original = retrieve_model(original_mid)
+    if original is not None:
+        save_model(clone_mid, original.data)
+    else:
+        return None
