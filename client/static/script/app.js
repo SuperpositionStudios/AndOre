@@ -22,6 +22,14 @@ if (use_dev_server) {
     var ai_storage_endpoint = productionServerUrl + production_ai_storage_endpoint;
 }
 
+function createArrayFromXToYInclusive(x, y) {
+    var arr = [];
+    for (var i = x; i <= y; i++) {
+        arr.push(i);
+    }
+    return arr;
+}
+
 
 
 var app = {
@@ -36,8 +44,8 @@ var app = {
   env: {},
   tick: 0,
   newAction: false,
-  keys: ["a", "w", "s", "d"],
-  actions: [0, 1, 2, 3],
+  keys: ["a", "w", "s", "d", "k", "l", "m"],
+  actions: [],
   lastAction: "a",
   lastHealth: 100,
   lastAge: 0,
@@ -50,6 +58,7 @@ var app = {
 
   GetUserId:function(callback) {
     var self = this;
+    self.actions = createArrayFromXToYInclusive(0, self.keys.length);
     AjaxCall("/join", {sendState: false}, function(data) {
       userId = data.id;
       $("body").keypress(function(e) {
