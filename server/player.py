@@ -1,6 +1,7 @@
 import uuid, random
 from cell import Cell
 import gameObject
+import corporation
 
 
 class Player(gameObject.GameObject):
@@ -27,6 +28,7 @@ class Player(gameObject.GameObject):
         self.modifier_key = 'm'
         self.passable = False
         self.last_action_at_world_age = 0
+        self.corp = corporation.Corporation(self)
 
     def action(self, key_pressed):
         direction_keys = ['w', 'a', 's', 'd']
