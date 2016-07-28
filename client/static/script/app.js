@@ -25,7 +25,7 @@ if (use_dev_server) {
 
 
 var app = {
-  delay: 20,
+  delay: 10,
   hasActed: false,
   userId: null,
   startAiKey: '~',
@@ -108,19 +108,36 @@ var app = {
   },
   UpdateAi: function(data, callback){
     var env = this.env;
+
+    if(this.lastVitals == null){
+	  this.lastVitals = data.vitals;
+    }
+
     this.lastAge = data.vitals.world_age;
+      
     var states = FlattenWorld(data.world);
     var deltaHealth = data.vitals.health - this.lastHealth;
-    var reward = data.vitals.delta_ore; //(0.1 + data.vitals.delta_ore * 2 + deltaHealth * 1) / 3;
+    var reward = (data.vitals.delta_ore * 2 + deltaHealth * 1) / 3;
+
+    if (data.vitals.row == this.lastVitals.row && data.vitals.col == this.lastVitals.col){
+	    reward -= 0.5;
+    } else {
+	    reward += 0.2;
+    }
+
+
+    this.lastVitals = data.vitals;
+
     this.lastHealth = data.vitals.health;
 
-
-    if(this.newAction){
-      reward += 0.2;
-    }
     if(this.lastHealth < 10) {
-      //reward = -2;
+      reward = -5;
     }
+
+    if(oldBrain != null){
+      this.agent.fromJSON(this.oldBrain);
+    }
+
     if(this.hasActed){  
       this.agent.learn(reward);      
     }
@@ -133,12 +150,12 @@ var app = {
     }
     this.hasActed = true;
     this.lastAction = action;
-    //console.log(this.agent.toJSON());
+
     this.repeats += 1;
     if (this.repeats % this.repeatsUntilUpload == 0) {
         this.uploadModel(JSON.stringify(this.agent.toJSON()));
     }
-    //localStorage.setItem("aiModel",JSON.stringify(this.agent.toJSON()));
+
     setTimeout(callback, self.delay);
   },
 
