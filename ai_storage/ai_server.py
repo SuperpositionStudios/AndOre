@@ -36,8 +36,8 @@ def upload():
 
 
 @app.route('/clone/<original_id>/<clone_id>')
-def clone(original_id, clone_id):
-    database_functions.clone(original_id, clone_id)
+def clone_model(original_id, clone_id):
+    database_functions.clone_model(original_id, clone_id)
     return home_cor(jsonify({"response": "okay"}))
 
 app.run(debug=True, host='0.0.0.0', port=7003)
