@@ -32,6 +32,6 @@ def retrieve_model(mid):
 def clone_model(original_mid, clone_mid):
     original = retrieve_model(original_mid)
     if original is not None:
-        save_model(clone_mid, original.data)
+        save_model(clone_mid, original)
     else:
         return None
