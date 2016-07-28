@@ -53,17 +53,17 @@ class Player(gameObject.GameObject):
     def tick(self):
         self.last_action_at_world_age = self.world.world_age
         ore_before_tick = int(self.ore_quantity)  # Used for calculating delta-ore
-        # Movement
+        # Interaction with cells
         if self.dir_key == 'w':
-            self.affect(-1, 0)
+            self.interact_with_cell(-1, 0)
         elif self.dir_key == 's':
-            self.affect(1, 0)
+            self.interact_with_cell(1, 0)
         elif self.dir_key == 'a':
-            self.affect(0, -1)
+            self.interact_with_cell(0, -1)
         elif self.dir_key == 'd':
-            self.affect(0, 1)
+            self.interact_with_cell(0, 1)
         self.delta_ore = int(self.ore_quantity - ore_before_tick)
-        self.dir_key = ''
+        self.dir_key = ''  # Resets the direction key
         self.health_decay()
 
     def health_decay(self):
@@ -71,24 +71,22 @@ class Player(gameObject.GameObject):
         if self.check_if_dead():
             self.died()
 
-    def affect(self, row_offset, col_offset):  # Horrible function name but I'll let Hal rename it
-#it's not the worst thing in the world, just not clear what it's returning from the function name
-# It returns whether the player was able to affect anything
+    def interact_with_cell(self, row_offset, col_offset):
         affected_cell = self.try_get_cell_by_offset(row_offset, col_offset)
         if affected_cell is not None and affected_cell is not False:
-            # Movement
-            if self.try_move(affected_cell):
-                return True
-            elif self.try_looting(affected_cell):
-                return True
-            # Cannot move, something interactive must be in the way.
-            elif self.try_mining(affected_cell):
-                return True
-            elif self.try_going_to_hospital(affected_cell):
-                return True
-            # Since there's nothing to mine, the player must be trying to attack another player
-            elif self.try_attacking(affected_cell):
-                return True
+            if self.modifier_key == 'm':  # Player is trying to move
+                return self.try_move(affected_cell)
+            elif self.modifier_key == 'a':  # Player is trying to attack something
+                return self.try_attacking(affected_cell)
+            elif self.modifier_key == 'l':  # Player is trying to collect/loot something
+                if self.try_mining(affected_cell):
+                    return True
+                elif self.try_going_to_hospital(affected_cell):
+                    return True
+                elif self.try_looting(affected_cell):
+                    return True
+                else:
+                    return False
             else:
                 return False
         else:
