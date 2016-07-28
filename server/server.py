@@ -44,25 +44,10 @@ def home_cor(obj):
     return return_response
 
 
-def valid_id(_id):
-    warnings.warn("Switch over to valid_player_id in World", DeprecationWarning)  #
-    if _id in player_ids:
-        return True
-    else:
-        #print("####")
-        #print("Invalid ID: " + _id)
-        #print(player_ids)
-        #print("####")
-        return False
-
-
 def tick_server_if_needed():
     now = datetime.datetime.now()
     if (now - world.last_tick).microseconds >= world.microseconds_per_tick:
         world.tick()
-
-
-player_ids = []
 
 
 @app.route('/join')
@@ -73,7 +58,6 @@ def join():
 
     new_player_id = world.new_player()
 
-    player_ids.append(new_player_id)
     response['id'] = new_player_id
 
     _sendState = request.args.get('sendState', 'false')
@@ -91,7 +75,7 @@ def action():
     response = dict()
 
     _id = request.args.get('id', '')
-    if valid_id(_id) is False:
+    if world.valid_player_id(_id) is False:
         response["error"] = "Invalid ID"
         return home_cor(jsonify(**response))
 
@@ -115,7 +99,7 @@ def send_state(**keyword_parameters):
     else:
         _id = request.args.get('id', '')
 
-    if valid_id(_id) is False:
+    if world.valid_player_id(_id) is False:
         response['error'] = "Invalid ID"
         return home_cor(jsonify(**response))
 
