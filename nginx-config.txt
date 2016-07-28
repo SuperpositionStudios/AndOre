@@ -1,6 +1,7 @@
 # Install nginx and replace /etc/nginx/site-senabled/default with this
 
 server {
+    client_max_body_size 999M;
     listen   80;
     server_name  ao.iwanttorule.space;
     access_log off;
