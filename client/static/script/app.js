@@ -58,7 +58,7 @@ var app = {
 
   GetUserId:function(callback) {
     var self = this;
-    self.actions = createArrayFromXToYInclusive(0, self.keys.length);
+    self.actions = createArrayFromXToYInclusive(0, self.keys.length - 1);
     AjaxCall("/join", {sendState: false}, function(data) {
       userId = data.id;
       $("body").keypress(function(e) {
