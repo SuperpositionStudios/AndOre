@@ -4,7 +4,7 @@
 //called by app.js after id is populated, etc
 var contentId = "content";
 var pollDelay = 350;
-var validKeys = {"w":true,"a":true,"s":true,"d":true};
+var validKeys = {"w":true,"a":true,"s":true,"d":true,"m":true,"k":true,"l":true};
 var view = {
   contentDiv: null,
   SetupView : function(callback) {

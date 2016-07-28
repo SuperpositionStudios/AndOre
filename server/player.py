@@ -23,37 +23,48 @@ class Player(gameObject.GameObject):
         self.icon = '!'
         self.row = self.cell.row
         self.col = self.cell.col
-        self.next_action = ''
+        self.dir_key = ''
+        self.modifier_key = 'm'
         self.passable = False
         self.last_action_at_world_age = 0
 
-    def action(self, _dir):
-        self.next_action = _dir
+    def action(self, key_pressed):
+        direction_keys = ['w', 'a', 's', 'd']
+        modifier_keys = {
+            'k': "for attacking/killing",
+            'm': "for moving",
+            'l': "for looting"
+        }
+        if key_pressed in direction_keys:
+            self.dir_key = key_pressed
+        else:
+            self.dir_key = ''
+            self.modifier_key = key_pressed
         if self.world.world_age > self.last_action_at_world_age:
             self.tick()
 
     def line_of_stats(self):
-        return '[hp {health} ore {ore}] [{row} {col}] [{next_action}][{world_age}] '.format(health=int(self.health),
+        return '[hp {health} ore {ore}] [{row} {col}] [{mod_key}][{world_age}] '.format(health=int(self.health),
                                                                                        ore=self.ore_quantity,
                                                                                        row=self.row,
                                                                                        col=self.col,
-                                                                                       next_action=self.next_action,
+                                                                                       mod_key=self.modifier_key,
                                                                                        world_age=self.world.world_age)
 
     def tick(self):
         self.last_action_at_world_age = self.world.world_age
-        ore_before_tick = int(self.ore_quantity)
-        # Movement
-        if self.next_action == 'w':
-            self.affect(-1, 0)
-        elif self.next_action == 's':
-            self.affect(1, 0)
-        elif self.next_action == 'a':
-            self.affect(0, -1)
-        elif self.next_action == 'd':
-            self.affect(0, 1)
+        ore_before_tick = int(self.ore_quantity)  # Used for calculating delta-ore
+        # Interaction with cells
+        if self.dir_key == 'w':
+            self.interact_with_cell(-1, 0)
+        elif self.dir_key == 's':
+            self.interact_with_cell(1, 0)
+        elif self.dir_key == 'a':
+            self.interact_with_cell(0, -1)
+        elif self.dir_key == 'd':
+            self.interact_with_cell(0, 1)
         self.delta_ore = int(self.ore_quantity - ore_before_tick)
-        self.next_action = ''
+        self.dir_key = ''  # Resets the direction key
         self.health_decay()
 
     def health_decay(self):
@@ -61,24 +72,22 @@ class Player(gameObject.GameObject):
         if self.check_if_dead():
             self.died()
 
-    def affect(self, row_offset, col_offset):  # Horrible function name but I'll let Hal rename it
-#it's not the worst thing in the world, just not clear what it's returning from the function name
-# It returns whether the player was able to affect anything
+    def interact_with_cell(self, row_offset, col_offset):
         affected_cell = self.try_get_cell_by_offset(row_offset, col_offset)
         if affected_cell is not None and affected_cell is not False:
-            # Movement
-            if self.try_move(affected_cell):
-                return True
-            elif self.try_looting(affected_cell):
-                return True
-            # Cannot move, something interactive must be in the way.
-            elif self.try_mining(affected_cell):
-                return True
-            elif self.try_going_to_hospital(affected_cell):
-                return True
-            # Since there's nothing to mine, the player must be trying to attack another player
-            elif self.try_attacking(affected_cell):
-                return True
+            if self.modifier_key == 'm':  # Player is trying to move
+                return self.try_move(affected_cell)
+            elif self.modifier_key == 'k':  # Player is trying to attack something
+                return self.try_attacking(affected_cell)
+            elif self.modifier_key == 'l':  # Player is trying to collect/loot something
+                if self.try_mining(affected_cell):
+                    return True
+                elif self.try_going_to_hospital(affected_cell):
+                    return True
+                elif self.try_looting(affected_cell):
+                    return True
+                else:
+                    return False
             else:
                 return False
         else:
