@@ -31,8 +31,9 @@ class Player(gameObject.GameObject):
     def action(self, key_pressed):
         direction_keys = ['w', 'a', 's', 'd']
         modifier_keys = {
-            'a': "for attacking",
-            'm': "for moving"
+            'k': "for attacking/killing",
+            'm': "for moving",
+            'l': "for looting"
         }
         if key_pressed in direction_keys:
             self.dir_key = key_pressed
@@ -76,7 +77,7 @@ class Player(gameObject.GameObject):
         if affected_cell is not None and affected_cell is not False:
             if self.modifier_key == 'm':  # Player is trying to move
                 return self.try_move(affected_cell)
-            elif self.modifier_key == 'a':  # Player is trying to attack something
+            elif self.modifier_key == 'k':  # Player is trying to attack something
                 return self.try_attacking(affected_cell)
             elif self.modifier_key == 'l':  # Player is trying to collect/loot something
                 if self.try_mining(affected_cell):
