@@ -66,6 +66,7 @@ class Cell:
 
         if 'player_id' in keyword_parameters:
             player_id = keyword_parameters['player_id']
+            player_obj = self.world.players[player_id]
 
             for i in priority:
                 if self.contains_object_type(i)[0]:
@@ -74,10 +75,10 @@ class Cell:
                             if obj.__class__.__name__ == 'Player':
                                 if obj.obj_id == player_id:
                                     return obj.inner_icon
-                                elif obj.corp.check_if_in_corp(player_id):
+                                elif player_obj.corp.check_if_in_corp(obj.obj_id):
                                     return obj.corp_member_icon
                                 else:
-                                    return obj.neutral_icon
+                                    return player_obj.corp.fetch_standing(obj.corp.corp_id)
                             else:
                                 return obj.icon
             return '.'  # Returns Empty Space
