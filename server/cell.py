@@ -66,8 +66,11 @@ class Cell:
                 if self.contains_object_type(i)[0]:
                     for obj in self.contents:
                         if obj.__class__.__name__ == i:
-                            if obj.obj_id == player_id:
-                                return obj.inner_icon
+                            if obj.__class__.__name__ == 'Player':
+                                if obj.obj_id == player_id:
+                                    return obj.inner_icon
+                                else:
+                                    return obj.neutral_icon
                             else:
                                 return obj.icon
             return '.'  # Returns Empty Space

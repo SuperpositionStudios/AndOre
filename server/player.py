@@ -20,6 +20,9 @@ class Player(gameObject.GameObject):
         self.attack_power = 10
         self.delta_ore = 0  # The ore lost/gained in the last tick
         self.inner_icon = '@'
+        self.neutral_icon = 'N'
+        self.enemy_icon = 'E'
+        self.ally_icon = 'A'
         self.icon = '!'
         self.row = self.cell.row
         self.col = self.cell.col
