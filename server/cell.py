@@ -49,6 +49,10 @@ class Cell:
                 return
 
     def contains_object_type(self, obj_type_name):
+        # obj_type_name is the class name, example: 'Cell'
+        # Returns a tuple, a boolean answering if the cell contains an object with the same class name as the input
+        # and a string, if the boolean is true then it will return the object's obj_id
+        # Returns as soon as one of the objects is found, so this may be unreliable in some use cases
         for obj in self.contents:
             if obj.__class__.__name__ == obj_type_name:
                 return True, obj.obj_id
