@@ -12,8 +12,37 @@ class Corporation:
         self.ore_quantity = 0
         self.sent_merge_invites = []  # A list containing ids of corps that have been sent merge invites
         self.received_merge_invites = []  # A list containing ids of corps that have sent use merge invites
+        self.standings = dict()
 
         self.add_member(initial_member)
+
+    def fetch_standing(self, corp_id):
+        if corp_id in self.standings:
+            return self.standings[corp_id]
+        else:
+            return 'N'
+
+    def worsen_standing(self, corp_id):
+        self.standings[corp_id] = self.calculate_standing(self.fetch_standing(corp_id), -1)
+
+    def improve_standing(self, corp_id):
+        self.standings[corp_id] = self.calculate_standing(self.fetch_standing(corp_id), 1)
+
+    def calculate_standing(self, standing, modifier):
+        if standing == 'E' and modifier == 1:
+            return 'N'
+        elif standing == 'E' and modifier == -1:
+            return 'E'
+        elif standing == 'N' and modifier == 1:
+            return 'A'
+        elif standing == 'N' and modifier == -1:
+            return 'E'
+        elif standing == 'A' and modifier == 1:
+            return 'A'
+        elif standing == 'A' and modifier == -1:
+            return 'N'
+        else:
+            return 'N'
 
     def add_member(self, member):
         assert(member.__class__.__name__ == 'Player')

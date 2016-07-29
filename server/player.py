@@ -107,6 +107,16 @@ class Player(gameObject.GameObject):
                     return True
                 else:
                     return False
+            elif self.modifier_key == '-':  # Player is trying to worsen their standings towards the target player's corp
+                if self.try_worsening_standing(affected_cell):
+                    return True
+                else:
+                    return False
+            elif self.modifier_key == '+':  # Player is trying to improve their standings towards the target player's corp
+                if self.try_improving_standing(affected_cell):
+                    return True
+                else:
+                    return False
             else:
                 return False
         else:
@@ -168,6 +178,28 @@ class Player(gameObject.GameObject):
                     return True
         return False
 
+    def try_worsening_standing(self, _cell):
+        if _cell is not None:
+            struct = _cell.contains_object_type('Player')
+            if struct[0]:
+                other_player = _cell.get_game_object_by_obj_id(struct[1])
+                if other_player[0]:
+                    self.corp.worsen_standing(other_player[1].corp.corp_id)
+                    return True
+        else:
+            return False
+
+    def try_improving_standing(self, _cell):
+        if _cell is not None:
+            struct = _cell.contains_object_type('Player')
+            if struct[0]:
+                other_player = _cell.get_game_object_by_obj_id(struct[1])
+                if other_player[0]:
+                    self.corp.improve_standing(other_player[1].corp.corp_id)
+                    return True
+        else:
+            return False
+
     def try_attacking(self, _cell):
         if _cell is not None:
             struct = _cell.contains_object_type('Fence')
@@ -184,7 +216,12 @@ class Player(gameObject.GameObject):
                         if self.corp.check_if_in_corp(struct[1]):
                             return False # You cannot attack another player in your corp
                         else:
-                            other_player[1].take_damage(self.attack_power)  # Attacking someone not in your corp
+                            # Attacking someone not in your corp
+                            other_player[1].take_damage(self.attack_power)
+                            # Worsening their corp's standings towards your corp
+                            other_player[1].corp.worsen_standing(self.corp.corp_id)
+                            # Worsening your corp's standings towards their corp
+                            self.corp.worsen_standing(other_player[1].corp.corp_id)
                             return True
         return False
 
