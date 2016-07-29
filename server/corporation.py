@@ -39,7 +39,18 @@ class Corporation:
 
     def receive_merge_invite(self, corp_id):
         self.received_merge_invites.append(corp_id)
+        self.check_if_corp_can_merge_and_if_so_merge()
 
     def send_merge_invite(self, corp_id):
         self.sent_merge_invites.append(corp_id)
         self.world.corporations[corp_id].receive_merge_invite(self.corp_id)
+
+    def check_if_corp_can_merge_and_if_so_merge(self):
+        for received in self.received_merge_invites:
+            if received in self.sent_merge_invites:
+                corp_id_to_merge_with = received
+                self.world.corporations[corp_id_to_merge_with].merge_me(self.corp_id)
+
+    def merge_me(self, other_corp_id):  # Another corp will call this with their corp id to indicate that they want to be merged into our corp
+        for member in self.world.corporations[other_corp_id].members:
+            member.corp = self  # Setting the other corp's members corp to our corp
