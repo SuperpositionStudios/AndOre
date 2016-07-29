@@ -213,8 +213,11 @@ class Player(gameObject.GameObject):
                 if struct[0]:
                     other_player = _cell.get_game_object_by_obj_id(struct[1])
                     if other_player[0]:
+                        corp_standing_to_other_players_corp = self.corp.fetch_standing(other_player[1].corp.corp_id)
                         if self.corp.check_if_in_corp(struct[1]):
-                            return False # You cannot attack another player in your corp
+                            return False  # You cannot attack another player in your corp
+                        elif corp_standing_to_other_players_corp == 'A':
+                            return False  # You cannot attack members of corporations that your corporation considers allies
                         else:
                             # Attacking someone not in your corp
                             other_player[1].take_damage(self.attack_power)
