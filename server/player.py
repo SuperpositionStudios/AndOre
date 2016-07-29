@@ -18,8 +18,7 @@ class Player(gameObject.GameObject):
         self.health_loss_per_turn = 0.1
         self.health = 100
         self.attack_power = 10
-        self.ore_quantity = 0
-        self.delta_ore = self.ore_quantity  # The ore lost/gained in the last tick
+        self.delta_ore = 0  # The ore lost/gained in the last tick
         self.inner_icon = '@'
         self.icon = '!'
         self.row = self.cell.row
@@ -47,7 +46,7 @@ class Player(gameObject.GameObject):
 
     def line_of_stats(self):
         return '[hp {health} ore {ore}] [{row} {col}] [{mod_key}][{world_age}] '.format(health=int(self.health),
-                                                                                       ore=self.ore_quantity,
+                                                                                       ore=self.corp.ore_quantity,
                                                                                        row=self.row,
                                                                                        col=self.col,
                                                                                        mod_key=self.modifier_key,
@@ -55,7 +54,7 @@ class Player(gameObject.GameObject):
 
     def tick(self):
         self.last_action_at_world_age = self.world.world_age
-        ore_before_tick = int(self.ore_quantity)  # Used for calculating delta-ore
+        ore_before_tick = int(self.corp.amount_of_ore())  # Used for calculating delta-ore
         # Interaction with cells
         if self.dir_key == 'w':
             self.interact_with_cell(-1, 0)
@@ -65,7 +64,7 @@ class Player(gameObject.GameObject):
             self.interact_with_cell(0, -1)
         elif self.dir_key == 'd':
             self.interact_with_cell(0, 1)
-        self.delta_ore = int(self.ore_quantity - ore_before_tick)
+        self.delta_ore = int(self.corp.amount_of_ore() - ore_before_tick)
         self.dir_key = ''  # Resets the direction key
         self.health_decay()
 
@@ -101,7 +100,7 @@ class Player(gameObject.GameObject):
             if struct[0]:
                 loot_object = _cell.get_game_object_by_obj_id(struct[1])
                 if loot_object[0]:
-                    self.ore_quantity += loot_object[1].ore_quantity
+                    self.gain_ore(loot_object[1].ore_quantity)
                     loot_object[1].delete()
                     return True
         return False
@@ -112,7 +111,7 @@ class Player(gameObject.GameObject):
             if struct[0]:
                 ore_deposit = _cell.get_game_object_by_obj_id(struct[1])
                 if ore_deposit[0]:
-                    self.ore_quantity += ore_deposit[1].ore_per_turn
+                    self.gain_ore(ore_deposit[1].ore_per_turn)
                     return True
         return False
 
@@ -123,27 +122,22 @@ class Player(gameObject.GameObject):
                 other_player = _cell.get_game_object_by_obj_id(struct[1])
                 if other_player[0]:
                     other_player[1].take_damage(self.attack_power)
-                    #struct = other_player[1].take_damage(self.attack_power)
-                    """
-                    if struct[0]:  # Means we killed the other player
-                        self.add_ore(struct[1])
-                        return True
-                    """
         return False
 
-    def add_ore(self, amount):
-        self.ore_quantity += amount
-        return True
+    def gain_ore(self, amount):
+        self.corp.gain_ore(amount)
 
-    def reset_ore(self):
-        old_ore = int(self.ore_quantity)
-        self.drop_ore()
-        return old_ore
+    def lose_ore(self, amount):
+        self.corp.lose_ore(amount)
 
     def drop_ore(self):
         loot_object = gameObject.Loot(self.cell)
-        loot_object.ore_quantity = int(self.ore_quantity)
-        self.ore_quantity = 0
+
+        ore_loss = self.corp.calculate_ore_loss_on_death()
+
+        loot_object.ore_quantity = ore_loss
+        self.lose_ore(ore_loss)
+
         self.cell.add_game_object(loot_object)
 
     def take_damage(self, damage):
@@ -158,9 +152,9 @@ class Player(gameObject.GameObject):
                 hospital = _cell.get_game_object_by_obj_id(struct[1])
                 if hospital[0]:
                     assert(hospital[1].__class__.__name__ == 'Hospital')
-                    if self.ore_quantity >= 10:
+                    if self.corp.amount_of_ore() >= 10:
                         self.health = min(self.health + hospital[1].health_regen_per_turn, self.health_cap)
-                        self.ore_quantity -= hospital[1].ore_usage_cost
+                        self.lose_ore(hospital[1].ore_usage_cost)
                         return True
                     return False
         return False
@@ -190,7 +184,7 @@ class Player(gameObject.GameObject):
 
     def get_vitals(self):
         response = {
-            'ore_quantity': self.ore_quantity,
+            'ore_quantity': self.corp.amount_of_ore(),
             'delta_ore': self.delta_ore,
             'health': self.health,
             'world_age': self.world.world_age
@@ -205,7 +199,7 @@ class Player(gameObject.GameObject):
 
     def died(self):
         if self.health <= 0:
-            self.reset_ore()
+            self.drop_ore()
             self.health += self.starting_health
             self.go_to_respawn_location()
 

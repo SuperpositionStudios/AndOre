@@ -16,5 +16,14 @@ class Corporation:
         assert(member.__class__.__name__ == 'Player')
         self.members.append(member)
 
-    def calculate_ore_lost_on_death(self):
+    def gain_ore(self, amount):
+        self.ore_quantity += amount
+
+    def lose_ore(self, amount):
+        self.ore_quantity -= amount
+
+    def amount_of_ore(self):
+        return self.ore_quantity
+
+    def calculate_ore_loss_on_death(self):
         return int(self.ore_quantity / len(self.members))
