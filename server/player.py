@@ -220,6 +220,8 @@ class Player(gameObject.GameObject):
                             other_player[1].take_damage(self.attack_power)
                             # Worsening their corp's standings towards your corp
                             other_player[1].corp.worsen_standing(self.corp.corp_id)
+                            # Worsening your corp's standings towards their corp
+                            self.corp.worsen_standing(other_player[1].corp.corp_id)
                             return True
         return False
 
