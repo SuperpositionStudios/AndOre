@@ -184,7 +184,10 @@ class Player(gameObject.GameObject):
                         if self.corp.check_if_in_corp(struct[1]):
                             return False # You cannot attack another player in your corp
                         else:
-                            other_player[1].take_damage(self.attack_power)  # Attacking someone not in your corp
+                            # Attacking someone not in your corp
+                            other_player[1].take_damage(self.attack_power)
+                            # Worsening their corp's standings towards your corp
+                            other_player[1].corp.worsen_standing(self.corp.corp_id)
                             return True
         return False
 
