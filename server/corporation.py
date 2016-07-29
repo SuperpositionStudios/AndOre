@@ -27,3 +27,9 @@ class Corporation:
 
     def calculate_ore_loss_on_death(self):
         return int(self.ore_quantity / len(self.members))
+
+    def check_if_in_corp(self, player_id):
+        for member in self.members:
+            if player_id == member.obj_id:
+                return True
+        return False

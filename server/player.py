@@ -23,6 +23,7 @@ class Player(gameObject.GameObject):
         self.neutral_icon = 'N'
         self.enemy_icon = 'E'
         self.ally_icon = 'A'
+        self.corp_member_icon = 'M'
         self.icon = '!'
         self.row = self.cell.row
         self.col = self.cell.col
@@ -37,7 +38,10 @@ class Player(gameObject.GameObject):
         modifier_keys = {
             'k': "for attacking/killing",
             'm': "for moving",
-            'l': "for looting"
+            'l': "for looting",
+            'i': "for inviting corp to merge into current corp",
+            '-': "for setting a corp to a lower standing (A -> N -> E)",
+            '+': "for setting a corp to a higher standing (E -> N -> A)"
         }
         if key_pressed in direction_keys:
             self.dir_key = key_pressed
@@ -92,10 +96,18 @@ class Player(gameObject.GameObject):
                     return True
                 else:
                     return False
+            elif self.modifier_key == 'i':  # Player/Corp is trying to merge corps with another player
+                if self.try_merge_corp(affected_cell):
+                    return True
+                else:
+                    return False
             else:
                 return False
         else:
             return False
+
+    def try_merge_corp(self, _cell):
+        return True
 
     def try_looting(self, _cell):
         if _cell is not None:

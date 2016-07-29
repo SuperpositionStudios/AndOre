@@ -69,6 +69,8 @@ class Cell:
                             if obj.__class__.__name__ == 'Player':
                                 if obj.obj_id == player_id:
                                     return obj.inner_icon
+                                elif obj.corp.check_if_in_corp(player_id):
+                                    return obj.corp_member_icon
                                 else:
                                     return obj.neutral_icon
                             else:
