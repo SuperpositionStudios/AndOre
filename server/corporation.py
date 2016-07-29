@@ -52,10 +52,16 @@ class Corporation:
                 corp_id_to_merge_with = received
                 self.world.corporations[corp_id_to_merge_with].merge_me(self.corp_id)
 
-    def merge_me(self, other_corp_id):  # Another corp will call this with their corp id to indicate that they want to be merged into our corp
+    # Another corp will call this with their corp id to indicate that they want to be merged into our corp
+    def merge_me(self, other_corp_id):
         self.sent_merge_invites = list([])  # Empties the sent merge invites list
         self.received_merge_invites = list([])  # Empties the received merge invites list
+        # Incorporating their ore bank into our ore bank
+        self.gain_ore(self.world.corporations[other_corp_id].ore_quantity)
 
-        self.gain_ore(self.world.corporations[other_corp_id].ore_quantity)  # Incorporates their ore bank into our ore bank
+        # Setting the other corp's members corp to our corp
         for member in self.world.corporations[other_corp_id].members:
-            member.corp = self  # Setting the other corp's members corp to our corp
+            member.corp = self
+
+        # Deletes the other corp to save memory
+        self.world.corporations.pop(other_corp_id)
