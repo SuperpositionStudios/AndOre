@@ -41,7 +41,8 @@ class Player(gameObject.GameObject):
             'l': "for looting",
             'i': "for inviting corp to merge into current corp",
             '-': "for setting a corp to a lower standing (A -> N -> E)",
-            '+': "for setting a corp to a higher standing (E -> N -> A)"
+            '+': "for setting a corp to a higher standing (E -> N -> A)",
+            'f': "for building a fence"
         }
         if key_pressed in direction_keys:
             self.dir_key = key_pressed
@@ -101,10 +102,30 @@ class Player(gameObject.GameObject):
                     return True
                 else:
                     return False
+            elif self.modifier_key == 'f':  # Player is trying to build a fence
+                if self.try_building_fence(affected_cell):
+                    return True
+                else:
+                    return False
             else:
                 return False
         else:
             return False
+
+    def try_building_fence(self, _cell):
+        if _cell is not None:
+            ore_cost = _cell.add_fence()
+            if self.corp.amount_of_ore() > ore_cost:
+                self.lose_ore(ore_cost)
+                return True
+            else:
+                struct = _cell.contains_object_type('Fence')
+                if struct[0]:
+                    fence = _cell.get_game_object_by_obj_id(struct[1])
+                    if fence[0]:
+                        fence[1].delete()
+                        return False
+        return False
 
     def try_merge_corp(self, _cell):
         if _cell is not None:
@@ -114,6 +135,7 @@ class Player(gameObject.GameObject):
                 if other_player[0]:
                     other_player_corp_id = other_player[1].get_corp_id()
                     self.send_merge_invite(other_player_corp_id)
+                    return True
         return False
 
     def get_corp_id(self):
@@ -148,15 +170,22 @@ class Player(gameObject.GameObject):
 
     def try_attacking(self, _cell):
         if _cell is not None:
-            struct = _cell.contains_object_type('Player')
+            struct = _cell.contains_object_type('Fence')
             if struct[0]:
-                other_player = _cell.get_game_object_by_obj_id(struct[1])
-                if other_player[0]:
-                    if self.corp.check_if_in_corp(struct[1]):
-                        return False # You cannot attack another player in your corp
-                    else:
-                        other_player[1].take_damage(self.attack_power)  # Attacking someone not in your corp
-                        return True
+                fence = _cell.get_game_object_by_obj_id(struct[1])
+                if fence[0]:
+                    fence[1].take_damage(self.attack_power)
+                    return True
+            else:
+                struct = _cell.contains_object_type('Player')
+                if struct[0]:
+                    other_player = _cell.get_game_object_by_obj_id(struct[1])
+                    if other_player[0]:
+                        if self.corp.check_if_in_corp(struct[1]):
+                            return False # You cannot attack another player in your corp
+                        else:
+                            other_player[1].take_damage(self.attack_power)  # Attacking someone not in your corp
+                            return True
         return False
 
     def gain_ore(self, amount):

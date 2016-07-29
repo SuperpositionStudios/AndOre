@@ -4,6 +4,7 @@ import uuid
 class GameObject:
 
     def __init__(self, _cell):
+        assert(_cell.__class__.__name__ == 'Cell')
         self.cell = _cell
         self.col = self.cell.col
         self.row = self.cell.row
@@ -61,3 +62,27 @@ class Loot(GameObject):
         self.icon = '%'
         self.passable = False  # False until we have a 'below' direction key
         self.ore_quantity = 0
+
+
+class Fence(GameObject):
+
+    def __init__(self, _cell):
+        super().__init__(_cell)
+        self.health = 60
+        self.icon = '#'
+        self.ore_cost_to_deploy = 30
+        self.passable = False
+
+    def take_damage(self, damage):
+        self.health -= damage
+        if self.check_if_dead():
+            self.died()
+
+    def check_if_dead(self):
+        if self.health <= 0:
+            return True
+        else:
+            return False
+
+    def died(self):
+        self.delete()

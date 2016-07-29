@@ -56,6 +56,7 @@ class World:  # World is not really world, it's more Level
 
     def new_player(self):
         spawn_location = self.random_can_enter_cell()
+        assert(spawn_location.__class__.__name__ == 'Cell')
 
         player_id = str(uuid.uuid4())
 
