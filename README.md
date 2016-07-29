@@ -7,7 +7,7 @@ A game about gathering ore, simple enough to take a reasonable amount of time to
 
 ##Setup
 1. Download the requirements
-    `sudo apt install virtualenv; sudo apt install python3.5; sudo apt install git;`
+    `sudo apt install -y virtualenv python3.5 git python3-dev;`
 2. Clone the repo
     `mkdir AndOre; cd AndOre; git clone https://github.com/baxter-oop/AndOre.git;`
 3. Create the virtual environments and install the python requirements
