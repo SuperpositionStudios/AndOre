@@ -55,6 +55,17 @@ class World:  # World is not really world, it's more Level
         return rendered_world
 
     def new_player(self):
+        spawn_location = self.random_can_enter_cell()
+
+        player_id = str(uuid.uuid4())
+
+        new_player = Player(player_id, self, spawn_location)
+        spawn_location.add_game_object(new_player)
+        self.players[player_id] = new_player
+
+        return player_id
+
+    def random_can_enter_cell(self):
         random_cell = self.get_random_cell()
         max_tries = self.rows * self.cols
         attempt = 1
@@ -63,14 +74,7 @@ class World:  # World is not really world, it's more Level
             attempt += 1
             if attempt == max_tries:
                 return 'too many players'
-
-        player_id = str(uuid.uuid4())
-
-        new_player = Player(player_id, self, random_cell)
-        random_cell.add_game_object(new_player)
-        self.players[player_id] = new_player
-
-        return player_id
+        return random_cell
 
     def new_corporation(self, initial_player_object):
         new_corp = Corporation(initial_player_object, self)

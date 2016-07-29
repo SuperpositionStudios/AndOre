@@ -239,4 +239,4 @@ class Player(gameObject.GameObject):
             self.go_to_respawn_location()
 
     def go_to_respawn_location(self):
-        self.change_cell(self.world.get_random_cell())
+        self.change_cell(self.world.random_can_enter_cell())
