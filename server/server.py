@@ -91,6 +91,8 @@ def action():
 
 @app.route('/sendState')
 def send_state(**keyword_parameters):
+    start_of_request = datetime.datetime.now()
+
     tick_server_if_needed()
     response = dict()
 
@@ -107,6 +109,9 @@ def send_state(**keyword_parameters):
     response['world'] = world.players[_id].world_state()
     response['id'] = _id
     response['vitals'] = world.players[_id].get_vitals()
+
+    request_time = datetime.datetime.now() - start_of_request
+    print("Time to answer sendState request: {}".format(request_time.microseconds / 1000))
     return home_cor(jsonify(**response))
 
 
