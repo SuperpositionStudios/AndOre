@@ -1,6 +1,7 @@
 import uuid, random, datetime
 from cell import Cell
 from player import Player
+from corporation import Corporation
 import helper_functions
 
 
@@ -14,6 +15,7 @@ class World:  # World is not really world, it's more Level
         self.last_tick = datetime.datetime.now()
         self.microseconds_per_tick = 350000
         self.players = dict()
+        self.corporations = dict()
 
         for row in range(self.rows):
             current_row = []
@@ -69,6 +71,11 @@ class World:  # World is not really world, it's more Level
         self.players[player_id] = new_player
 
         return player_id
+
+    def new_corporation(self, initial_player_object):
+        new_corp = Corporation(initial_player_object, self)
+        self.corporations[new_corp.corp_id] = new_corp
+        return new_corp
 
     def spawn_ore_deposits(self, num=1):
         assert(num <= self.rows * self.cols)

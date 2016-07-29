@@ -31,7 +31,7 @@ class Player(gameObject.GameObject):
         self.modifier_key = 'm'
         self.passable = False
         self.last_action_at_world_age = 0
-        self.corp = corporation.Corporation(self)
+        self.corp = self.world.new_corporation(self)
 
     def action(self, key_pressed):
         direction_keys = ['w', 'a', 's', 'd']
@@ -107,7 +107,23 @@ class Player(gameObject.GameObject):
             return False
 
     def try_merge_corp(self, _cell):
-        return True
+        if _cell is not None:
+            struct = _cell.contains_object_type('Player')
+            if struct[0]:
+                other_player = _cell.get_game_object_by_obj_id(struct[1])
+                if other_player[0]:
+                    other_player_corp_id = other_player[1].get_corp_id()
+                    self.send_merge_invite(other_player_corp_id)
+        return False
+
+    def get_corp_id(self):
+        return self.corp.corp_id
+
+    def send_merge_invite(self, corp_id):
+        self.corp.send_merge_invite(corp_id)
+
+    def receive_merge_invite(self, corp_id):
+        self.corp.receive_merge_invite(corp_id)
 
     def try_looting(self, _cell):
         if _cell is not None:

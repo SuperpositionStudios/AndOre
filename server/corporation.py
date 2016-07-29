@@ -3,12 +3,15 @@ import gameObject, uuid
 
 class Corporation:
 
-    def __init__(self, initial_member):
+    def __init__(self, initial_member, _world):
         assert(initial_member.__class__.__name__ == 'Player')
 
         self.corp_id = str(uuid.uuid4())
+        self.world = _world
         self.members = []
         self.ore_quantity = 0
+        self.sent_merge_invites = []  # A list containing ids of corps that have been sent merge invites
+        self.received_merge_invites = []  # A list containing ids of corps that have sent use merge invites
 
         self.add_member(initial_member)
 
@@ -33,3 +36,10 @@ class Corporation:
             if player_id == member.obj_id:
                 return True
         return False
+
+    def receive_merge_invite(self, corp_id):
+        self.received_merge_invites.append(corp_id)
+
+    def send_merge_invite(self, corp_id):
+        self.sent_merge_invites.append(corp_id)
+        self.world.corporations[corp_id].receive_merge_invite(self.corp_id)
