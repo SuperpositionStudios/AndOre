@@ -54,6 +54,7 @@ class Corporation:
 
     # Another corp will call this with their corp id to indicate that they want to be merged into our corp
     def merge_me(self, other_corp_id):
+        #print("Old corp size: {}".format(len(self.members)))
         self.sent_merge_invites = list([])  # Empties the sent merge invites list
         self.received_merge_invites = list([])  # Empties the received merge invites list
         # Incorporating their ore bank into our ore bank
@@ -62,6 +63,8 @@ class Corporation:
         # Setting the other corp's members corp to our corp
         for member in self.world.corporations[other_corp_id].members:
             member.corp = self
+            self.members.append(member)
 
         # Deletes the other corp to save memory
         self.world.corporations.pop(other_corp_id)
+        #print("New corp size: {}".format(len(self.members)))

@@ -152,7 +152,11 @@ class Player(gameObject.GameObject):
             if struct[0]:
                 other_player = _cell.get_game_object_by_obj_id(struct[1])
                 if other_player[0]:
-                    other_player[1].take_damage(self.attack_power)
+                    if self.corp.check_if_in_corp(struct[1]):
+                        return False # You cannot attack another player in your corp
+                    else:
+                        other_player[1].take_damage(self.attack_power)  # Attacking someone not in your corp
+                        return True
         return False
 
     def gain_ore(self, amount):
