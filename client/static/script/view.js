@@ -28,7 +28,7 @@ var view = {
     }, pollDelay);
   },
   SetupInput: function() {
-    $("body").keydown(function(e){
+    $("body").keypress(function(e){
       command = String.fromCharCode(e.which).toLowerCase()
       //console.log(command);
       if(validKeys[command]) {
