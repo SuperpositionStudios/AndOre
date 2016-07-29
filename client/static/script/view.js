@@ -10,7 +10,7 @@ var view = {
   SetupView : function(callback) {
     view.contentDiv = $(DivNameToId(contentId));
     view.SetupInput();
-    //view.Poll();
+    view.Poll();
     CallCallback(callback);
   },
   Draw: function(world){
