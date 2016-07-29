@@ -170,15 +170,22 @@ class Player(gameObject.GameObject):
 
     def try_attacking(self, _cell):
         if _cell is not None:
-            struct = _cell.contains_object_type('Player')
+            struct = _cell.contains_object_type('Fence')
             if struct[0]:
-                other_player = _cell.get_game_object_by_obj_id(struct[1])
-                if other_player[0]:
-                    if self.corp.check_if_in_corp(struct[1]):
-                        return False # You cannot attack another player in your corp
-                    else:
-                        other_player[1].take_damage(self.attack_power)  # Attacking someone not in your corp
-                        return True
+                fence = _cell.get_game_object_by_obj_id(struct[1])
+                if fence[0]:
+                    fence[1].take_damage(self.attack_power)
+                    return True
+            else:
+                struct = _cell.contains_object_type('Player')
+                if struct[0]:
+                    other_player = _cell.get_game_object_by_obj_id(struct[1])
+                    if other_player[0]:
+                        if self.corp.check_if_in_corp(struct[1]):
+                            return False # You cannot attack another player in your corp
+                        else:
+                            other_player[1].take_damage(self.attack_power)  # Attacking someone not in your corp
+                            return True
         return False
 
     def gain_ore(self, amount):
