@@ -4,6 +4,7 @@ import uuid
 class GameObject:
 
     def __init__(self, _cell):
+        assert(_cell.__class__.__name__ == 'Cell')
         self.cell = _cell
         self.col = self.cell.col
         self.row = self.cell.row
@@ -61,3 +62,9 @@ class Loot(GameObject):
         self.icon = '%'
         self.passable = False  # False until we have a 'below' direction key
         self.ore_quantity = 0
+
+
+class Fence(GameObject):
+
+    def __init__(self, _cell):
+        super().__init__(_cell)
