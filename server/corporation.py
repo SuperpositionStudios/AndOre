@@ -16,19 +16,17 @@ class Corporation:
 
         self.add_member(initial_member)
 
-    def worsen_standing(self, corp_id):
+    def fetch_standing(self, corp_id):
         if corp_id in self.standings:
-            self.standings[corp_id] = self.calculate_standing(self.standings[corp_id], -1)
-            return True
+            return self.standings[corp_id]
         else:
-            self.standings[corp_id] = self.calculate_standing('N', -1)
+            return 'N'
+
+    def worsen_standing(self, corp_id):
+        self.standings[corp_id] = self.calculate_standing(self.fetch_standing(corp_id), -1)
 
     def improve_standing(self, corp_id):
-        if corp_id in self.standings:
-            self.standings[corp_id] = self.calculate_standing(self.standings[corp_id], 1)
-            return True
-        else:
-            self.standings[corp_id] = self.calculate_standing('N', 1)
+        self.standings[corp_id] = self.calculate_standing(self.fetch_standing(corp_id), 1)
 
     def calculate_standing(self, standing, modifier):
         if standing == 'E' and modifier == 1:
