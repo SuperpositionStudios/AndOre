@@ -23,6 +23,11 @@ class Cell:
         a = gameObject.Hospital(self)
         self.add_game_object(a)
 
+    def add_fence(self):
+        a = gameObject.Fence(self)
+        self.add_game_object(a)
+        return a.ore_cost_to_deploy
+
     def destroy(self):
         self.world = None
         self.contents = None
@@ -57,7 +62,7 @@ class Cell:
 
     def render(self, **keyword_parameters):
 
-        priority = ['Player', 'OreDeposit', 'Hospital', 'Loot', 'EmptySpace']
+        priority = ['Player', 'OreDeposit', 'Hospital', 'Loot', 'Fence', 'EmptySpace']
 
         if 'player_id' in keyword_parameters:
             player_id = keyword_parameters['player_id']
