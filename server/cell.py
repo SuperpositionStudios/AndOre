@@ -24,6 +24,7 @@ class Cell:
         assert(owner_corp.__class__.__name__ == 'Corporation')
         a = gameObject.Hospital(self, owner_corp)
         self.add_game_object(a)
+
         return a.price_to_construct
 
     def add_fence(self):
