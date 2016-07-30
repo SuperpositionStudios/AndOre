@@ -17,6 +17,10 @@ class Corporation:
 
         self.add_member(initial_member)
 
+    def tick_buildings(self):
+        for building in self.buildings:
+            building.tick()
+
     def add_corp_building(self, building_object):
         self.buildings.append(building_object)
 
