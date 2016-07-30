@@ -54,10 +54,10 @@ class Hospital(GameObject):
         self.icon = '+'  # Deprecated
 
         self.icons = {
-            'M': '±',
+            'M': '⊞',
             'A': '±',
             'N': '+',
-            'E': '+'
+            'E': '∓'
         }
 
         self.prices_to_use = {
