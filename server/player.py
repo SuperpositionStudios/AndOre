@@ -221,30 +221,40 @@ class Player(gameObject.GameObject):
 
     def try_attacking(self, _cell):
         if _cell is not None:
-            struct = _cell.contains_object_type('Fence')
-            if struct[0]:
+            if _cell.contains_object_type('Fence')[0]:
+                struct = _cell.contains_object_type('Fence')
                 fence = _cell.get_game_object_by_obj_id(struct[1])
                 if fence[0]:
                     fence[1].take_damage(self.attack_power)
                     return True
-            else:
+            elif _cell.contains_object_type('Hospital')[0]:
+                struct = _cell.contains_object_type('Hospital')
+                hospital = _cell.get_game_object_by_obj_id(struct[1])
+                if hospital[0]:
+                    hospital_obj = hospital[1]
+                    corp_standing_to_hospital_owner_corp = self.corp.fetch_standing(hospital_obj.owner_corp.corp_id)
+                    if corp_standing_to_hospital_owner_corp == 'M' or corp_standing_to_hospital_owner_corp == 'A':
+                        return False  # You cannot attack a hospital that is owned by a corp that we are friendly to
+                    else:
+                        hospital_obj.take_damage(self.attack_power, self.corp)
+                        return True
+            elif _cell.contains_object_type('Player')[0]:
                 struct = _cell.contains_object_type('Player')
-                if struct[0]:
-                    other_player = _cell.get_game_object_by_obj_id(struct[1])
-                    if other_player[0]:
-                        corp_standing_to_other_players_corp = self.corp.fetch_standing(other_player[1].corp.corp_id)
-                        if self.corp.check_if_in_corp(struct[1]):
-                            return False  # You cannot attack another player in your corp
-                        elif corp_standing_to_other_players_corp == 'A':
-                            return False  # You cannot attack members of corporations that your corporation considers allies
-                        else:
-                            # Attacking someone not in your corp
-                            other_player[1].take_damage(self.attack_power)
-                            # Worsening their corp's standings towards your corp
-                            other_player[1].corp.worsen_standing(self.corp.corp_id)
-                            # Worsening your corp's standings towards their corp
-                            self.corp.worsen_standing(other_player[1].corp.corp_id)
-                            return True
+                other_player = _cell.get_game_object_by_obj_id(struct[1])
+                if other_player[0]:
+                    corp_standing_to_other_players_corp = self.corp.fetch_standing(other_player[1].corp.corp_id)
+                    if self.corp.check_if_in_corp(struct[1]):
+                        return False  # You cannot attack another player in your corp
+                    elif corp_standing_to_other_players_corp == 'A':
+                        return False  # You cannot attack members of corporations that your corporation considers allies
+                    else:
+                        # Attacking someone not in your corp
+                        other_player[1].take_damage(self.attack_power)
+                        # Worsening their corp's standings towards your corp
+                        other_player[1].corp.worsen_standing(self.corp.corp_id)
+                        # Worsening your corp's standings towards their corp
+                        self.corp.worsen_standing(other_player[1].corp.corp_id)
+                        return True
         return False
 
     def gain_ore(self, amount):

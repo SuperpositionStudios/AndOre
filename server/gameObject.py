@@ -44,7 +44,13 @@ class CorpOwnedBuilding(GameObject):
         self.owner_corp = _corp
         self.health = 10000
 
-    def take_damage(self, damage):
+    def take_damage(self, damage, attacking_corp):
+        assert(attacking_corp.__class__.__name__ == 'Corporation')
+        # Standings related thing
+        self.owner_corp.worsen_standing(attacking_corp.corp_id)
+        attacking_corp.worsen_standing(self.owner_corp.corp_id)
+
+        # Damage Taking related thing
         self.health -= damage
         if self.check_if_dead():
             self.died()
