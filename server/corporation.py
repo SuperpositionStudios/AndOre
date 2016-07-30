@@ -8,7 +8,8 @@ class Corporation:
 
         self.corp_id = str(uuid.uuid4())
         self.world = _world
-        self.members = []
+        self.members = []  # Members of the corporation, the actual Player objects are stored here, not just their ids.
+        self.buildings = []  # Buildings owned by the corporation, building objects are stored here, not just their ids.
         self.ore_quantity = 0
         self.sent_merge_invites = []  # A list containing ids of corps that have been sent merge invites
         self.received_merge_invites = []  # A list containing ids of corps that have sent use merge invites

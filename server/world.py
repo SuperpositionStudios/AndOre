@@ -16,6 +16,7 @@ class World:  # World is not really world, it's more Level
         self.microseconds_per_tick = 350000
         self.players = dict()
         self.corporations = dict()
+        self.buildings = dict()
 
         for row in range(self.rows):
             current_row = []

@@ -45,10 +45,37 @@ class OreDeposit(GameObject):
 
 class Hospital(GameObject):
 
-    def __init__(self, _cell):
+    def __init__(self, _cell, _corp):
+        assert(_cell.__class__.__name__ == 'Cell')
+        assert(_corp.__class__.__name__ == 'Corporation')
+
         super().__init__(_cell)
-        self.icon = '+'
+
+        self.icon = '+'  # Deprecated
+
+        self.icons = {
+            'M': '±',
+            'A': '±',
+            'N': '+',
+            'E': '+'
+        }
+
+        self.prices_to_use = {
+            'M': 5,
+            'A': 6,
+            'N': 10,
+            'E': 15
+        }
+
+        self.profits_per_use = {
+            'M': 0,
+            'A': 1,
+            'N': 5,
+            'E': 10
+        }
+
         self.cell = _cell
+        self.owner_corp = _corp
         self.passable = False
         self.blocking = True
         self.health_regen_per_turn = 5
