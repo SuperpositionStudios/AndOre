@@ -122,13 +122,32 @@ class Player(gameObject.GameObject):
                     return True
                 else:
                     return False
+            elif self.modifier_key == 'g':  # Player is trying to construct an ore generator
+                if self.try_building_ore_generator(affected_cell):
+                    return True
+                else:
+                    return False
             else:
                 return False
         else:
             return False
 
+    def try_building_ore_generator(self, _cell):
+        if _cell is not None and _cell.can_enter():
+            ore_cost = _cell.add_ore_generator(self.corp)
+            if self.corp.amount_of_ore() > ore_cost:
+                self.lose_ore(ore_cost)
+                return True
+            else:
+                struct = _cell.contains_object_type('OreGenerator')
+                if struct[0]:
+                    ore_generator = _cell.get_game_object_by_obj_id(struct[1])
+                    if ore_generator[0]:
+                        ore_generator[1].delete()
+                        return False
+
     def try_building_hospital(self, _cell):
-        if _cell is not None:
+        if _cell is not None and _cell.can_enter():
             ore_cost = _cell.add_hospital(self.corp)
             if self.corp.amount_of_ore() > ore_cost:
                 self.lose_ore(ore_cost)
@@ -142,7 +161,7 @@ class Player(gameObject.GameObject):
                         return False
 
     def try_building_fence(self, _cell):
-        if _cell is not None:
+        if _cell is not None and _cell.can_enter():
             ore_cost = _cell.add_fence()
             if self.corp.amount_of_ore() > ore_cost:
                 self.lose_ore(ore_cost)
@@ -237,6 +256,17 @@ class Player(gameObject.GameObject):
                         return False  # You cannot attack a hospital that is owned by a corp that we are friendly to
                     else:
                         hospital_obj.take_damage(self.attack_power, self.corp)
+                        return True
+            elif _cell.contains_object_type('OreGenerator'):
+                struct = _cell.contains_object_type('OreGenerator')
+                ore_generator = _cell.get_game_object_by_obj_id(struct[1])
+                if ore_generator[0]:
+                    ore_generator_obj = ore_generator[1]
+                    corp_standing_to_ore_generator_owner_corp = self.corp.fetch_standing(ore_generator_obj.owner_corp.corp_id)
+                    if corp_standing_to_ore_generator_owner_corp == 'M' or corp_standing_to_ore_generator_owner_corp == 'A':
+                        return False  # You cannot attack an ore generator that is owned by a corp that we are friendly to
+                    else:
+                        ore_generator_obj.take_damage(self.attack_power, self.corp)
                         return True
             elif _cell.contains_object_type('Player')[0]:
                 struct = _cell.contains_object_type('Player')

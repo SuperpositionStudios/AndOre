@@ -44,6 +44,8 @@ class CorpOwnedBuilding(GameObject):
         self.owner_corp = _corp
         self.health = 10000
 
+        self.owner_corp.add_corp_building(self)
+
     def take_damage(self, damage, attacking_corp):
         assert(attacking_corp.__class__.__name__ == 'Corporation')
         # Standings related thing
@@ -68,6 +70,10 @@ class CorpOwnedBuilding(GameObject):
         # Something the building needs to every tick
         return
 
+    def delete(self):
+        self.leave_cell()
+        self.owner_corp.remove_corp_building(self)
+
 
 class OreDeposit(GameObject):
 
@@ -87,13 +93,23 @@ class OreGenerator(CorpOwnedBuilding):
         assert(_corp.__class__.__name__ == 'Corporation')
 
         super().__init__(_cell, _corp)
-
+        self.icon = '€'
         self.icons = {
             'M': 'Ƀ',
             'A': '₳',
             'N': '€',
             'E': '€'
         }
+
+        self.passable = False
+        self.blocking = True
+
+        self.ore_generated_per_tick = 1
+        self.price_to_construct = 100
+        self.health = 80
+
+    def tick(self):
+        self.owner_corp.gain_ore(self.ore_generated_per_tick)
 
 
 class Hospital(CorpOwnedBuilding):

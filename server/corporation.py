@@ -17,8 +17,19 @@ class Corporation:
 
         self.add_member(initial_member)
 
+    def tick_buildings(self):
+        for building in self.buildings:
+            building.tick()
+
     def add_corp_building(self, building_object):
         self.buildings.append(building_object)
+
+    def remove_corp_building(self, building_object):
+        obj_id = building_object.obj_id
+        for i in range(0, len(self.buildings)):
+            if self.buildings[i].obj_id == obj_id:
+                del self.buildings[i]
+                return
 
     def fetch_standing(self, corp_id):
         if corp_id == self.corp_id:

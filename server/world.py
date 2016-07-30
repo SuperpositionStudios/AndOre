@@ -33,6 +33,11 @@ class World:  # World is not really world, it's more Level
     def tick(self):
         self.last_tick = datetime.datetime.now()
         self.world_age += 1
+        self.tick_corp_buildings()
+
+    def tick_corp_buildings(self):
+        for corp_id, corp in self.corporations.items():
+            corp.tick_buildings()
 
     def render_world(self, **keyword_parameters):
         if 'player_id' in keyword_parameters:
