@@ -77,7 +77,7 @@ class Cell:
 
     def render(self, **keyword_parameters):
 
-        priority = ['Player', 'OreDeposit', 'Hospital', 'Loot', 'Fence', 'EmptySpace']
+        priority = ['Player', 'OreDeposit', 'Hospital', 'OreGenerator', 'Loot', 'Fence', 'EmptySpace']
 
         if 'player_id' in keyword_parameters:
             player_id = keyword_parameters['player_id']
@@ -98,6 +98,10 @@ class Cell:
                                 hospital_owners = obj.owner_corp
                                 owner_standings_towards_us = hospital_owners.fetch_standing_for_player(player_id)
                                 return obj.icons[owner_standings_towards_us]
+                            elif obj.__class__.__name__ == 'OreGenerator':
+                                generator_owners = obj.owner_corp
+                                corp_standing_to_generator_owner_corp = player_obj.corp.fetch_standing(generator_owners.corp_id)
+                                return obj.icons[corp_standing_to_generator_owner_corp]
                             else:
                                 return obj.icon
             return '.'  # Returns Empty Space

@@ -93,7 +93,7 @@ class OreGenerator(CorpOwnedBuilding):
         assert(_corp.__class__.__name__ == 'Corporation')
 
         super().__init__(_cell, _corp)
-
+        self.icon = '€'
         self.icons = {
             'M': 'Ƀ',
             'A': '₳',
