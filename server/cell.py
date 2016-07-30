@@ -19,9 +19,11 @@ class Cell:
         a = gameObject.OreDeposit(self)
         self.contents.append(a)
 
-    def add_hospital(self):
-        a = gameObject.Hospital(self)
+    def add_hospital(self, owner_corp):
+        assert(owner_corp.__class__.__name__ == 'Corporation')
+        a = gameObject.Hospital(self, owner_corp)
         self.add_game_object(a)
+        return a.price_to_construct
 
     def add_fence(self):
         a = gameObject.Fence(self)

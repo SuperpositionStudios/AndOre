@@ -17,9 +17,19 @@ class Corporation:
 
         self.add_member(initial_member)
 
+    def add_corp_building(self, building_object):
+        self.buildings.append(building_object)
+
     def fetch_standing(self, corp_id):
         if corp_id in self.standings:
             return self.standings[corp_id]
+        else:
+            return 'N'
+
+    def fetch_standing_for_player(self, player_id):
+        player_object = self.world.players[player_id]
+        if player_object is not None:
+            return self.fetch_standing(player_object.corp.corp_id)
         else:
             return 'N'
 
@@ -94,6 +104,11 @@ class Corporation:
         for member in self.world.corporations[other_corp_id].members:
             member.corp = self
             self.members.append(member)
+
+        # Setting the other corp's buildings corp to our corp
+        for building in self.world.corporations[other_corp_id].buildings:
+            building.corp = self
+            self.buildings.append(building)
 
         # Deletes the other corp to save memory
         self.world.corporations.pop(other_corp_id)

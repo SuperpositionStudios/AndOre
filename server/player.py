@@ -128,7 +128,18 @@ class Player(gameObject.GameObject):
             return False
 
     def try_building_hospital(self, _cell):
-        pass
+        if _cell is not None:
+            ore_cost = _cell.add_hospital(self.corp)
+            if self.corp.amount_of_ore() > ore_cost:
+                self.lose_ore(ore_cost)
+                return True
+            else:
+                struct = _cell.contains_object_type('Hospital')
+                if struct[0]:
+                    hospital = _cell.get_game_object_by_obj_id(struct[1])
+                    if hospital[0]:
+                        hospital[1].delete()
+                        return False
 
     def try_building_fence(self, _cell):
         if _cell is not None:
