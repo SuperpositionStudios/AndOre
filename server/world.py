@@ -2,7 +2,7 @@ import uuid, random, datetime
 from cell import Cell
 from player import Player
 from corporation import Corporation
-import helper_functions
+import helper_functions, warnings
 
 
 class World:  # World is not really world, it's more Level
@@ -16,6 +16,7 @@ class World:  # World is not really world, it's more Level
         self.microseconds_per_tick = 350000
         self.players = dict()
         self.corporations = dict()
+        self.buildings = dict()
 
         for row in range(self.rows):
             current_row = []
@@ -97,6 +98,7 @@ class World:  # World is not really world, it's more Level
             random_cell.add_ore_deposit()
 
     def spawn_hospitals(self, num=1):
+        warnings.warn("Do not use this as this creates hospitals without an owner, which you cannot do", DeprecationWarning)
         assert (num <= self.rows * self.cols)
 
         for i in range(num):

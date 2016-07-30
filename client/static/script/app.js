@@ -44,7 +44,7 @@ var app = {
   env: {},
   tick: 0,
   newAction: false,
-  keys: ["a", "w", "s", "d", "k", "l", "m", "i", "-", "+", "f"],
+  keys: ["a", "w", "s", "d", "k", "l", "m", "i", "-", "+", "f", "h"],
   actions: [],
   lastAction: "a",
   lastHealth: 100,
