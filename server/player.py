@@ -117,10 +117,18 @@ class Player(gameObject.GameObject):
                     return True
                 else:
                     return False
+            elif self.modifier_key == 'h':  # Player is trying to construct a hospital
+                if self.try_building_hospital(affected_cell):
+                    return True
+                else:
+                    return False
             else:
                 return False
         else:
             return False
+
+    def try_building_hospital(self, _cell):
+        pass
 
     def try_building_fence(self, _cell):
         if _cell is not None:
