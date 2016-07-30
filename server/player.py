@@ -274,12 +274,20 @@ class Player(gameObject.GameObject):
             if struct[0]:
                 hospital = _cell.get_game_object_by_obj_id(struct[1])
                 if hospital[0]:
-                    assert(hospital[1].__class__.__name__ == 'Hospital')
-                    if self.corp.amount_of_ore() >= 10:
-                        self.health = min(self.health + hospital[1].health_regen_per_turn, self.health_cap)
-                        self.lose_ore(hospital[1].ore_usage_cost)
+                    hospital_obj = hospital[1]
+                    assert(hospital_obj.__class__.__name__ == 'Hospital')
+                    hospital_owners = hospital_obj.owner_corp
+                    owner_standings_towards_us = hospital_owners.fetch_standing_for_player(self.obj_id)
+                    price_to_use_hospital = hospital_obj.prices_to_use[owner_standings_towards_us]
+                    owners_profit = hospital_obj.profits_per_use[owner_standings_towards_us]
+
+                    if self.corp.amount_of_ore() >= price_to_use_hospital:
+                        self.health = min(self.health + hospital_obj.health_regen_per_turn, self.health_cap)
+                        # Pay for using hospital
+                        self.lose_ore(price_to_use_hospital)
+                        # Hospital owners profit
+                        hospital_obj.give_profit_to_owners(owner_standings_towards_us)
                         return True
-                    return False
         return False
 
     def try_move(self, _cell):

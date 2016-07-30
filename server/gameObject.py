@@ -80,7 +80,10 @@ class Hospital(GameObject):
         self.blocking = True
         self.health_regen_per_turn = 5
         self.ore_usage_cost = 10
-        self.price_to_construct = 20  # Debug price
+        self.price_to_construct = 200
+
+    def give_profit_to_owners(self, standing):
+        self.owner_corp.gain_ore(self.profits_per_use[standing])
 
 
 class Loot(GameObject):
