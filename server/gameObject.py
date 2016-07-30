@@ -42,6 +42,21 @@ class CorpOwnedBuilding(GameObject):
 
         self.cell = _cell
         self.owner_corp = _corp
+        self.health = 10000
+
+    def take_damage(self, damage):
+        self.health -= damage
+        if self.check_if_dead():
+            self.died()
+
+    def check_if_dead(self):
+        if self.health <= 0:
+            return True
+        else:
+            return False
+
+    def died(self):
+        self.delete()
 
     def tick(self):
         # Something the building needs to every tick
@@ -111,6 +126,7 @@ class Hospital(CorpOwnedBuilding):
         self.health_regen_per_turn = 5
         self.ore_usage_cost = 10
         self.price_to_construct = 200
+        self.health = 200
 
     def give_profit_to_owners(self, standing):
         self.owner_corp.gain_ore(self.profits_per_use[standing])
