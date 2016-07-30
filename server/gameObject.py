@@ -72,7 +72,7 @@ class CorpOwnedBuilding(GameObject):
 
     def delete(self):
         self.leave_cell()
-        self.owner_corp.remove_corp_building(self.obj_id)
+        self.owner_corp.remove_corp_building(self)
 
 
 class OreDeposit(GameObject):

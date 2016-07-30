@@ -36,7 +36,7 @@ class World:  # World is not really world, it's more Level
         self.tick_corp_buildings()
 
     def tick_corp_buildings(self):
-        for corp in self.corporations:
+        for corp_id, corp in self.corporations.items():
             corp.tick_buildings()
 
     def render_world(self, **keyword_parameters):

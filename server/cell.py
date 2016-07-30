@@ -27,6 +27,13 @@ class Cell:
 
         return a.price_to_construct
 
+    def add_ore_generator(self, owner_corp):
+        assert(owner_corp.__class__.__name__ == 'Corporation')
+        a = gameObject.OreGenerator(self, owner_corp)
+        self.add_game_object(a)
+
+        return a.price_to_construct
+
     def add_fence(self):
         a = gameObject.Fence(self)
         self.add_game_object(a)

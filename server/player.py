@@ -122,10 +122,29 @@ class Player(gameObject.GameObject):
                     return True
                 else:
                     return False
+            elif self.modifier_key == 'g':  # Player is trying to construct an ore generator
+                if self.try_building_ore_generator(affected_cell):
+                    return True
+                else:
+                    return False
             else:
                 return False
         else:
             return False
+
+    def try_building_ore_generator(self, _cell):
+        if _cell is not None:
+            ore_cost = _cell.add_ore_generator(self.corp)
+            if self.corp.amount_of_ore() > ore_cost:
+                self.lose_ore(ore_cost)
+                return True
+            else:
+                struct = _cell.contains_object_type('OreGenerator')
+                if struct[0]:
+                    ore_generator = _cell.get_game_object_by_obj_id(struct[1])
+                    if ore_generator[0]:
+                        ore_generator[1].delete()
+                        return False
 
     def try_building_hospital(self, _cell):
         if _cell is not None:
