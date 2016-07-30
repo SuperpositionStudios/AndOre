@@ -257,6 +257,17 @@ class Player(gameObject.GameObject):
                     else:
                         hospital_obj.take_damage(self.attack_power, self.corp)
                         return True
+            elif _cell.contains_object_type('OreGenerator'):
+                struct = _cell.contains_object_type('OreGenerator')
+                ore_generator = _cell.get_game_object_by_obj_id(struct[1])
+                if ore_generator[0]:
+                    ore_generator_obj = ore_generator[1]
+                    corp_standing_to_ore_generator_owner_corp = self.corp.fetch_standing(ore_generator_obj.owner_corp.corp_id)
+                    if corp_standing_to_ore_generator_owner_corp == 'M' or corp_standing_to_ore_generator_owner_corp == 'A':
+                        return False  # You cannot attack an ore generator that is owned by a corp that we are friendly to
+                    else:
+                        ore_generator_obj.take_damage(self.attack_power, self.corp)
+                        return True
             elif _cell.contains_object_type('Player')[0]:
                 struct = _cell.contains_object_type('Player')
                 other_player = _cell.get_game_object_by_obj_id(struct[1])
