@@ -32,6 +32,22 @@ class GameObject:
         return
 
 
+class CorpOwnedBuilding(GameObject):
+
+    def __init__(self, _cell, _corp):
+        assert(_cell.__class__.__name__ == 'Cell')
+        assert(_corp.__class__.__name__ == 'Corporation')
+
+        super().__init__(_cell)
+
+        self.cell = _cell
+        self.owner_corp = _corp
+
+    def tick(self):
+        # Something the building needs to every tick
+        return
+
+
 class OreDeposit(GameObject):
 
     def __init__(self, _cell):
@@ -43,13 +59,29 @@ class OreDeposit(GameObject):
         self.ore_per_turn = 3
 
 
-class Hospital(GameObject):
+class OreGenerator(CorpOwnedBuilding):
 
     def __init__(self, _cell, _corp):
         assert(_cell.__class__.__name__ == 'Cell')
         assert(_corp.__class__.__name__ == 'Corporation')
 
-        super().__init__(_cell)
+        super().__init__(_cell, _corp)
+
+        self.icons = {
+            'M': 'Ƀ',
+            'A': '₳',
+            'N': '€',
+            'E': '€'
+        }
+
+
+class Hospital(CorpOwnedBuilding):
+
+    def __init__(self, _cell, _corp):
+        assert(_cell.__class__.__name__ == 'Cell')
+        assert(_corp.__class__.__name__ == 'Corporation')
+
+        super().__init__(_cell, _corp)
 
         self.icon = '+'  # Deprecated
 
@@ -74,8 +106,6 @@ class Hospital(GameObject):
             'E': 10
         }
 
-        self.cell = _cell
-        self.owner_corp = _corp
         self.passable = False
         self.blocking = True
         self.health_regen_per_turn = 5
