@@ -32,6 +32,43 @@ class GameObject:
         return
 
 
+class CorpOwnedBuilding(GameObject):
+
+    def __init__(self, _cell, _corp):
+        assert(_cell.__class__.__name__ == 'Cell')
+        assert(_corp.__class__.__name__ == 'Corporation')
+
+        super().__init__(_cell)
+
+        self.cell = _cell
+        self.owner_corp = _corp
+        self.health = 10000
+
+    def take_damage(self, damage, attacking_corp):
+        assert(attacking_corp.__class__.__name__ == 'Corporation')
+        # Standings related thing
+        self.owner_corp.worsen_standing(attacking_corp.corp_id)
+        attacking_corp.worsen_standing(self.owner_corp.corp_id)
+
+        # Damage Taking related thing
+        self.health -= damage
+        if self.check_if_dead():
+            self.died()
+
+    def check_if_dead(self):
+        if self.health <= 0:
+            return True
+        else:
+            return False
+
+    def died(self):
+        self.delete()
+
+    def tick(self):
+        # Something the building needs to every tick
+        return
+
+
 class OreDeposit(GameObject):
 
     def __init__(self, _cell):
@@ -43,13 +80,29 @@ class OreDeposit(GameObject):
         self.ore_per_turn = 3
 
 
-class Hospital(GameObject):
+class OreGenerator(CorpOwnedBuilding):
 
     def __init__(self, _cell, _corp):
         assert(_cell.__class__.__name__ == 'Cell')
         assert(_corp.__class__.__name__ == 'Corporation')
 
-        super().__init__(_cell)
+        super().__init__(_cell, _corp)
+
+        self.icons = {
+            'M': 'Ƀ',
+            'A': '₳',
+            'N': '€',
+            'E': '€'
+        }
+
+
+class Hospital(CorpOwnedBuilding):
+
+    def __init__(self, _cell, _corp):
+        assert(_cell.__class__.__name__ == 'Cell')
+        assert(_corp.__class__.__name__ == 'Corporation')
+
+        super().__init__(_cell, _corp)
 
         self.icon = '+'  # Deprecated
 
@@ -74,13 +127,12 @@ class Hospital(GameObject):
             'E': 10
         }
 
-        self.cell = _cell
-        self.owner_corp = _corp
         self.passable = False
         self.blocking = True
         self.health_regen_per_turn = 5
         self.ore_usage_cost = 10
         self.price_to_construct = 200
+        self.health = 200
 
     def give_profit_to_owners(self, standing):
         self.owner_corp.gain_ore(self.profits_per_use[standing])
