@@ -133,7 +133,7 @@ class Player(gameObject.GameObject):
             return False
 
     def try_building_ore_generator(self, _cell):
-        if _cell is not None:
+        if _cell is not None and _cell.can_enter():
             ore_cost = _cell.add_ore_generator(self.corp)
             if self.corp.amount_of_ore() > ore_cost:
                 self.lose_ore(ore_cost)
@@ -147,7 +147,7 @@ class Player(gameObject.GameObject):
                         return False
 
     def try_building_hospital(self, _cell):
-        if _cell is not None:
+        if _cell is not None and _cell.can_enter():
             ore_cost = _cell.add_hospital(self.corp)
             if self.corp.amount_of_ore() > ore_cost:
                 self.lose_ore(ore_cost)
@@ -161,7 +161,7 @@ class Player(gameObject.GameObject):
                         return False
 
     def try_building_fence(self, _cell):
-        if _cell is not None:
+        if _cell is not None and _cell.can_enter():
             ore_cost = _cell.add_fence()
             if self.corp.amount_of_ore() > ore_cost:
                 self.lose_ore(ore_cost)
