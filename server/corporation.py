@@ -10,12 +10,38 @@ class Corporation:
         self.world = _world
         self.members = []  # Members of the corporation, the actual Player objects are stored here, not just their ids.
         self.buildings = []  # Buildings owned by the corporation, building objects are stored here, not just their ids.
+        self.inventory = dict()  # Items owned are stored here
+        """
+        It's like this because we can't actually store a hospital object, because they require a cell position but
+        they are just in our inventory.
+        In the case of the Hospital, when we try to build a Hospital we will first check if we have one in our
+        inventory if not then we will construct it at the cost of ore.
+        This is because in the future we will have factories to craft items.
+        Example:
+        self.inventory = {
+            'Consumables': {
+                'HealthPotion': 2,
+            }
+        }
+        """
         self.ore_quantity = 0
         self.sent_merge_invites = []  # A list containing ids of corps that have been sent merge invites
         self.received_merge_invites = []  # A list containing ids of corps that have sent use merge invites
         self.standings = dict()
 
         self.add_member(initial_member)
+
+    def subtract_consumable(self, item_class_name):
+        item_storage = self.inventory['Consumables'][item_class_name]
+        if item_storage is not None:
+            item_storage -= 1
+
+    def add_consumable(self, item_class_name):
+        item_storage = self.inventory['Consumables'][item_class_name]
+        if item_storage is not None:
+            item_storage += 1
+        else:
+            item_storage = 1
 
     def tick_buildings(self):
         for building in self.buildings:

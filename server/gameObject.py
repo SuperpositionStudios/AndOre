@@ -112,6 +112,68 @@ class OreGenerator(CorpOwnedBuilding):
         self.owner_corp.gain_ore(self.ore_generated_per_tick)
 
 
+class Store(CorpOwnedBuilding):
+    def __init__(self, _cell, _corp):
+        assert(_cell.__class__.__name__ == 'Cell')
+        assert(_corp.__class__.__name__ == 'Corporation')
+
+        super().__init__(_cell, _corp)
+
+        self.icon = '|'
+
+        self.icons = {
+            'M': '|',
+            'A': '|',
+            'N': '|',
+            'E': '|'
+        }
+
+        self.price_to_make = 5  # The number of ore it costs to produce the item
+
+        self.prices = {  # How much it'll cost to buy items from here, don't edit this.
+            'M': self.price_to_make + self.profits['M'],
+            'A': self.price_to_make + self.profits['A'],
+            'N': self.price_to_make + self.profits['N'],
+            'E': self.price_to_make + self.profits['E']
+        }
+
+        self.profits = {  # How much profit you'll make from selling this item
+            'M': 0,
+            'A': 1,
+            'N': 5,
+            'E': 10
+        }
+
+    def item_price(self, _corp):
+        pass
+
+    def buy_item(self, _corp):
+        pass
+
+
+class Consumable():
+
+    def __init__(self, _corp):
+        self.corp = _corp
+        self.corp.add_consumable(self.__class__.__name__)
+        self.effects = {
+            'Health Delta': 0,
+        }
+
+    def consume(self):
+        self.corp.subtract_consumable(self.__class__.__name__)
+        return self.effects
+
+
+class HealthPotion(Consumable):
+
+    def __init__(self, _corp):
+        super().__init__(_corp)
+        self.effects = {
+            'Health Delta': 15
+        }
+
+
 class Hospital(CorpOwnedBuilding):
 
     def __init__(self, _cell, _corp):
@@ -161,6 +223,13 @@ class Loot(GameObject):
         self.icon = '%'
         self.passable = False  # False until we have a 'below' direction key
         self.ore_quantity = 0
+
+
+class HealthPack(Loot):
+    def __init__(self, _cell):
+        super().__init__(_cell)
+        self.health_quantity = 0
+        self.icon = '⨮'
 
 
 class Fence(GameObject):
