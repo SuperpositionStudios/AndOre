@@ -80,7 +80,7 @@ class Hospital(GameObject):
         self.blocking = True
         self.health_regen_per_turn = 5
         self.ore_usage_cost = 10
-        self.price_to_construct = 200
+        self.price_to_construct = 20  # Debug price
 
 
 class Loot(GameObject):

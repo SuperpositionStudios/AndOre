@@ -1,6 +1,7 @@
 import uuid, random
 import gameObject
 import warnings
+from corporation import Corporation
 
 
 class Cell:
@@ -85,6 +86,10 @@ class Cell:
                                     return obj.corp_member_icon
                                 else:
                                     return player_obj.corp.fetch_standing(obj.corp.corp_id)
+                            elif obj.__class__.__name__ == 'Hospital':
+                                hospital_owners = obj.owner_corp
+                                owner_standings_towards_us = hospital_owners.fetch_standing_for_player(player_id)
+                                return obj.icons[owner_standings_towards_us]
                             else:
                                 return obj.icon
             return '.'  # Returns Empty Space

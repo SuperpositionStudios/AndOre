@@ -21,7 +21,9 @@ class Corporation:
         self.buildings.append(building_object)
 
     def fetch_standing(self, corp_id):
-        if corp_id in self.standings:
+        if corp_id == self.corp_id:
+            return 'M'
+        elif corp_id in self.standings:
             return self.standings[corp_id]
         else:
             return 'N'
@@ -107,7 +109,7 @@ class Corporation:
 
         # Setting the other corp's buildings corp to our corp
         for building in self.world.corporations[other_corp_id].buildings:
-            building.corp = self
+            building.owner_corp = self
             self.buildings.append(building)
 
         # Deletes the other corp to save memory
