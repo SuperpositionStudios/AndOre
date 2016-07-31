@@ -148,6 +148,8 @@ class Player(gameObject.GameObject):
                         return True
                     else:
                         return False
+                elif self.secondary_modifier_key == '4':  # Player is trying to build a Pharmacy
+                    return self.try_building_pharmacy(affected_cell)
                 else:
                     return False
             elif self.primary_modifier_key == '-':  # Player is trying to worsen their standings towards the target player's corp
@@ -164,6 +166,15 @@ class Player(gameObject.GameObject):
                 return False
         else:
             return False
+
+    def try_building_pharmacy(self, _cell):
+        if _cell is not None and _cell.can_enter():
+            ore_cost = gameObject.Pharmacy.price_to_make
+            if self.corp.amount_of_ore() > ore_cost:
+                _cell.add_pharmacy(self.corp)
+                self.lose_ore(ore_cost)
+                return True
+        return False
 
     def try_building_ore_generator(self, _cell):
         if _cell is not None and _cell.can_enter():
@@ -386,8 +397,11 @@ class Player(gameObject.GameObject):
     def world_state(self):
         los = self.line_of_stats().ljust(self.world.rows)
         los = list(los)
+        inventory = self.corp.render_inventory()
+        inventory = list(inventory)
         worldmap = self.world.get_world(player_id=self.id)
         worldmap.append(los)
+        worldmap.append(inventory)
         return worldmap
 
     def check_if_dead(self):

@@ -129,21 +129,22 @@ class CorpOwnedStore(CorpOwnedBuilding):
         }
 
         self.price_to_make = 5  # The number of ore it costs to produce the item
-        self.item_type = ''
-        self.item = ''
+        self.item = Consumable
+        self.item_type = self.item.item_type
+
+        self.profits = {  # How much profit you'll make from selling this item
+            'M': 0,  # Charging Corp Members Cost, should always be 0 because since the corporation wallet is used
+                     # to pay for the purchase, you don't make anything by making this higher.
+            'A': 1,  # Charging People The Owners Considers Allies Cost + 1
+            'N': 5,  # Charging Neutrals Cost + 5
+            'E': 10  # Charging Enemies Cost + 10 (Hey you gotta make money somehow)
+        }
 
         self.prices = {  # How much it'll cost to buy items from here, don't edit this.
             'M': self.price_to_make + self.profits['M'],
             'A': self.price_to_make + self.profits['A'],
             'N': self.price_to_make + self.profits['N'],
             'E': self.price_to_make + self.profits['E']
-        }
-
-        self.profits = {  # How much profit you'll make from selling this item
-            'M': 0,  # Charging Corp Members Cost, should always be 0 because since the corporation wallet is used to pay for the purchase, you don't make anything by making this higher.
-            'A': 1,  # Charging People The Owners Considers Allies Cost + 1
-            'N': 5,  # Charging Neutrals Cost + 5
-            'E': 10  # Charging Enemies Cost + 10 (Hey you gotta make money somehow)
         }
 
     def get_price(self, _corp):
@@ -156,30 +157,33 @@ class CorpOwnedStore(CorpOwnedBuilding):
         # _corp refers to the corp buying the item
         assert(_corp.__class__.__name__ == 'Corporation')
 
+        # Checking if both parties are able to pay
+        if _corp.amount_of_ore() > self.get_price(_corp) is False or self.owner_corp.amount_of_ore() >= self.price_to_make is False:
+            return
+
         # Manufacturing of item
-        if self.owner_corp.amount_of_ore() >= self.price_to_make:
-            self.owner_corp.lose_ore(self.price_to_make)
-        else:
-            return  # Item cannot be created, therefore item cannot be sold
+        self.owner_corp.lose_ore(self.price_to_make)
+        manufactured_item = self.item()
 
         # Payment
-        if _corp.amount_of_ore() > self.get_price(_corp):
-            _corp.lose_ore(self.get_price(_corp))
-            self.owner_corp.gain_ore(self.get_profit(_corp))
+        _corp.lose_ore(self.get_price(_corp))
+        self.owner_corp.gain_ore(self.get_profit(_corp))
 
         # Delivery
-        _corp.add_consumable(self.item)
+        _corp.add_to_inventory(manufactured_item)
 
 
 class Pharmacy(CorpOwnedStore):
+    # Class-Wide Variables
+    price_to_make = 10
+
     def __init__(self, _cell, _corp):
         assert (_cell.__class__.__name__ == 'Cell')
         assert (_corp.__class__.__name__ == 'Corporation')
 
         super().__init__(_cell, _corp)
 
-        self.item_type = 'Consumable'
-        self.item = 'HealthPotion'
+        self.item = HealthPotion
         self.price_to_make = 10
 
         self.profits = {  # How much profit you'll make from selling this item
@@ -191,6 +195,7 @@ class Pharmacy(CorpOwnedStore):
 
 
 class Consumable:
+    item_type = 'Consumable'
 
     def __init__(self, _corp):
         self.owner_corp = _corp

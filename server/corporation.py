@@ -16,6 +16,9 @@ class Corporation:
         self.inventory = {
             'Consumables': {
                 'HealthPotion': [HealthPotion(), HealthPotion()],
+            },
+            'Deployables': {
+                'Fence': [Fence(), Fence()]
             }
         }
         """
@@ -27,7 +30,15 @@ class Corporation:
         self.add_member(initial_member)
 
     def render_inventory(self):
-        pass
+        row = ''
+        for item_type in self.inventory:
+            item_type = self.inventory[item_type]
+            for item_name, item_arr in item_type:
+                if len(item_arr) > 0:
+                    row += '{icon}: {quantity}'.format(icon=item_arr[0].icon, quantity=len(item_arr))
+                else:
+                    pass
+        return row
 
     def remove_from_inventory(self, item_obj):
         item_type_storage = self.inventory[item_obj.item_type]

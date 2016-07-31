@@ -20,6 +20,11 @@ class Cell:
         a = gameObject.OreDeposit(self)
         self.contents.append(a)
 
+    def add_pharmacy(self, owner_corp):
+        assert(owner_corp.__class__.__name__ == 'Corporation')
+        a = gameObject.Pharmacy(self, owner_corp)
+        self.add_game_object(a)
+
     def add_hospital(self, owner_corp):
         assert(owner_corp.__class__.__name__ == 'Corporation')
         a = gameObject.Hospital(self, owner_corp)
@@ -77,7 +82,7 @@ class Cell:
 
     def render(self, **keyword_parameters):
 
-        priority = ['Player', 'OreDeposit', 'Hospital', 'OreGenerator', 'Loot', 'Fence', 'EmptySpace']
+        priority = ['Player', 'OreDeposit', 'Hospital', 'Pharmacy', 'OreGenerator', 'Loot', 'Fence', 'EmptySpace']
 
         if 'player_id' in keyword_parameters:
             player_id = keyword_parameters['player_id']
@@ -102,6 +107,10 @@ class Cell:
                                 generator_owners = obj.owner_corp
                                 corp_standing_to_generator_owner_corp = player_obj.corp.fetch_standing(generator_owners.corp_id)
                                 return obj.icons[corp_standing_to_generator_owner_corp]
+                            elif obj.__class__.__name__ == 'Pharmacy':
+                                owners = obj.owner_corp
+                                corp_standing_to_owners = player_obj.corp.fetch_standing(owners.corp_id)
+                                return obj.icons[corp_standing_to_owners]
                             else:
                                 return obj.icon
             return '.'  # Returns Empty Space
