@@ -113,7 +113,7 @@ class OreGenerator(CorpOwnedBuilding):
 
 
 class CorpOwnedStore(CorpOwnedBuilding):
-    def __init__(self, _cell, _corp):
+    def __init__(self, _cell, _corp, _product):
         assert(_cell.__class__.__name__ == 'Cell')
         assert(_corp.__class__.__name__ == 'Corporation')
 
@@ -128,9 +128,8 @@ class CorpOwnedStore(CorpOwnedBuilding):
             'E': '|'
         }
 
-        self.item = Consumable
-        self.price_to_make = self.item.construction_cost  # The number of ore it costs to produce the item
-        self.item_type = self.item.item_type
+        self.price_to_make = _product.construction_cost  # The number of ore it costs to produce the item
+        self.item_type = _product.item_type
 
         self.profits = {  # How much profit you'll make from selling this item
             'M': 0,  # Charging Corp Members Cost, should always be 0 because since the corporation wallet is used
@@ -158,7 +157,7 @@ class CorpOwnedStore(CorpOwnedBuilding):
         assert(_corp.__class__.__name__ == 'Corporation')
 
         # Checking if both parties are able to pay
-        if _corp.amount_of_ore() > self.get_price(_corp) is False or self.owner_corp.amount_of_ore() >= self.price_to_make is False:
+        if (_corp.amount_of_ore() >= self.get_price(_corp) and self.owner_corp.amount_of_ore() >= self.price_to_make) is False:
             return False
 
         # Manufacturing of item
@@ -167,7 +166,7 @@ class CorpOwnedStore(CorpOwnedBuilding):
 
         # Payment
         _corp.lose_ore(self.get_price(_corp))
-        self.owner_corp.gain_ore(self.get_profit(_corp))
+        self.owner_corp.gain_ore(self.get_price(_corp))
 
         # Delivery
         #_corp.add_to_inventory(manufactured_item)
@@ -183,7 +182,7 @@ class Pharmacy(CorpOwnedStore):
         assert (_cell.__class__.__name__ == 'Cell')
         assert (_corp.__class__.__name__ == 'Corporation')
 
-        super().__init__(_cell, _corp)
+        super().__init__(_cell, _corp, HealthPotion)
 
         self.item = HealthPotion
 
@@ -216,6 +215,7 @@ class Consumable:
 
 
 class HealthPotion(Consumable):
+
     construction_cost = 5
 
     def __init__(self, _corp):
