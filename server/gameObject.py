@@ -128,8 +128,8 @@ class CorpOwnedStore(CorpOwnedBuilding):
             'E': '|'
         }
 
-        self.price_to_make = 5  # The number of ore it costs to produce the item
         self.item = Consumable
+        self.price_to_make = self.item.construction_cost  # The number of ore it costs to produce the item
         self.item_type = self.item.item_type
 
         self.profits = {  # How much profit you'll make from selling this item
@@ -159,23 +159,25 @@ class CorpOwnedStore(CorpOwnedBuilding):
 
         # Checking if both parties are able to pay
         if _corp.amount_of_ore() > self.get_price(_corp) is False or self.owner_corp.amount_of_ore() >= self.price_to_make is False:
-            return
+            return False
 
         # Manufacturing of item
         self.owner_corp.lose_ore(self.price_to_make)
-        manufactured_item = self.item()
+        manufactured_item = self.item(_corp)
 
         # Payment
         _corp.lose_ore(self.get_price(_corp))
         self.owner_corp.gain_ore(self.get_profit(_corp))
 
         # Delivery
-        _corp.add_to_inventory(manufactured_item)
+        #_corp.add_to_inventory(manufactured_item)
+
+        return True
 
 
 class Pharmacy(CorpOwnedStore):
     # Class-Wide Variables
-    price_to_make = 10
+    construction_price = 10
 
     def __init__(self, _cell, _corp):
         assert (_cell.__class__.__name__ == 'Cell')
@@ -184,7 +186,6 @@ class Pharmacy(CorpOwnedStore):
         super().__init__(_cell, _corp)
 
         self.item = HealthPotion
-        self.price_to_make = 10
 
         self.profits = {  # How much profit you'll make from selling this item
             'M': 0,
@@ -196,6 +197,7 @@ class Pharmacy(CorpOwnedStore):
 
 class Consumable:
     item_type = 'Consumable'
+    construction_cost = 0
 
     def __init__(self, _corp):
         self.owner_corp = _corp
@@ -214,11 +216,13 @@ class Consumable:
 
 
 class HealthPotion(Consumable):
+    construction_cost = 5
 
     def __init__(self, _corp):
         super().__init__(_corp)
         self.effects['Health Delta'] = 15
         self.icon = 'H'
+        self.construction_cost = 5
 
 
 class Hospital(CorpOwnedBuilding):

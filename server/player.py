@@ -125,6 +125,8 @@ class Player(gameObject.GameObject):
                     return True
                 elif self.try_looting(affected_cell):
                     return True
+                elif self.try_buying_from_pharmacy(affected_cell):
+                    return True
                 else:
                     return False
             elif self.primary_modifier_key == 'i':  # Player/Corp is trying to merge corps with another player
@@ -169,7 +171,7 @@ class Player(gameObject.GameObject):
 
     def try_building_pharmacy(self, _cell):
         if _cell is not None and _cell.can_enter():
-            ore_cost = gameObject.Pharmacy.price_to_make
+            ore_cost = gameObject.Pharmacy.construction_price
             if self.corp.amount_of_ore() > ore_cost:
                 _cell.add_pharmacy(self.corp)
                 self.lose_ore(ore_cost)
@@ -252,6 +254,7 @@ class Player(gameObject.GameObject):
 
     def try_consuming_consumable(self):
         pass
+
 
     def try_mining(self, _cell):
         if _cell is not None:
@@ -355,6 +358,19 @@ class Player(gameObject.GameObject):
         self.health -= damage
         if self.check_if_dead():
             self.died()
+
+    def try_buying_from_pharmacy(self, _cell):
+        if _cell is not None:
+            struct = _cell.contains_object_type('Pharmacy')
+            if struct[0]:
+                pharmacy = _cell.get_game_object_by_obj_id(struct[1])
+                if pharmacy[0]:
+                    pharmacy_obj = pharmacy[1]
+                    assert(pharmacy_obj.__class__.__name__ == 'Pharmacy')
+                    #owners = pharmacy_obj.owner_corp
+                    #owner_standings_towards_us = owners.fetch_standing_for_player(self.obj_id)
+                    #purchase_price = pharmacy_obj.get_price(self.corp)
+                    return pharmacy_obj.buy_item(self.corp)
 
     def try_going_to_hospital(self, _cell):
         if _cell is not None:

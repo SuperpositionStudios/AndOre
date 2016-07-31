@@ -41,9 +41,9 @@ class Corporation:
         return row
 
     def remove_from_inventory(self, item_obj):
-        item_type_storage = self.inventory[item_obj.item_type]
+        item_type_storage = self.inventory.get(item_obj.item_type, None)
         if item_type_storage is not None:
-            item_storage = item_type_storage[item_obj.__class__.__name__]
+            item_storage = item_type_storage.get(item_obj.__class__.__name__, None)
             if item_storage is not None:
                 for i in range(0, len(item_storage)):
                     if item_storage[i].obj_id == item_obj.obj_id:
@@ -52,19 +52,19 @@ class Corporation:
             else:
                 item_storage = []
         else:
-            item_type_storage = dict()
+            self.inventory[item_obj.item_type] = dict()
             self.remove_from_inventory(item_obj)
 
     def add_to_inventory(self, item_obj):
-        item_type_storage = self.inventory[item_obj.item_type]
+        item_type_storage = self.inventory.get(item_obj.item_type, None)
         if item_type_storage is not None:
-            item_storage = item_type_storage[item_obj.__class__.__name__]
+            item_storage = item_type_storage.get(item_obj.__class__.__name__, None)
             if item_storage is not None:
                 item_storage.append(item_obj)
             else:
                 item_storage = [item_obj]
         else:
-            item_type_storage = dict()
+            self.inventory[item_obj.item_type] = dict()
             self.add_to_inventory(item_obj)
 
 
