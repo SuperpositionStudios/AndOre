@@ -112,7 +112,7 @@ class OreGenerator(CorpOwnedBuilding):
         self.owner_corp.gain_ore(self.ore_generated_per_tick)
 
 
-class Store(CorpOwnedBuilding):
+class CorpOwnedStore(CorpOwnedBuilding):
     def __init__(self, _cell, _corp):
         assert(_cell.__class__.__name__ == 'Cell')
         assert(_corp.__class__.__name__ == 'Corporation')
@@ -129,6 +129,8 @@ class Store(CorpOwnedBuilding):
         }
 
         self.price_to_make = 5  # The number of ore it costs to produce the item
+        self.item_type = ''
+        self.item = ''
 
         self.prices = {  # How much it'll cost to buy items from here, don't edit this.
             'M': self.price_to_make + self.profits['M'],
@@ -138,20 +140,57 @@ class Store(CorpOwnedBuilding):
         }
 
         self.profits = {  # How much profit you'll make from selling this item
+            'M': 0,  # Charging Corp Members Cost, should always be 0 because since the corporation wallet is used to pay for the purchase, you don't make anything by making this higher.
+            'A': 1,  # Charging People The Owners Considers Allies Cost + 1
+            'N': 5,  # Charging Neutrals Cost + 5
+            'E': 10  # Charging Enemies Cost + 10 (Hey you gotta make money somehow)
+        }
+
+    def get_price(self, _corp):
+        return self.prices[self.owner_corp.fetch_standing(_corp.corp_id)]
+
+    def get_profit(self, _corp):
+        return self.profits[self.owner_corp.fetch_standing(_corp.corp_id)]
+
+    def buy_item(self, _corp):
+        # _corp refers to the corp buying the item
+        assert(_corp.__class__.__name__ == 'Corporation')
+
+        # Manufacturing of item
+        if self.owner_corp.amount_of_ore() >= self.price_to_make:
+            self.owner_corp.lose_ore(self.price_to_make)
+        else:
+            return  # Item cannot be created, therefore item cannot be sold
+
+        # Payment
+        if _corp.amount_of_ore() > self.get_price(_corp):
+            _corp.lose_ore(self.get_price(_corp))
+            self.owner_corp.gain_ore(self.get_profit(_corp))
+
+        # Delivery
+        _corp.add_consumable(self.item)
+
+
+class Pharmacy(CorpOwnedStore):
+    def __init__(self, _cell, _corp):
+        assert (_cell.__class__.__name__ == 'Cell')
+        assert (_corp.__class__.__name__ == 'Corporation')
+
+        super().__init__(_cell, _corp)
+
+        self.item_type = 'Consumable'
+        self.item = 'HealthPotion'
+        self.price_to_make = 10
+
+        self.profits = {  # How much profit you'll make from selling this item
             'M': 0,
             'A': 1,
             'N': 5,
             'E': 10
         }
 
-    def item_price(self, _corp):
-        pass
 
-    def buy_item(self, _corp):
-        pass
-
-
-class Consumable():
+class Consumable:
 
     def __init__(self, _corp):
         self.corp = _corp

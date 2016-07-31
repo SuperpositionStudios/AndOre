@@ -32,16 +32,34 @@ class Corporation:
         self.add_member(initial_member)
 
     def subtract_consumable(self, item_class_name):
-        item_storage = self.inventory['Consumables'][item_class_name]
-        if item_storage is not None:
-            item_storage -= 1
+        self.subtract_from_inventory('Consumables', item_class_name)
 
     def add_consumable(self, item_class_name):
-        item_storage = self.inventory['Consumables'][item_class_name]
-        if item_storage is not None:
-            item_storage += 1
+        self.add_to_inventory('Consumables', item_class_name)
+
+    def subtract_from_inventory(self, item_type, item):
+        item_type_storage = self.inventory[item_type]
+        if item_type_storage is not None:
+            item_storage = item_type_storage[item]
+            if item_storage is not None:
+                item_storage -= 1
+            else:
+                item_storage = -1
         else:
-            item_storage = 1
+            item_type_storage = dict()
+            self.subtract_from_inventory(item_type, item)
+
+    def add_to_inventory(self, item_type, item):
+        item_type_storage = self.inventory[item_type]
+        if item_type_storage is not None:
+            item_storage = item_type_storage[item]
+            if item_storage is not None:
+                item_storage += 1
+            else:
+                item_storage = 1
+        else:
+            item_type_storage = dict()
+            self.add_to_inventory(item_type, item)
 
     def tick_buildings(self):
         for building in self.buildings:
