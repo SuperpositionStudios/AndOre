@@ -70,12 +70,12 @@ class Player(gameObject.GameObject):
             self.tick()
 
     def line_of_stats(self):
-        return '[hp {health} ore {ore}] [{row} {col}] [{mod_key}][{world_age}] '.format(health=int(self.health),
-                                                                                       ore=self.corp.ore_quantity,
-                                                                                       row=self.row,
-                                                                                       col=self.col,
-                                                                                       mod_key=self.primary_modifier_key,
-                                                                                       world_age=self.world.world_age)
+        return '[hp {health} ore {ore}] [{pri_mod_key} {sec_mod_key}] [{world_age}] '.format(
+            health=int(self.health),
+            ore=self.corp.ore_quantity,
+            pri_mod_key=self.primary_modifier_key,
+            sec_mod_key=self.secondary_modifier_key,
+            world_age=self.world.world_age)
 
     def get_vitals(self):
         response = {
@@ -293,7 +293,8 @@ class Player(gameObject.GameObject):
                 ore_generator = _cell.get_game_object_by_obj_id(struct[1])
                 if ore_generator[0]:
                     ore_generator_obj = ore_generator[1]
-                    corp_standing_to_ore_generator_owner_corp = self.corp.fetch_standing(ore_generator_obj.owner_corp.corp_id)
+                    corp_standing_to_ore_generator_owner_corp = self.corp.fetch_standing(
+                        ore_generator_obj.owner_corp.corp_id)
                     if corp_standing_to_ore_generator_owner_corp == 'M' or corp_standing_to_ore_generator_owner_corp == 'A':
                         return False  # You cannot attack an ore generator that is owned by a corp that we are friendly to
                     else:
@@ -346,7 +347,7 @@ class Player(gameObject.GameObject):
                 hospital = _cell.get_game_object_by_obj_id(struct[1])
                 if hospital[0]:
                     hospital_obj = hospital[1]
-                    assert(hospital_obj.__class__.__name__ == 'Hospital')
+                    assert (hospital_obj.__class__.__name__ == 'Hospital')
                     hospital_owners = hospital_obj.owner_corp
                     owner_standings_towards_us = hospital_owners.fetch_standing_for_player(self.obj_id)
                     price_to_use_hospital = hospital_obj.prices_to_use[owner_standings_towards_us]
