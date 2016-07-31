@@ -197,6 +197,7 @@ class Consumable:
         self.corp.add_consumable(self.__class__.__name__)
         self.effects = {
             'Health Delta': 0,
+            'Ore Delta': 0
         }
 
     def consume(self):
@@ -208,9 +209,7 @@ class HealthPotion(Consumable):
 
     def __init__(self, _corp):
         super().__init__(_corp)
-        self.effects = {
-            'Health Delta': 15
-        }
+        self.effects['Health Delta'] = 15
 
 
 class Hospital(CorpOwnedBuilding):
