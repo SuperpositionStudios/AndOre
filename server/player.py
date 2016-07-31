@@ -43,7 +43,7 @@ class Player(gameObject.GameObject):
             'i': "for inviting corp to merge into current corp",
             '-': "for setting a corp to a lower standing (A -> N -> E)",
             '+': "for setting a corp to a higher standing (E -> N -> A)",
-            'f': "for building a fence"
+            'b': "Build mode"
         }
         secondary_modifier_keys = {
             '0': "",
@@ -112,6 +112,7 @@ class Player(gameObject.GameObject):
     def interact_with_cell(self, row_offset, col_offset):
         affected_cell = self.try_get_cell_by_offset(row_offset, col_offset)
         if affected_cell is not None and affected_cell is not False:
+            # TODO: Turn this into a dict
             if self.primary_modifier_key == 'm':  # Player is trying to move
                 return self.try_move(affected_cell)
             elif self.primary_modifier_key == 'k':  # Player is trying to attack something
@@ -130,9 +131,22 @@ class Player(gameObject.GameObject):
                     return True
                 else:
                     return False
-            elif self.primary_modifier_key == 'f':  # Player is trying to build a fence
-                if self.try_building_fence(affected_cell):
-                    return True
+            elif self.primary_modifier_key == 'b':  # Player is in build mode
+                if self.secondary_modifier_key == '1':  # Player is trying to build a fence
+                    if self.try_building_fence(affected_cell):
+                        return True
+                    else:
+                        return False
+                elif self.secondary_modifier_key == '2':  # Player is trying to build a hospital
+                    if self.try_building_hospital(affected_cell):
+                        return True
+                    else:
+                        return False
+                elif self.secondary_modifier_key == '3':  # Player is trying to build an Ore Generator
+                    if self.try_building_ore_generator(affected_cell):
+                        return True
+                    else:
+                        return False
                 else:
                     return False
             elif self.primary_modifier_key == '-':  # Player is trying to worsen their standings towards the target player's corp
@@ -142,16 +156,6 @@ class Player(gameObject.GameObject):
                     return False
             elif self.primary_modifier_key == '+':  # Player is trying to improve their standings towards the target player's corp
                 if self.try_improving_standing(affected_cell):
-                    return True
-                else:
-                    return False
-            elif self.primary_modifier_key == 'h':  # Player is trying to construct a hospital
-                if self.try_building_hospital(affected_cell):
-                    return True
-                else:
-                    return False
-            elif self.primary_modifier_key == 'g':  # Player is trying to construct an ore generator
-                if self.try_building_ore_generator(affected_cell):
                     return True
                 else:
                     return False

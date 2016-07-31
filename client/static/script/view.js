@@ -15,9 +15,7 @@ var validKeys = {
     "i": true,  // Primary Modifier Key
     "-": true,  // Primary Modifier Key
     "+": true,  // Primary Modifier Key
-    "f": true,  // Primary Modifier Key
-    "h": true,  // Primary Modifier Key
-    "g": true,  // Primary Modifier Key
+    "b": true,  // Primary Modifier Key
     "0": true,  // Secondary Modifier Key
     "1": true,  // Secondary Modifier Key
     "2": true,  // Secondary Modifier Key

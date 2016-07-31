@@ -55,9 +55,7 @@ var app = {
       "i",  // Primary Modifier Key
       "-",  // Primary Modifier Key
       "+",  // Primary Modifier Key
-      "f",  // Primary Modifier Key
-      "h",  // Primary Modifier Key
-      "g",  // Primary Modifier Key
+      "b",  // Primary Modifier Key
       "0",  // Secondary Modifier Key
       "1",  // Secondary Modifier Key
       "2",  // Secondary Modifier Key
