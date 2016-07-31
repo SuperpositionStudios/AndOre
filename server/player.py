@@ -64,6 +64,7 @@ class Player(gameObject.GameObject):
             self.dir_key = key_pressed
         elif key_pressed in primary_modifier_keys:
             self.primary_modifier_key = key_pressed
+            self.secondary_modifier_key = '1'
         elif key_pressed in secondary_modifier_keys:
             self.secondary_modifier_key = key_pressed
 
@@ -155,19 +156,28 @@ class Player(gameObject.GameObject):
                 else:
                     return False
             elif self.primary_modifier_key == '-':  # Player is trying to worsen their standings towards the target player's corp
-                if self.try_worsening_standing(affected_cell):
-                    return True
-                else:
-                    return False
+                return self.try_worsening_standing(affected_cell)
             elif self.primary_modifier_key == '+':  # Player is trying to improve their standings towards the target player's corp
-                if self.try_improving_standing(affected_cell):
-                    return True
-                else:
-                    return False
+                return self.try_improving_standing(affected_cell)
+            elif self.primary_modifier_key == 'u':  # Player is trying to use something in their corp inventory
+                print("rawr")
+                return self.try_using_inventory()
             else:
                 return False
         else:
             return False
+
+    def try_using_inventory(self):
+        #  Consumables
+        chosen = self.corp.return_obj_selected_in_rendered_inventory(self.secondary_modifier_key)
+        print(chosen)
+        if chosen.item_type == 'Consumable':
+            print(True)
+            effects = chosen.consume()
+            return True
+        else:
+            print("Else")
+            return False  # Not yet supported
 
     def try_building_pharmacy(self, _cell):
         if _cell is not None and _cell.can_enter():
@@ -251,10 +261,6 @@ class Player(gameObject.GameObject):
                     loot_object[1].delete()
                     return True
         return False
-
-    def try_consuming_consumable(self):
-        pass
-
 
     def try_mining(self, _cell):
         if _cell is not None:

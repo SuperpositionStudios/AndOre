@@ -127,6 +127,7 @@ class CorpOwnedStore(CorpOwnedBuilding):
             'N': '|',
             'E': '|'
         }
+        self.product = _product
 
         self.price_to_make = _product.construction_cost  # The number of ore it costs to produce the item
         self.item_type = _product.item_type
@@ -160,16 +161,13 @@ class CorpOwnedStore(CorpOwnedBuilding):
         if (_corp.amount_of_ore() >= self.get_price(_corp) and self.owner_corp.amount_of_ore() >= self.price_to_make) is False:
             return False
 
-        # Manufacturing of item
-        self.owner_corp.lose_ore(self.price_to_make)
-        manufactured_item = self.item(_corp)
-
         # Payment
         _corp.lose_ore(self.get_price(_corp))
         self.owner_corp.gain_ore(self.get_price(_corp))
 
-        # Delivery
-        #_corp.add_to_inventory(manufactured_item)
+        # Manufacturing & delivery
+        self.owner_corp.lose_ore(self.price_to_make)
+        manufactured_item = self.product(_corp)
 
         return True
 
@@ -184,7 +182,7 @@ class Pharmacy(CorpOwnedStore):
 
         super().__init__(_cell, _corp, HealthPotion)
 
-        self.item = HealthPotion
+        #self.item = HealthPotion
 
         self.profits = {  # How much profit you'll make from selling this item
             'M': 0,
@@ -210,7 +208,7 @@ class Consumable:
         self.owner_corp.add_to_inventory(self)
 
     def consume(self):
-        self.owner_corp.remove_from_inventorry(self)
+        self.owner_corp.remove_from_inventory(self)
         return self.effects
 
 
@@ -221,7 +219,7 @@ class HealthPotion(Consumable):
     def __init__(self, _corp):
         super().__init__(_corp)
         self.effects['Health Delta'] = 15
-        self.icon = 'H'
+        self.icon = '♥'
         self.construction_cost = 5
 
 
