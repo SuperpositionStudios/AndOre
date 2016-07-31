@@ -43,7 +43,8 @@ class Player(gameObject.GameObject):
             'i': "for inviting corp to merge into current corp",
             '-': "for setting a corp to a lower standing (A -> N -> E)",
             '+': "for setting a corp to a higher standing (E -> N -> A)",
-            'b': "Build mode"
+            'b': "Build mode",
+            'u': "for using something in your corp inventory"
         }
         secondary_modifier_keys = {
             '0': "",

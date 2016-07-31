@@ -193,15 +193,18 @@ class Pharmacy(CorpOwnedStore):
 class Consumable:
 
     def __init__(self, _corp):
-        self.corp = _corp
-        self.corp.add_consumable(self.__class__.__name__)
+        self.owner_corp = _corp
+        self.item_type = 'Consumable'
+        self.obj_id = str(uuid.uuid4())
+        self.icon = '?'  # Icon Displayed in Inventory
         self.effects = {
             'Health Delta': 0,
             'Ore Delta': 0
         }
+        self.owner_corp.add_to_inventory(self)
 
     def consume(self):
-        self.corp.subtract_consumable(self.__class__.__name__)
+        self.owner_corp.remove_from_inventorry(self)
         return self.effects
 
 
@@ -210,6 +213,7 @@ class HealthPotion(Consumable):
     def __init__(self, _corp):
         super().__init__(_corp)
         self.effects['Health Delta'] = 15
+        self.icon = 'H'
 
 
 class Hospital(CorpOwnedBuilding):

@@ -12,15 +12,10 @@ class Corporation:
         self.buildings = []  # Buildings owned by the corporation, building objects are stored here, not just their ids.
         self.inventory = dict()  # Items owned are stored here
         """
-        It's like this because we can't actually store a hospital object, because they require a cell position but
-        they are just in our inventory.
-        In the case of the Hospital, when we try to build a Hospital we will first check if we have one in our
-        inventory if not then we will construct it at the cost of ore.
-        This is because in the future we will have factories to craft items.
         Example:
         self.inventory = {
             'Consumables': {
-                'HealthPotion': 2,
+                'HealthPotion': [HealthPotion(), HealthPotion()],
             }
         }
         """
@@ -31,35 +26,37 @@ class Corporation:
 
         self.add_member(initial_member)
 
-    def subtract_consumable(self, item_class_name):
-        self.subtract_from_inventory('Consumables', item_class_name)
+    def render_inventory(self):
+        pass
 
-    def add_consumable(self, item_class_name):
-        self.add_to_inventory('Consumables', item_class_name)
-
-    def subtract_from_inventory(self, item_type, item):
-        item_type_storage = self.inventory[item_type]
+    def remove_from_inventory(self, item_obj):
+        item_type_storage = self.inventory[item_obj.item_type]
         if item_type_storage is not None:
-            item_storage = item_type_storage[item]
+            item_storage = item_type_storage[item_obj.__class__.__name__]
             if item_storage is not None:
-                item_storage -= 1
+                for i in range(0, len(item_storage)):
+                    if item_storage[i].obj_id == item_obj.obj_id:
+                        del self.contents[i]
+                        return
             else:
-                item_storage = -1
+                item_storage = []
         else:
             item_type_storage = dict()
-            self.subtract_from_inventory(item_type, item)
+            self.remove_from_inventory(item_obj)
 
-    def add_to_inventory(self, item_type, item):
-        item_type_storage = self.inventory[item_type]
+    def add_to_inventory(self, item_obj):
+        item_type_storage = self.inventory[item_obj.item_type]
         if item_type_storage is not None:
-            item_storage = item_type_storage[item]
+            item_storage = item_type_storage[item_obj.__class__.__name__]
             if item_storage is not None:
-                item_storage += 1
+                item_storage.append(item_obj)
             else:
-                item_storage = 1
+                item_storage = [item_obj]
         else:
             item_type_storage = dict()
-            self.add_to_inventory(item_type, item)
+            self.add_to_inventory(item_obj)
+
+
 
     def tick_buildings(self):
         for building in self.buildings:
