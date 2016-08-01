@@ -8,8 +8,8 @@ import helper_functions, warnings
 class World:  # World is not really world, it's more Level
 
     def __init__(self):
-        self.rows = 31
-        self.cols = 32
+        self.rows = 14
+        self.cols = 64
         self.world = []
         self.world_age = 1
         self.last_tick = datetime.datetime.now()
