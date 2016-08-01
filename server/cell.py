@@ -78,7 +78,7 @@ class Cell:
         for obj in self.contents:
             if obj.obj_id == obj_id:
                 return True, obj
-        return False
+        return False, None
 
     def render(self, **keyword_parameters):
 

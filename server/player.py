@@ -114,6 +114,7 @@ class Player(gameObject.GameObject):
     def interact_with_cell(self, row_offset, col_offset):
         affected_cell = self.try_get_cell_by_offset(row_offset, col_offset)
         if affected_cell is not None and affected_cell is not False:
+            print(self.primary_modifier_key)
             # TODO: Turn this into a dict
             if self.primary_modifier_key == 'm':  # Player is trying to move
                 return self.try_move(affected_cell)
@@ -169,15 +170,27 @@ class Player(gameObject.GameObject):
 
     def try_using_inventory(self):
         #  Consumables
-        chosen = self.corp.return_obj_selected_in_rendered_inventory(self.secondary_modifier_key)
+        chosen = self.corp.return_obj_selected_in_rendered_inventory(int(self.secondary_modifier_key))
         print(chosen)
         if chosen.item_type == 'Consumable':
             print(True)
             effects = chosen.consume()
+            self.take_effects(effects)
             return True
         else:
             print("Else")
             return False  # Not yet supported
+
+    def take_effects(self, effects):
+        if effects.get('Health Delta') > 0:
+            self.gain_health(effects.get('Health Delta', 0))
+        else:
+            self.take_damage(effects.get('Health Delta', 0))
+
+        self.gain_ore(effects.get('Ore Delta', 0))
+
+    def gain_health(self, amount):
+        self.health = min(self.health_cap, self.health + amount)
 
     def try_building_pharmacy(self, _cell):
         if _cell is not None and _cell.can_enter():
