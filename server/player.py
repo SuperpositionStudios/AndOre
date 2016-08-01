@@ -114,7 +114,6 @@ class Player(gameObject.GameObject):
     def interact_with_cell(self, row_offset, col_offset):
         affected_cell = self.try_get_cell_by_offset(row_offset, col_offset)
         if affected_cell is not None and affected_cell is not False:
-            print(self.primary_modifier_key)
             # TODO: Turn this into a dict
             if self.primary_modifier_key == 'm':  # Player is trying to move
                 return self.try_move(affected_cell)
@@ -161,7 +160,6 @@ class Player(gameObject.GameObject):
             elif self.primary_modifier_key == '+':  # Player is trying to improve their standings towards the target player's corp
                 return self.try_improving_standing(affected_cell)
             elif self.primary_modifier_key == 'u':  # Player is trying to use something in their corp inventory
-                print("rawr")
                 return self.try_using_inventory()
             else:
                 return False
@@ -309,6 +307,7 @@ class Player(gameObject.GameObject):
 
     def try_attacking(self, _cell):
         if _cell is not None:
+            print("Cell isn't none")
             if _cell.contains_object_type('Fence')[0]:
                 struct = _cell.contains_object_type('Fence')
                 fence = _cell.get_game_object_by_obj_id(struct[1])
@@ -326,7 +325,7 @@ class Player(gameObject.GameObject):
                     else:
                         hospital_obj.take_damage(self.attack_power, self.corp)
                         return True
-            elif _cell.contains_object_type('OreGenerator'):
+            elif _cell.contains_object_type('OreGenerator')[0]:
                 struct = _cell.contains_object_type('OreGenerator')
                 ore_generator = _cell.get_game_object_by_obj_id(struct[1])
                 if ore_generator[0]:
@@ -339,6 +338,7 @@ class Player(gameObject.GameObject):
                         ore_generator_obj.take_damage(self.attack_power, self.corp)
                         return True
             elif _cell.contains_object_type('Player')[0]:
+                print("It's a player")
                 struct = _cell.contains_object_type('Player')
                 other_player = _cell.get_game_object_by_obj_id(struct[1])
                 if other_player[0]:
