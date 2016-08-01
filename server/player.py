@@ -337,6 +337,18 @@ class Player(gameObject.GameObject):
                     else:
                         ore_generator_obj.take_damage(self.attack_power, self.corp)
                         return True
+            elif _cell.contains_object_type('Pharmacy')[0]:
+                struct = _cell.contains_object_type('Pharmacy')
+                pharmacy = _cell.get_game_object_by_obj_id(struct[1])
+                if pharmacy[0]:
+                    pharmacy_obj = pharmacy[1]
+                    corp_standing_to_obj_owner_corp = self.corp.fetch_standing(
+                        pharmacy_obj.owner_corp.corp_id)
+                    if corp_standing_to_obj_owner_corp == 'M' or corp_standing_to_obj_owner_corp == 'A':
+                        return False  # Your standings to the owner corp forbid you from attacking this structure
+                    else:
+                        pharmacy_obj.take_damage(self.attack_power, self.corp)
+                        return True
             elif _cell.contains_object_type('Player')[0]:
                 print("It's a player")
                 struct = _cell.contains_object_type('Player')

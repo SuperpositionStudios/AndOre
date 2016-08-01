@@ -174,7 +174,7 @@ class CorpOwnedStore(CorpOwnedBuilding):
 
 class Pharmacy(CorpOwnedStore):
     # Class-Wide Variables
-    construction_price = 10
+    construction_price = 350
 
     def __init__(self, _cell, _corp):
         assert (_cell.__class__.__name__ == 'Cell')
@@ -182,7 +182,7 @@ class Pharmacy(CorpOwnedStore):
 
         super().__init__(_cell, _corp, HealthPotion)
 
-        #self.item = HealthPotion
+        self.health = 120
 
         self.profits = {  # How much profit you'll make from selling this item
             'M': 0,
