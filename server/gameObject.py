@@ -112,6 +112,117 @@ class OreGenerator(CorpOwnedBuilding):
         self.owner_corp.gain_ore(self.ore_generated_per_tick)
 
 
+class CorpOwnedStore(CorpOwnedBuilding):
+    def __init__(self, _cell, _corp, _product):
+        assert(_cell.__class__.__name__ == 'Cell')
+        assert(_corp.__class__.__name__ == 'Corporation')
+
+        super().__init__(_cell, _corp)
+
+        self.icon = '|'
+
+        self.icons = {
+            'M': '|',
+            'A': '|',
+            'N': '|',
+            'E': '|'
+        }
+        self.product = _product
+
+        self.price_to_make = _product.construction_cost  # The number of ore it costs to produce the item
+        self.item_type = _product.item_type
+
+        self.profits = {  # How much profit you'll make from selling this item
+            'M': 0,  # Charging Corp Members Cost, should always be 0 because since the corporation wallet is used
+                     # to pay for the purchase, you don't make anything by making this higher.
+            'A': 1,  # Charging People The Owners Considers Allies Cost + 1
+            'N': 5,  # Charging Neutrals Cost + 5
+            'E': 10  # Charging Enemies Cost + 10 (Hey you gotta make money somehow)
+        }
+
+        self.prices = {  # How much it'll cost to buy items from here, don't edit this.
+            'M': self.price_to_make + self.profits['M'],
+            'A': self.price_to_make + self.profits['A'],
+            'N': self.price_to_make + self.profits['N'],
+            'E': self.price_to_make + self.profits['E']
+        }
+
+    def get_price(self, _corp):
+        return self.prices[self.owner_corp.fetch_standing(_corp.corp_id)]
+
+    def get_profit(self, _corp):
+        return self.profits[self.owner_corp.fetch_standing(_corp.corp_id)]
+
+    def buy_item(self, _corp):
+        # _corp refers to the corp buying the item
+        assert(_corp.__class__.__name__ == 'Corporation')
+
+        # Checking if both parties are able to pay
+        if (_corp.amount_of_ore() >= self.get_price(_corp) and self.owner_corp.amount_of_ore() >= self.price_to_make) is False:
+            return False
+
+        # Payment
+        _corp.lose_ore(self.get_price(_corp))
+        self.owner_corp.gain_ore(self.get_price(_corp))
+
+        # Manufacturing & delivery
+        self.owner_corp.lose_ore(self.price_to_make)
+        manufactured_item = self.product(_corp)
+
+        return True
+
+
+class Pharmacy(CorpOwnedStore):
+    # Class-Wide Variables
+    construction_price = 350
+
+    def __init__(self, _cell, _corp):
+        assert (_cell.__class__.__name__ == 'Cell')
+        assert (_corp.__class__.__name__ == 'Corporation')
+
+        super().__init__(_cell, _corp, HealthPotion)
+
+        self.health = 120
+
+        self.profits = {  # How much profit you'll make from selling this item
+            'M': 0,
+            'A': 1,
+            'N': 5,
+            'E': 10
+        }
+
+
+class Consumable:
+    item_type = 'Consumable'
+    construction_cost = 0
+
+    def __init__(self, _corp):
+        self.owner_corp = _corp
+        self.item_type = 'Consumable'
+        self.obj_id = str(uuid.uuid4())
+        self.icon = '?'  # Icon Displayed in Inventory
+        self.effects = {
+            'Health Delta': 0,
+            'Ore Delta': 0
+        }
+        self.owner_corp.add_to_inventory(self)
+
+    def consume(self):
+        self.owner_corp.remove_from_inventory(self)
+        return self.effects
+
+
+class HealthPotion(Consumable):
+
+    construction_cost = 5
+
+    def __init__(self, _corp):
+        super().__init__(_corp)
+        self.effects['Health Delta'] = 15
+        self.icon = '♥'
+        self.construction_cost = 5
+
+
 class Hospital(CorpOwnedBuilding):
 
     def __init__(self, _cell, _corp):
@@ -161,6 +272,13 @@ class Loot(GameObject):
         self.icon = '%'
         self.passable = False  # False until we have a 'below' direction key
         self.ore_quantity = 0
+
+
+class HealthPack(Loot):
+    def __init__(self, _cell):
+        super().__init__(_cell)
+        self.health_quantity = 0
+        self.icon = '⨮'
 
 
 class Fence(GameObject):

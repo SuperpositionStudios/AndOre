@@ -1,4 +1,4 @@
-import gameObject, uuid
+import gameObject, uuid, config
 
 
 class Corporation:
@@ -10,12 +10,78 @@ class Corporation:
         self.world = _world
         self.members = []  # Members of the corporation, the actual Player objects are stored here, not just their ids.
         self.buildings = []  # Buildings owned by the corporation, building objects are stored here, not just their ids.
+        self.inventory = dict()  # Items owned are stored here
+        """
+        Example:
+        self.inventory = {
+            'Consumables': {
+                'HealthPotion': [HealthPotion(), HealthPotion()],
+            },
+            'Deployables': {
+                'Fence': [Fence(), Fence()]
+            }
+        }
+        """
+        self.usage_inventory = []
         self.ore_quantity = 0
+        if config.developing:
+            self.ore_quantity += 1000
         self.sent_merge_invites = []  # A list containing ids of corps that have been sent merge invites
         self.received_merge_invites = []  # A list containing ids of corps that have sent use merge invites
         self.standings = dict()
 
         self.add_member(initial_member)
+
+    def render_inventory(self):
+        rendered_inventory = ''
+        self.usage_inventory = []
+        # Loop through item type names
+        for item_type in self.inventory:
+            # Loop through item's arrays
+            for item_name in self.inventory[item_type]:
+                quantity = len(self.inventory[item_type][item_name])
+                if quantity > 0:
+                    icon = self.inventory[item_type][item_name][0].icon
+                    rendered_inventory += '{icon}: {quantity}'.format(icon=icon, quantity=quantity)
+                    self.usage_inventory.append(self.inventory[item_type][item_name][0])
+        return rendered_inventory
+
+    def return_obj_selected_in_rendered_inventory(self, selected):
+        # Selected are the Secondary Modifier Keys for the Usage Inventory Modifier key, so 1, 2, 3, 4, 5, 6, 7, 8, 9, 0
+        # 1 refers to self.usage_inventory[0]
+        # 0 refers to self.usage_inventory[9]
+        if selected == 0:
+            return self.usage_inventory[9]
+        else:
+            return self.usage_inventory[selected - 1]
+
+    def remove_from_inventory(self, item_obj):
+        item_type_storage = self.inventory.get(item_obj.item_type, None)
+        if item_type_storage is not None:
+            item_storage = item_type_storage.get(item_obj.__class__.__name__, None)
+            if item_storage is not None:
+                for i in range(0, len(item_storage)):
+                    if item_storage[i].obj_id == item_obj.obj_id:
+                        del item_storage[i]
+                        return
+            else:
+                self.inventory[item_obj.item_type][item_obj.__class__.__name__] = []
+        else:
+            self.inventory[item_obj.item_type] = dict()
+            self.remove_from_inventory(item_obj)
+
+    def add_to_inventory(self, item_obj):
+        item_type_storage = self.inventory.get(item_obj.item_type, None)
+        if item_type_storage is not None:
+            item_storage = item_type_storage.get(item_obj.__class__.__name__, None)
+            if item_storage is not None:
+                item_storage.append(item_obj)
+            else:
+                self.inventory[item_obj.item_type][item_obj.__class__.__name__] = [item_obj]
+        else:
+            self.inventory[item_obj.item_type] = dict()
+            self.add_to_inventory(item_obj)
+
 
     def tick_buildings(self):
         for building in self.buildings:

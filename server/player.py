@@ -28,37 +28,67 @@ class Player(gameObject.GameObject):
         self.row = self.cell.row
         self.col = self.cell.col
         self.dir_key = ''
-        self.modifier_key = 'm'
+        self.primary_modifier_key = 'm'
+        self.secondary_modifier_key = '1'
         self.passable = False
         self.last_action_at_world_age = 0
         self.corp = self.world.new_corporation(self)
 
     def action(self, key_pressed):
         direction_keys = ['w', 'a', 's', 'd']
-        modifier_keys = {
+        primary_modifier_keys = {
             'k': "for attacking/killing",
             'm': "for moving",
             'l': "for looting",
             'i': "for inviting corp to merge into current corp",
             '-': "for setting a corp to a lower standing (A -> N -> E)",
             '+': "for setting a corp to a higher standing (E -> N -> A)",
-            'f': "for building a fence"
+            'b': "Build mode",
+            'u': "for using something in your corp inventory"
         }
+        secondary_modifier_keys = {
+            '0': "",
+            '1': "",
+            '2': "",
+            '3': "",
+            '4': "",
+            '5': "",
+            '6': "",
+            '7': "",
+            '8': "",
+            '9': ""
+        }
+
+        self.dir_key = ''
         if key_pressed in direction_keys:
             self.dir_key = key_pressed
-        else:
-            self.dir_key = ''
-            self.modifier_key = key_pressed
+        elif key_pressed in primary_modifier_keys:
+            self.primary_modifier_key = key_pressed
+            self.secondary_modifier_key = '1'
+        elif key_pressed in secondary_modifier_keys:
+            self.secondary_modifier_key = key_pressed
+
         if self.world.world_age > self.last_action_at_world_age:
             self.tick()
 
     def line_of_stats(self):
-        return '[hp {health} ore {ore}] [{row} {col}] [{mod_key}][{world_age}] '.format(health=int(self.health),
-                                                                                       ore=self.corp.ore_quantity,
-                                                                                       row=self.row,
-                                                                                       col=self.col,
-                                                                                       mod_key=self.modifier_key,
-                                                                                       world_age=self.world.world_age)
+        return '[hp {health} ore {ore}] [{pri_mod_key} {sec_mod_key}] [{world_age}] '.format(
+            health=int(self.health),
+            ore=self.corp.ore_quantity,
+            pri_mod_key=self.primary_modifier_key,
+            sec_mod_key=self.secondary_modifier_key,
+            world_age=self.world.world_age)
+
+    def get_vitals(self):
+        response = {
+            'ore_quantity': self.corp.amount_of_ore(),
+            'delta_ore': self.delta_ore,
+            'health': self.health,
+            'world_age': self.world.world_age,
+            'row': self.row,
+            'col': self.col
+        }
+        return response
 
     def tick(self):
         self.last_action_at_world_age = self.world.world_age
@@ -84,53 +114,90 @@ class Player(gameObject.GameObject):
     def interact_with_cell(self, row_offset, col_offset):
         affected_cell = self.try_get_cell_by_offset(row_offset, col_offset)
         if affected_cell is not None and affected_cell is not False:
-            if self.modifier_key == 'm':  # Player is trying to move
+            # TODO: Turn this into a dict
+            if self.primary_modifier_key == 'm':  # Player is trying to move
                 return self.try_move(affected_cell)
-            elif self.modifier_key == 'k':  # Player is trying to attack something
+            elif self.primary_modifier_key == 'k':  # Player is trying to attack something
                 return self.try_attacking(affected_cell)
-            elif self.modifier_key == 'l':  # Player is trying to collect/loot something
+            elif self.primary_modifier_key == 'l':  # Player is trying to collect/loot something
                 if self.try_mining(affected_cell):
                     return True
                 elif self.try_going_to_hospital(affected_cell):
                     return True
                 elif self.try_looting(affected_cell):
                     return True
+                elif self.try_buying_from_pharmacy(affected_cell):
+                    return True
                 else:
                     return False
-            elif self.modifier_key == 'i':  # Player/Corp is trying to merge corps with another player
+            elif self.primary_modifier_key == 'i':  # Player/Corp is trying to merge corps with another player
                 if self.try_merge_corp(affected_cell):
                     return True
                 else:
                     return False
-            elif self.modifier_key == 'f':  # Player is trying to build a fence
-                if self.try_building_fence(affected_cell):
-                    return True
+            elif self.primary_modifier_key == 'b':  # Player is in build mode
+                if self.secondary_modifier_key == '1':  # Player is trying to build a fence
+                    if self.try_building_fence(affected_cell):
+                        return True
+                    else:
+                        return False
+                elif self.secondary_modifier_key == '2':  # Player is trying to build a hospital
+                    if self.try_building_hospital(affected_cell):
+                        return True
+                    else:
+                        return False
+                elif self.secondary_modifier_key == '3':  # Player is trying to build an Ore Generator
+                    if self.try_building_ore_generator(affected_cell):
+                        return True
+                    else:
+                        return False
+                elif self.secondary_modifier_key == '4':  # Player is trying to build a Pharmacy
+                    return self.try_building_pharmacy(affected_cell)
                 else:
                     return False
-            elif self.modifier_key == '-':  # Player is trying to worsen their standings towards the target player's corp
-                if self.try_worsening_standing(affected_cell):
-                    return True
-                else:
-                    return False
-            elif self.modifier_key == '+':  # Player is trying to improve their standings towards the target player's corp
-                if self.try_improving_standing(affected_cell):
-                    return True
-                else:
-                    return False
-            elif self.modifier_key == 'h':  # Player is trying to construct a hospital
-                if self.try_building_hospital(affected_cell):
-                    return True
-                else:
-                    return False
-            elif self.modifier_key == 'g':  # Player is trying to construct an ore generator
-                if self.try_building_ore_generator(affected_cell):
-                    return True
-                else:
-                    return False
+            elif self.primary_modifier_key == '-':  # Player is trying to worsen their standings towards the target player's corp
+                return self.try_worsening_standing(affected_cell)
+            elif self.primary_modifier_key == '+':  # Player is trying to improve their standings towards the target player's corp
+                return self.try_improving_standing(affected_cell)
+            elif self.primary_modifier_key == 'u':  # Player is trying to use something in their corp inventory
+                return self.try_using_inventory()
             else:
                 return False
         else:
             return False
+
+    def try_using_inventory(self):
+        #  Consumables
+        chosen = self.corp.return_obj_selected_in_rendered_inventory(int(self.secondary_modifier_key))
+        print(chosen)
+        if chosen.item_type == 'Consumable':
+            print(True)
+            effects = chosen.consume()
+            self.take_effects(effects)
+            return True
+        else:
+            print("Else")
+            return False  # Not yet supported
+
+    def take_effects(self, effects):
+        if effects.get('Health Delta') > 0:
+            self.gain_health(effects.get('Health Delta', 0))
+        else:
+            self.take_damage(effects.get('Health Delta', 0))
+
+        self.gain_ore(effects.get('Ore Delta', 0))
+
+    def gain_health(self, amount):
+        self.health = min(self.health_cap, self.health + amount)
+
+    def try_building_pharmacy(self, _cell):
+        if _cell is not None and _cell.can_enter():
+            ore_cost = gameObject.Pharmacy.construction_price
+            if self.corp.amount_of_ore() > ore_cost:
+                _cell.add_pharmacy(self.corp)
+                self.lose_ore(ore_cost)
+                return True
+        return False
 
     def try_building_ore_generator(self, _cell):
         if _cell is not None and _cell.can_enter():
@@ -240,6 +307,7 @@ class Player(gameObject.GameObject):
 
     def try_attacking(self, _cell):
         if _cell is not None:
+            print("Cell isn't none")
             if _cell.contains_object_type('Fence')[0]:
                 struct = _cell.contains_object_type('Fence')
                 fence = _cell.get_game_object_by_obj_id(struct[1])
@@ -257,18 +325,32 @@ class Player(gameObject.GameObject):
                     else:
                         hospital_obj.take_damage(self.attack_power, self.corp)
                         return True
-            elif _cell.contains_object_type('OreGenerator'):
+            elif _cell.contains_object_type('OreGenerator')[0]:
                 struct = _cell.contains_object_type('OreGenerator')
                 ore_generator = _cell.get_game_object_by_obj_id(struct[1])
                 if ore_generator[0]:
                     ore_generator_obj = ore_generator[1]
-                    corp_standing_to_ore_generator_owner_corp = self.corp.fetch_standing(ore_generator_obj.owner_corp.corp_id)
+                    corp_standing_to_ore_generator_owner_corp = self.corp.fetch_standing(
+                        ore_generator_obj.owner_corp.corp_id)
                     if corp_standing_to_ore_generator_owner_corp == 'M' or corp_standing_to_ore_generator_owner_corp == 'A':
                         return False  # You cannot attack an ore generator that is owned by a corp that we are friendly to
                     else:
                         ore_generator_obj.take_damage(self.attack_power, self.corp)
                         return True
+            elif _cell.contains_object_type('Pharmacy')[0]:
+                struct = _cell.contains_object_type('Pharmacy')
+                pharmacy = _cell.get_game_object_by_obj_id(struct[1])
+                if pharmacy[0]:
+                    pharmacy_obj = pharmacy[1]
+                    corp_standing_to_obj_owner_corp = self.corp.fetch_standing(
+                        pharmacy_obj.owner_corp.corp_id)
+                    if corp_standing_to_obj_owner_corp == 'M' or corp_standing_to_obj_owner_corp == 'A':
+                        return False  # Your standings to the owner corp forbid you from attacking this structure
+                    else:
+                        pharmacy_obj.take_damage(self.attack_power, self.corp)
+                        return True
             elif _cell.contains_object_type('Player')[0]:
+                print("It's a player")
                 struct = _cell.contains_object_type('Player')
                 other_player = _cell.get_game_object_by_obj_id(struct[1])
                 if other_player[0]:
@@ -308,6 +390,19 @@ class Player(gameObject.GameObject):
         if self.check_if_dead():
             self.died()
 
+    def try_buying_from_pharmacy(self, _cell):
+        if _cell is not None:
+            struct = _cell.contains_object_type('Pharmacy')
+            if struct[0]:
+                pharmacy = _cell.get_game_object_by_obj_id(struct[1])
+                if pharmacy[0]:
+                    pharmacy_obj = pharmacy[1]
+                    assert(pharmacy_obj.__class__.__name__ == 'Pharmacy')
+                    #owners = pharmacy_obj.owner_corp
+                    #owner_standings_towards_us = owners.fetch_standing_for_player(self.obj_id)
+                    #purchase_price = pharmacy_obj.get_price(self.corp)
+                    return pharmacy_obj.buy_item(self.corp)
+
     def try_going_to_hospital(self, _cell):
         if _cell is not None:
             struct = _cell.contains_object_type('Hospital')
@@ -315,7 +410,7 @@ class Player(gameObject.GameObject):
                 hospital = _cell.get_game_object_by_obj_id(struct[1])
                 if hospital[0]:
                     hospital_obj = hospital[1]
-                    assert(hospital_obj.__class__.__name__ == 'Hospital')
+                    assert (hospital_obj.__class__.__name__ == 'Hospital')
                     hospital_owners = hospital_obj.owner_corp
                     owner_standings_towards_us = hospital_owners.fetch_standing_for_player(self.obj_id)
                     price_to_use_hospital = hospital_obj.prices_to_use[owner_standings_towards_us]
@@ -349,18 +444,12 @@ class Player(gameObject.GameObject):
     def world_state(self):
         los = self.line_of_stats().ljust(self.world.rows)
         los = list(los)
+        inventory = self.corp.render_inventory()
+        inventory = list(inventory)
         worldmap = self.world.get_world(player_id=self.id)
         worldmap.append(los)
+        worldmap.append(inventory)
         return worldmap
-
-    def get_vitals(self):
-        response = {
-            'ore_quantity': self.corp.amount_of_ore(),
-            'delta_ore': self.delta_ore,
-            'health': self.health,
-            'world_age': self.world.world_age
-        }
-        return response
 
     def check_if_dead(self):
         if self.health <= 0:

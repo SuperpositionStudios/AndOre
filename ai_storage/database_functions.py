@@ -5,7 +5,7 @@ from database_setup import Base, Model
 import config
 
 # Connects to the database
-engine = create_engine(config.path_to_database)
+engine = create_engine(config.path_to_db())
 Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
