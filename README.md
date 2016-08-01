@@ -31,6 +31,23 @@ A game about gathering ore, simple enough to take a reasonable amount of time to
 
 ##Versions/Releases
 
+
+###Castor - Version 1.1 (Found in the Castor Branch)
+
+- You can no longer attack people your corporation considers allies #70
+    - This extends to buildings owned by the allies
+- Corporation Owned Hospitals; Cheaper to use than a Hospital not owned by your Corporation and if non corp-members and allies use it they will pay full price and the corp will gain ore #68
+- Ore Generators; Corp owned Deployable that produces ore for the corporation every tick #66
+- You can no longer place Corp Owned Buildings in Impassible cells #79
+- Pharmacies; Corporation Owned Building that sells Health Potions. The Health Potions go into your Corporation Inventory and anyone in the Corporation can use them instantly. #41
+    - Use Health Potions by finding their spot on your corp inventory, most commenly 1. So (u, 1) will use your health potion 
+- Corporation Inventory System #41
+- Secondary Modifier Keys to remove some Primary Modifier Keys #41
+    - Building a Fence is changed to (b, 1) from (f, *)
+    - Building a Hospital is changed to (b, 2) from (h, *)
+    - Building an Ore Generator is (b, 3)
+    - Building a Pharmacy is (b, 4)
+
 ###Genesis - Version 1.0 (Found in the Genesis Branch)
 - Players
     -  You show up on the world as a `@`
