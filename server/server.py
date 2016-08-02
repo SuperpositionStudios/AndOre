@@ -9,6 +9,7 @@ import os
 import sys
 import psutil
 import logging
+import warnings
 
 app = Flask(__name__)
 
@@ -17,7 +18,6 @@ web_server_domain = "*"
 
 world = World()
 world.spawn_ore_deposits(20)
-world.spawn_hospitals(20)
 
 
 def restart_program():
@@ -43,25 +43,10 @@ def home_cor(obj):
     return return_response
 
 
-def valid_id(_id):
-    if _id in player_ids:
-        return True
-    else:
-        #print("####")
-        #print("Invalid ID: " + _id)
-        #print(player_ids)
-        #print("####")
-        return False
-
-
 def tick_server_if_needed():
     now = datetime.datetime.now()
     if (now - world.last_tick).microseconds >= world.microseconds_per_tick:
-        #run_ticks()
         world.tick()
-
-
-player_ids = []
 
 
 @app.route('/join')
@@ -72,7 +57,6 @@ def join():
 
     new_player_id = world.new_player()
 
-    player_ids.append(new_player_id)
     response['id'] = new_player_id
 
     _sendState = request.args.get('sendState', 'false')
@@ -90,7 +74,7 @@ def action():
     response = dict()
 
     _id = request.args.get('id', '')
-    if valid_id(_id) is False:
+    if world.valid_player_id(_id) is False:
         response["error"] = "Invalid ID"
         return home_cor(jsonify(**response))
 
@@ -106,6 +90,8 @@ def action():
 
 @app.route('/sendState')
 def send_state(**keyword_parameters):
+    start_of_request = datetime.datetime.now()
+
     tick_server_if_needed()
     response = dict()
 
@@ -114,7 +100,7 @@ def send_state(**keyword_parameters):
     else:
         _id = request.args.get('id', '')
 
-    if valid_id(_id) is False:
+    if world.valid_player_id(_id) is False:
         response['error'] = "Invalid ID"
         return home_cor(jsonify(**response))
 
@@ -122,6 +108,9 @@ def send_state(**keyword_parameters):
     response['world'] = world.players[_id].world_state()
     response['id'] = _id
     response['vitals'] = world.players[_id].get_vitals()
+
+    request_time = datetime.datetime.now() - start_of_request
+    print("Time to answer sendState request: {}".format(request_time.microseconds / 1000))
     return home_cor(jsonify(**response))
 
 
