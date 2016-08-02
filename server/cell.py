@@ -113,14 +113,14 @@ class Cell:
                                 return obj.icons[corp_standing_to_owners]
                             else:
                                 return obj.icon
-            return '.'  # Returns Empty Space
+            return '丷'  # Returns Empty Space
         else:
             for i in priority:
                 if self.contains_object_type(i)[0]:
                     for obj in self.contents:
                         if obj.__class__.__name__ == i:
                             return obj.icon
-            return '.'  # Returns Empty Space
+            return '丷'  # Returns Empty Space
 
     def can_enter(self):
         for obj in self.contents:
