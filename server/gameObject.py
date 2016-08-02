@@ -298,14 +298,12 @@ class AttackPowerPotion(Consumable):
 
 class HealthPotion(Consumable):
 
-    construction_cost = 5
+    construction_cost = 50
 
     def __init__(self, _corp):
         super().__init__(_corp)
         self.effects['Health Delta'] = 15
         self.icon = '♥'
-        self.construction_cost = 5
-
 
 class Door(CorpOwnedBuilding):
     # Class-Wide Variables
