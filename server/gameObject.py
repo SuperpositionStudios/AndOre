@@ -231,13 +231,24 @@ class Consumable:
         self.icon = '?'  # Icon Displayed in Inventory
         self.effects = {
             'Health Delta': 0,
-            'Ore Delta': 0
+            'Ore Delta': 0,
+            'Strength Delta': 0
         }
         self.owner_corp.add_to_inventory(self)
 
     def consume(self):
         self.owner_corp.remove_from_inventory(self)
         return self.effects
+
+
+class StrengthPotion(Consumable):
+
+    construction_cost = 100
+
+    def __init__(self, _corp):
+        super().__init__(_corp)
+        self.effects['Strength Delta'] = 10
+        self.icon = '⚒'
 
 
 class HealthPotion(Consumable):
