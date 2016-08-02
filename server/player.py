@@ -72,12 +72,13 @@ class Player(gameObject.GameObject):
             self.tick()
 
     def line_of_stats(self):
-        return '[hp {health} ore {ore}] [{pri_mod_key} {sec_mod_key}] [{world_age}] '.format(
+        los = '[hp {health} ore {ore}] [{pri_mod_key} {sec_mod_key}] [{world_age}] '.format(
             health=int(self.health),
             ore=self.corp.ore_quantity,
             pri_mod_key=self.primary_modifier_key,
             sec_mod_key=self.secondary_modifier_key,
             world_age=self.world.world_age)
+        return los.ljust(self.world.cols)
 
     def get_vitals(self):
         response = {

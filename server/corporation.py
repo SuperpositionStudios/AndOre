@@ -44,7 +44,7 @@ class Corporation:
                     icon = self.inventory[item_type][item_name][0].icon
                     rendered_inventory += '{icon}: {quantity}'.format(icon=icon, quantity=quantity)
                     self.usage_inventory.append(self.inventory[item_type][item_name][0])
-        return rendered_inventory
+        return rendered_inventory.ljust(self.world.cols)
 
     def return_obj_selected_in_rendered_inventory(self, selected):
         # Selected are the Secondary Modifier Keys for the Usage Inventory Modifier key, so 1, 2, 3, 4, 5, 6, 7, 8, 9, 0

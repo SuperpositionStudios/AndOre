@@ -9,7 +9,7 @@ var devServerUrl = "http://localhost";
 var dev_game_server_endpoint = ":7001";
 var dev_ai_storage_endpoint = ":7003";
 
-var use_dev_server = true  // Used for development
+var use_dev_server = false; // Used for development
 var internetOff = false;  // Used for testing view.js
 
 var ai_name = '';
@@ -100,7 +100,7 @@ var app = {
   	});
   },
   SendCommand: function(command){
-    AjaxCall("/action", {id: userId, action: command, sendState:true}, function(data){ 
+    AjaxCall("/action", {id: userId, action: command, sendState:true}, function(data){
       view.Draw(data.world);
     });
   },
@@ -113,19 +113,19 @@ var app = {
 
     //var oldBrain = localStorage.getItem("aiModel");
     var spec = { alpha: 0.01 };
-    this.agent = new RL.DQNAgent(self.env, spec);  
+    this.agent = new RL.DQNAgent(self.env, spec);
     if(this.oldBrain != null){
       this.agent.fromJSON(this.oldBrain);
       console.log("Parsed stored model into Agent.");
     }
-    this.AiTick(); 
+    this.AiTick();
   },
   AiTick: function(){
     var self = this;
     var repeat;
     repeat = function() {
       var command = self.keys[self.lastAction];
-      AjaxCall("/action", {id: userId, action: command, sendState:true}, function(data){ 
+      AjaxCall("/action", {id: userId, action: command, sendState:true}, function(data){
         var worldAge = data.vitals.world_age;
         if (worldAge > self.lastAge) {
           view.Draw(data.world);
@@ -146,7 +146,7 @@ var app = {
     }
 
     this.lastAge = data.vitals.world_age;
-      
+
     var states = FlattenWorld(data.world);
     var deltaHealth = data.vitals.health - this.lastHealth;
     var reward = (data.vitals.delta_ore * 2 + deltaHealth * 1) / 3;
@@ -166,8 +166,8 @@ var app = {
       reward = -5;
     }
 
-    if(this.hasActed){  
-      this.agent.learn(reward);      
+    if(this.hasActed){
+      this.agent.learn(reward);
     }
     var action = this.agent.act(this.actions);
     if(this.lastAction != action){
@@ -242,7 +242,7 @@ function FlattenWorld(world){
     var line = world[i];
     for (var key in line){
       state.push(line[key].charCodeAt(0));
-    }    
+    }
   }
   while( state.length < 1024){
     state.push(" ");
@@ -255,7 +255,7 @@ function FlattenWorld(world){
 }
 function AjaxCall(endpoint, data, callback, failCallback){
   if(internetOff){
-    callback(testData);    
+    callback(testData);
   }
 
   var ajax = $.ajax({
@@ -271,7 +271,7 @@ function AjaxCall(endpoint, data, callback, failCallback){
     //console.log("bad req to " + apiUrl + endpoint + ":  " + status + " | " + error);
     if(failCallback != null){
 
-      failCallback();      
+      failCallback();
     }
   });
 }
