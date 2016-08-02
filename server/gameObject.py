@@ -71,6 +71,10 @@ class CorpOwnedBuilding(GameObject):
     def died(self):
         self.delete()
 
+    def check_if_dead_and_if_so_die(self):
+        if self.check_if_dead():
+            self.delete()
+
     def tick(self):
         # Something the building needs to every tick
         return
@@ -121,10 +125,12 @@ class OreGenerator(CorpOwnedBuilding):
 
         self.ore_generated_per_tick = 1
         self.price_to_construct = 100
-        self.health = 80
+        self.health = 300
 
     def tick(self):
         self.owner_corp.gain_ore(self.ore_generated_per_tick)
+        self.health -= 1
+        self.check_if_dead_and_if_so_die()
 
 
 class CorpOwnedStore(CorpOwnedBuilding):
@@ -304,6 +310,7 @@ class HealthPotion(Consumable):
         super().__init__(_corp)
         self.effects['Health Delta'] = 15
         self.icon = '♥'
+
 
 class Door(CorpOwnedBuilding):
     # Class-Wide Variables
