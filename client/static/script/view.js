@@ -2,7 +2,7 @@
 //using (from app.js) id, CallCallback
 
 //called by app.js after id is populated, etc
-var contentId = "content";
+var contentSelector = "#content span";
 var pollDelay = 350;
 var validKeys = {
     "w": true,  // Direction Key
@@ -29,9 +29,9 @@ var validKeys = {
     "9": true   // Secondary Modifier Key
 };
 var view = {
-  contentDiv: null,
+  contentSpan: null,
   SetupView : function(callback) {
-    view.contentDiv = $(DivNameToId(contentId));
+    view.contentSpan = $(contentSelector);
     view.SetupInput();
     view.Poll();
     CallCallback(callback);
@@ -43,10 +43,10 @@ var view = {
       out += row.join("") + "\n";
     }
     //console.log(out);
-    view.contentDiv.html(out);
+    view.contentSpan.html(out);
   },
   Poll: function(){
-    setTimeout(function() { 
+    setTimeout(function() {
       app.GetDisplay(view.Poll, pollDelay);
     }, pollDelay);
   },
@@ -60,8 +60,4 @@ var view = {
     });
 
   }
-}
-
-function DivNameToId(divName) {
-  return "#" + divName;
 }
