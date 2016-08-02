@@ -13,11 +13,20 @@ class Player(gameObject.GameObject):
         self.obj_id = _id
         self.world = _world
         self.cell = _cell
+
+        self.starting_health_cap = 100
+        self.health_cap = int(100)
+
         self.starting_health = 100
-        self.health_cap = 100
         self.health_loss_per_turn = 0.1
-        self.health = 100
-        self.attack_power = 10
+        self.health = int(self.starting_health)
+
+        self.starting_attack_power = 10
+        self.attack_power = int(self.starting_attack_power)
+
+        self.starting_ore_multiplier = 1
+        self.ore_multiplier = int(self.starting_ore_multiplier)
+
         self.delta_ore = 0  # The ore lost/gained in the last tick
         self.inner_icon = '@'
         self.neutral_icon = 'N'
@@ -193,6 +202,12 @@ class Player(gameObject.GameObject):
 
         self.gain_ore(effects.get('Ore Delta', 0))
 
+        self.ore_multiplier += effects.get('Ore Multiplier Delta', 0)
+
+        self.attack_power += effects.get('Attack Power Delta', 0)
+
+        self.health_cap += effects.get('Health Cap Delta', 0)
+
     def gain_health(self, amount):
         self.health = min(self.health_cap, self.health + amount)
 
@@ -294,7 +309,7 @@ class Player(gameObject.GameObject):
             if struct[0]:
                 ore_deposit = _cell.get_game_object_by_obj_id(struct[1])
                 if ore_deposit[0]:
-                    self.gain_ore(ore_deposit[1].ore_per_turn)
+                    self.gain_ore(ore_deposit[1].ore_per_turn * self.ore_multiplier)
                     return True
         return False
 
@@ -423,10 +438,11 @@ class Player(gameObject.GameObject):
                 if pharmacy[0]:
                     pharmacy_obj = pharmacy[1]
                     assert(pharmacy_obj.__class__.__name__ == 'Pharmacy')
-                    #owners = pharmacy_obj.owner_corp
-                    #owner_standings_towards_us = owners.fetch_standing_for_player(self.obj_id)
-                    #purchase_price = pharmacy_obj.get_price(self.corp)
-                    return pharmacy_obj.buy_item(self.corp)
+                    if int(self.secondary_modifier_key) == 0:
+                        item_num = 9
+                    else:
+                        item_num = int(self.secondary_modifier_key) - 1
+                    return pharmacy_obj.buy_item(self.corp, item_num)
 
     def try_going_to_hospital(self, _cell):
         if _cell is not None:
@@ -485,8 +501,12 @@ class Player(gameObject.GameObject):
     def died(self):
         if self.health <= 0:
             self.drop_ore()
-            self.health += self.starting_health
+            self.health = int(self.starting_health)
+            self.ore_multiplier = int(self.starting_ore_multiplier)
+            self.attack_power = int(self.starting_attack_power)
+            self.health_cap = int(self.starting_health_cap)
             self.go_to_respawn_location()
+            self.primary_modifier_key = 'm'
 
     def go_to_respawn_location(self):
         self.change_cell(self.world.random_can_enter_cell())

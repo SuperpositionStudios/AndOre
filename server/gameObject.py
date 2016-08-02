@@ -128,7 +128,7 @@ class OreGenerator(CorpOwnedBuilding):
 
 
 class CorpOwnedStore(CorpOwnedBuilding):
-    def __init__(self, _cell, _corp, _product):
+    def __init__(self, _cell, _corp):
         assert(_cell.__class__.__name__ == 'Cell')
         assert(_corp.__class__.__name__ == 'Corporation')
 
@@ -142,60 +142,90 @@ class CorpOwnedStore(CorpOwnedBuilding):
             'N': '|',
             'E': '|'
         }
-        self.product = _product
 
-        self.price_to_make = _product.construction_cost  # The number of ore it costs to produce the item
-        self.item_type = _product.item_type
+        self.products = dict()
 
-        self.profits = {  # How much profit you'll make from selling this item
-            'M': 0,  # Charging Corp Members Cost, should always be 0 because since the corporation wallet is used
-                     # to pay for the purchase, you don't make anything by making this higher.
-            'A': 1,  # Charging People The Owners Considers Allies Cost + 1
-            'N': 5,  # Charging Neutrals Cost + 5
-            'E': 10  # Charging Enemies Cost + 10 (Hey you gotta make money somehow)
+    def add_product(self, item, profits):
+        index = len(self.products)
+        self.products[index] = {
+            'prices': {
+                'M': item.construction_cost + profits['M'],
+                'A': item.construction_cost + profits['A'],
+                'N': item.construction_cost + profits['N'],
+                'E': item.construction_cost + profits['E']
+            },
+            'profits': profits,
+            'item': item
         }
 
-        self.prices = {  # How much it'll cost to buy items from here, don't edit this.
-            'M': self.price_to_make + self.profits['M'],
-            'A': self.price_to_make + self.profits['A'],
-            'N': self.price_to_make + self.profits['N'],
-            'E': self.price_to_make + self.profits['E']
-        }
+    def get_price(self, _corp, item_num):
+        return self.products[item_num]['prices'][self.owner_corp.fetch_standing(_corp.corp_id)]
 
-    def get_price(self, _corp):
-        return self.prices[self.owner_corp.fetch_standing(_corp.corp_id)]
+    def get_profit(self, _corp, item_num):
+        return self.products[item_num]['profits'][self.owner_corp.fetch_standing(_corp.corp_id)]
 
-    def get_profit(self, _corp):
-        return self.profits[self.owner_corp.fetch_standing(_corp.corp_id)]
+    def construction_cost(self, item_num):
+        return self.products[item_num]['item'].construction_cost
 
-    def buy_item(self, _corp):
+    def buy_item(self, _corp, item_num):
+        # Item num out of range
+        if item_num >= len(self.products):
+            return False
+
         # _corp refers to the corp buying the item
         assert(_corp.__class__.__name__ == 'Corporation')
 
         # Checking if both parties are able to pay
-        if (_corp.amount_of_ore() >= self.get_price(_corp) and self.owner_corp.amount_of_ore() >= self.price_to_make) is False:
+        if (_corp.amount_of_ore() >= self.get_price(_corp, item_num) and self.owner_corp.amount_of_ore() >= self.construction_cost(item_num)) is False:
             return False
 
         # Payment
-        _corp.lose_ore(self.get_price(_corp))
-        self.owner_corp.gain_ore(self.get_price(_corp))
+        _corp.lose_ore(self.get_price(_corp, item_num))
+        self.owner_corp.gain_ore(self.get_price(_corp, item_num))
 
         # Manufacturing & delivery
-        self.owner_corp.lose_ore(self.price_to_make)
-        manufactured_item = self.product(_corp)
+        self.owner_corp.lose_ore(self.construction_cost(item_num))
+        manufactured_item = self.products[item_num]['item'](_corp)
 
         return True
 
 
 class Pharmacy(CorpOwnedStore):
     # Class-Wide Variables
-    construction_price = 350
+    construction_price = 1000
 
     def __init__(self, _cell, _corp):
         assert (_cell.__class__.__name__ == 'Cell')
         assert (_corp.__class__.__name__ == 'Corporation')
 
-        super().__init__(_cell, _corp, HealthPotion)
+        super().__init__(_cell, _corp)
+
+        self.add_product(HealthPotion, {
+            'M': 0,
+            'A': 1,
+            'N': 5,
+            'E': 10
+        })
+        self.add_product(HealthCapPotion, {
+            'M': 0,
+            'A': 50,
+            'N': 100,
+            'E': 250
+        })
+
+        self.add_product(AttackPowerPotion, {
+            'M': 0,
+            'A': 20,
+            'N': 100,
+            'E': 500
+        })
+
+        self.add_product(MinerMultiplierPotion, {
+            'M': 0,
+            'A': 30,
+            'N': 50,
+            'E': 200
+        })
 
         self.health = 120
 
@@ -212,13 +242,6 @@ class Pharmacy(CorpOwnedStore):
             'E': False
         }
 
-        self.profits = {  # How much profit you'll make from selling this item
-            'M': 0,
-            'A': 1,
-            'N': 5,
-            'E': 10
-        }
-
 
 class Consumable:
     item_type = 'Consumable'
@@ -230,8 +253,11 @@ class Consumable:
         self.obj_id = str(uuid.uuid4())
         self.icon = '?'  # Icon Displayed in Inventory
         self.effects = {
-            'Health Delta': 0,
-            'Ore Delta': 0
+            'Health Delta': 0,  # Modifies the Health of the Player
+            'Ore Delta': 0,  # Modifies the ore amount of the Player
+            'Attack Power Delta': 0,  # Modifies the attack power of the Player
+            'Health Cap Delta': 0,  # Modifies the max health of the Player
+            'Ore Multiplier Delta': 0
         }
         self.owner_corp.add_to_inventory(self)
 
@@ -240,16 +266,44 @@ class Consumable:
         return self.effects
 
 
+class HealthCapPotion(Consumable):
+
+    construction_cost = 500
+
+    def __init__(self, _corp):
+        super().__init__(_corp)
+        self.effects['Health Cap Delta'] = 10
+        self.icon = 'HC'
+
+
+class MinerMultiplierPotion(Consumable):
+
+    construction_cost = 300
+
+    def __init__(self, _corp):
+        super().__init__(_corp)
+        self.effects['Ore Multiplier Delta'] = 1
+        self.icon = 'MM'
+
+
+class AttackPowerPotion(Consumable):
+
+    construction_cost = 200
+
+    def __init__(self, _corp):
+        super().__init__(_corp)
+        self.effects['Attack Power Delta'] = 5
+        self.icon = '⚒'
+
+
 class HealthPotion(Consumable):
 
-    construction_cost = 5
+    construction_cost = 50
 
     def __init__(self, _corp):
         super().__init__(_corp)
         self.effects['Health Delta'] = 15
         self.icon = '♥'
-        self.construction_cost = 5
-
 
 class Door(CorpOwnedBuilding):
     # Class-Wide Variables
