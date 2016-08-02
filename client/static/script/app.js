@@ -10,6 +10,7 @@ var dev_game_server_endpoint = ":7001";
 var dev_ai_storage_endpoint = ":7003";
 
 var use_dev_server = true;  // Used for development
+var use_ai_storage_server = false;
 var internetOff = false;  // Used for testing view.js
 
 var ai_name = '';
@@ -25,7 +26,7 @@ if (use_dev_server) {
 function ArrayToKeys(inArray) {
   var out = {};
   for (i in inArray){
-    out[inArray[i]] = true;
+    out[inArray[i].toString()] = true;
   }
   return out;
 }
@@ -39,9 +40,10 @@ var app = {
   oldBrain: '',
   repeats: 0,  // Times updateAI has been called since last upload
   repeatsUntilUpload: 50, // Times updateAI has to be called until the model is saved on the AI storage server
+  env: {},
   tick: 0,
   newAction: false,
-  keys: ArrayToKeys([
+  actions: [
       "a",  // Direction Key
       "w",  // Direction Key
       "s",  // Direction Key
@@ -64,13 +66,14 @@ var app = {
       "7",  // Secondary Modifier Key
       "8",  // Secondary Modifier Key
       "9"   // Secondary Modifier Key
-  ]),
+  ],
   lastAction: "a",
   lastHealth: 100,
   lastAge: 0,
   Init: function() {
+    app.actionsLut = ArrayToKeys(this.actions);
   	app.GetUserId(function(){
-  		view.SetupView(app.GetDisplay);
+  		view.SetupView(app, app.GetDisplay);
   	});
   },
 
@@ -81,8 +84,9 @@ var app = {
       userId = data.id;
       $("body").keypress(function(e) {
         if (String.fromCharCode(e.which) == self.startAiKey && self.AiStarted == false) {
+          self.ai = new BaseAi(self);
+          self.ai.Start();
             self.AiStarted = true;
-            app.getModel(self);
         }
       });
       CallCallback(callback);

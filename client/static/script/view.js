@@ -4,9 +4,10 @@
 //called by app.js after id is populated, etc
 var contentId = "content";
 var pollDelay = 350;
-var view = {
+var view.prototype = {
   contentDiv: null,
-  SetupView : function(callback) {
+  SetupView : function(app, callback) {
+    this.app = app;
     view.contentDiv = $(DivNameToId(contentId));
     view.SetupInput();
     view.Poll();
@@ -30,7 +31,7 @@ var view = {
     $("body").keypress(function(e){
       command = String.fromCharCode(e.which).toLowerCase();
       //console.log(command);
-      if(app.keys[command]) {
+      if(app.actionsLut[command]) {
         app.SendCommand(command);
       }
     });

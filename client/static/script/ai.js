@@ -21,30 +21,35 @@ BaseAi.prototype = {
         'mid': prompt("What is the AI's Name?")
     };
     ai_name = data['mid'];
-    $.ajax({
-        type: "POST",
-        contentType: "application/json; charset=utf-8",
-        dataType: "json",
-        url: ai_storage_endpoint + "/retrieve",
-        data: JSON.stringify(data),
-        success: function(_data) {
-            console.log(_data);
-            self.oldBrain = JSON.parse(_data['model']);
-            console.log("Retrieved and saved AI Model into memory");
-            self.StartAi();
-        },
-    });
+    if(use_ai_storage){
+      $.ajax({
+          type: "POST",
+          contentType: "application/json; charset=utf-8",
+          dataType: "json",
+          url: ai_storage_endpoint + "/retrieve",
+          data: JSON.stringify(data),
+          success: function(_data) {
+              console.log(_data);
+              self.oldBrain = JSON.parse(_data['model']);
+              console.log("Retrieved and saved AI Model into memory");
+              self.StartAi();
+          },
+      });
+    } else {
+      self.StartAi();
+    }
   },
   NewEnv: function() {
     var self = this;
     return {
-      getNumStates: function { return self.dataSize; },
+      getNumStates: function() { return self.dataSize; },
       getMaxNumActions: function() { return self.actions.length; },
       allowedActions: function() { return self.actions; },
     }
   },
-  StartAi: function() {
-    this.actions = this.actions.length > 0? this.actions : app.keys.keys();
+  Start: function() {
+    console.log(this.app.keys);
+    this.actions = this.actions.length > 0? this.actions : this.app.actions;
     this.env = this.NewEnv();
     //var oldBrain = localStorage.getItem("aiModel");
     var spec = { alpha: 0.01 };
@@ -105,7 +110,7 @@ BaseAi.prototype = {
       this.agent.learn(reward);      
     }
 
-    var action = this.agent.act(this.actions);
+    var action = this.agent.act(this.state);
     if(this.lastAction != action){
       this.newAction = true;
     } else {
@@ -119,19 +124,21 @@ BaseAi.prototype = {
         'mid': ai_name,
         'model': ai_model
     }
-    $.ajax({
-      url: ai_storage_endpoint + "/upload",
-      type: "POST",
-      data: JSON.stringify(data),
-      dataType: "json",
-      contentType: "application/json; charset=utf-8",
-      success: function(_data) {
-        console.log(_data);
-      },
-      error: function(jqXHR, textStatus, errorThrown) {
-        console.log("Error uploading the model");
-      }
-    });
+    if(!internetOff){
+      $.ajax({
+        url: ai_storage_endpoint + "/upload",
+        type: "POST",
+        data: JSON.stringify(data),
+        dataType: "json",
+        contentType: "application/json; charset=utf-8",
+        success: function(_data) {
+          console.log(_data);
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+          console.log("Error uploading the model");
+        }
+      });      
+    }
   },
   FlattenWorld: function(world){
     var state = [];
