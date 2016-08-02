@@ -173,9 +173,12 @@ class Corporation:
 
     # Another corp will call this with their corp id to indicate that they want to be merged into our corp
     def merge_me(self, other_corp_id):
+        _other_corp = self.world.corporations[other_corp_id]
+
         #print("Old corp size: {}".format(len(self.members)))
         self.sent_merge_invites = list([])  # Empties the sent merge invites list
         self.received_merge_invites = list([])  # Empties the received merge invites list
+
         # Incorporating their ore bank into our ore bank
         self.gain_ore(self.world.corporations[other_corp_id].ore_quantity)
 
@@ -183,6 +186,17 @@ class Corporation:
         for member in self.world.corporations[other_corp_id].members:
             member.corp = self
             self.members.append(member)
+
+        # Copying their inventory to ours
+        # Loop through item type names
+        for item_type in _other_corp.inventory:
+            # Loop through item's arrays
+            for item_name in _other_corp.inventory[item_type]:
+                try:
+                    for item in _other_corp.inventory[item_type][item_name]:
+                        self.add_to_inventory(item)
+                except Exception as e:
+                    print(str(e))
 
         # Setting the other corp's buildings corp to our corp
         for building in self.world.corporations[other_corp_id].buildings:
