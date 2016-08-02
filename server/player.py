@@ -14,8 +14,10 @@ class Player(gameObject.GameObject):
         self.world = _world
         self.cell = _cell
 
+        self.starting_health_cap = 100
+        self.health_cap = int(100)
+
         self.starting_health = 100
-        self.health_cap = 100
         self.health_loss_per_turn = 0.1
         self.health = int(self.starting_health)
 
@@ -499,8 +501,12 @@ class Player(gameObject.GameObject):
     def died(self):
         if self.health <= 0:
             self.drop_ore()
-            self.health += self.starting_health
+            self.health = int(self.starting_health)
+            self.ore_multiplier = int(self.starting_ore_multiplier)
+            self.attack_power = int(self.starting_attack_power)
+            self.health_cap = int(self.starting_health_cap)
             self.go_to_respawn_location()
+            self.primary_modifier_key = 'm'
 
     def go_to_respawn_location(self):
         self.change_cell(self.world.random_can_enter_cell())
