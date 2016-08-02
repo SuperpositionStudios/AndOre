@@ -13,11 +13,15 @@ class Player(gameObject.GameObject):
         self.obj_id = _id
         self.world = _world
         self.cell = _cell
+
         self.starting_health = 100
         self.health_cap = 100
         self.health_loss_per_turn = 0.1
         self.health = 100
+
+        self.starting_attack_power = 10
         self.attack_power = 10
+
         self.delta_ore = 0  # The ore lost/gained in the last tick
         self.inner_icon = '@'
         self.neutral_icon = 'N'
@@ -192,6 +196,10 @@ class Player(gameObject.GameObject):
             self.take_damage(effects.get('Health Delta', 0))
 
         self.gain_ore(effects.get('Ore Delta', 0))
+
+        self.attack_power += effects.get('Attack Power Delta', 0)
+
+        self.health_cap += effects.get('Health Cap Delta', 0)
 
     def gain_health(self, amount):
         self.health = min(self.health_cap, self.health + amount)
@@ -423,10 +431,11 @@ class Player(gameObject.GameObject):
                 if pharmacy[0]:
                     pharmacy_obj = pharmacy[1]
                     assert(pharmacy_obj.__class__.__name__ == 'Pharmacy')
-                    #owners = pharmacy_obj.owner_corp
-                    #owner_standings_towards_us = owners.fetch_standing_for_player(self.obj_id)
-                    #purchase_price = pharmacy_obj.get_price(self.corp)
-                    return pharmacy_obj.buy_item(self.corp)
+                    if int(self.secondary_modifier_key) == 0:
+                        item_num = 9
+                    else:
+                        item_num = int(self.secondary_modifier_key) - 1
+                    return pharmacy_obj.buy_item(self.corp, item_num)
 
     def try_going_to_hospital(self, _cell):
         if _cell is not None:
