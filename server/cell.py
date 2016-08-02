@@ -122,11 +122,23 @@ class Cell:
                             return obj.icon
             return '.'  # Returns Empty Space
 
-    def can_enter(self):
-        for obj in self.contents:
-            if obj.passable is False:
-                return False
-        return True
+    def can_enter(self, player_obj=None):
+        if player_obj is not None:
+            assert(player_obj.__class__.__name__ == 'Player')
+            for obj in self.contents:
+                if obj.__class__.__name__ == 'OreDeposit':
+                    obj_standing = 'N'
+                else:
+                    obj_standing = obj.owner_corp.fetch_standing_for_player(player_obj.obj_id)
+                if obj.passable[obj_standing] is False:
+                    return False
+            return True
+        else:
+            for obj in self.contents:
+                obj_standing = 'N'
+                if obj.passable[obj_standing] is False:
+                    return False
+            return True
     """
     def try_get_cell_by_offset(self, row_offset, col_offset):
         return self.world.get_cell(self.row + row_offset, self.col + col_offset)

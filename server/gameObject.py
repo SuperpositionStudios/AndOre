@@ -9,7 +9,12 @@ class GameObject:
         self.col = self.cell.col
         self.row = self.cell.row
         self.obj_id = str(uuid.uuid4())
-        self.passable = True
+        self.passable = {
+            'M': True,
+            'A': True,
+            'N': True,
+            'E': True
+        }
         self.blocking = False
 
     def leave_cell(self):
@@ -81,7 +86,12 @@ class OreDeposit(GameObject):
         super().__init__(_cell)
         self.icon = '$'
         self.cell = _cell
-        self.passable = False
+        self.passable = {
+            'M': False,
+            'A': False,
+            'N': False,
+            'E': False
+        }
         self.blocking = True
         self.ore_per_turn = 3
 
@@ -101,7 +111,12 @@ class OreGenerator(CorpOwnedBuilding):
             'E': '€'
         }
 
-        self.passable = False
+        self.passable = {
+            'M': False,
+            'A': False,
+            'N': False,
+            'E': False
+        }
         self.blocking = True
 
         self.ore_generated_per_tick = 1
@@ -183,7 +198,12 @@ class Pharmacy(CorpOwnedStore):
         super().__init__(_cell, _corp, HealthPotion)
 
         self.health = 120
-        self.passable = False
+        self.passable = {
+            'M': False,
+            'A': False,
+            'N': False,
+            'E': False
+        }
 
         self.profits = {  # How much profit you'll make from selling this item
             'M': 0,
@@ -224,6 +244,31 @@ class HealthPotion(Consumable):
         self.construction_cost = 5
 
 
+class Door(CorpOwnedBuilding):
+
+    def __init__(self, _cell, _corp):
+        assert(_cell.__class__.__name__ == 'Cell')
+        assert(_corp.__class__.__name__ == 'Corporation')
+
+        super().__init__(_cell, _corp)
+
+        self.icon = 'D'  # Deprecated
+
+        self.icons = {
+            'M': '=',
+            'A': '=',
+            'N': '-',
+            'E': '-'
+        }
+
+        self.passable = {
+            'M': True,
+            'A': True,
+            'N': False,
+            'E': False
+        }
+
+
 class Hospital(CorpOwnedBuilding):
 
     def __init__(self, _cell, _corp):
@@ -255,7 +300,12 @@ class Hospital(CorpOwnedBuilding):
             'E': 10
         }
 
-        self.passable = False
+        self.passable = {
+            'M': False,
+            'A': False,
+            'N': False,
+            'E': False
+        }
         self.blocking = True
         self.health_regen_per_turn = 5
         self.ore_usage_cost = 10
@@ -271,7 +321,12 @@ class Loot(GameObject):
     def __init__(self, _cell):
         super().__init__(_cell)
         self.icon = '%'
-        self.passable = False  # False until we have a 'below' direction key
+        self.passable = {
+            'M': False,
+            'A': False,
+            'N': False,
+            'E': False
+        }  # False until we have a 'below' direction key
         self.ore_quantity = 0
 
 
@@ -289,7 +344,12 @@ class Fence(GameObject):
         self.health = 60
         self.icon = '#'
         self.ore_cost_to_deploy = 30
-        self.passable = False
+        self.passable = {
+            'M': False,
+            'A': False,
+            'N': False,
+            'E': False
+        }
 
     def take_damage(self, damage):
         self.health -= damage
