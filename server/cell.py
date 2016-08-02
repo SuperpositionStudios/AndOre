@@ -20,6 +20,11 @@ class Cell:
         a = gameObject.OreDeposit(self)
         self.contents.append(a)
 
+    def add_door(self, owner_corp):
+        assert(owner_corp.__class__.__name__ == 'Corporation')
+        a = gameObject.Door(self, owner_corp)
+        self.add_game_object(a)
+
     def add_pharmacy(self, owner_corp):
         assert(owner_corp.__class__.__name__ == 'Corporation')
         a = gameObject.Pharmacy(self, owner_corp)
@@ -82,7 +87,7 @@ class Cell:
 
     def render(self, **keyword_parameters):
 
-        priority = ['Player', 'OreDeposit', 'Hospital', 'Pharmacy', 'OreGenerator', 'Loot', 'Fence', 'EmptySpace']
+        priority = ['Player', 'OreDeposit', 'Hospital', 'Pharmacy', 'OreGenerator', 'Loot', 'Fence', 'Door']
 
         if 'player_id' in keyword_parameters:
             player_id = keyword_parameters['player_id']
@@ -99,9 +104,9 @@ class Cell:
                                     return obj.corp_member_icon
                                 else:
                                     return player_obj.corp.fetch_standing(obj.corp.corp_id)
-                            elif obj.__class__.__name__ == 'Hospital':
-                                hospital_owners = obj.owner_corp
-                                owner_standings_towards_us = hospital_owners.fetch_standing_for_player(player_id)
+                            elif obj.__class__.__name__ == 'Hospital' or obj.__class__.__name__ == 'Door':
+                                owners = obj.owner_corp
+                                owner_standings_towards_us = owners.fetch_standing_for_player(player_id)
                                 return obj.icons[owner_standings_towards_us]
                             elif obj.__class__.__name__ == 'OreGenerator':
                                 generator_owners = obj.owner_corp
@@ -122,11 +127,23 @@ class Cell:
                             return obj.icon
             return '.'  # Returns Empty Space
 
-    def can_enter(self):
-        for obj in self.contents:
-            if obj.passable is False:
-                return False
-        return True
+    def can_enter(self, player_obj=None):
+        if player_obj is not None:
+            assert(player_obj.__class__.__name__ == 'Player')
+            for obj in self.contents:
+                if obj.__class__.__name__ == 'OreDeposit':
+                    obj_standing = 'N'
+                else:
+                    obj_standing = obj.owner_corp.fetch_standing_for_player(player_obj.obj_id)
+                if obj.passable[obj_standing] is False:
+                    return False
+            return True
+        else:
+            for obj in self.contents:
+                obj_standing = 'N'
+                if obj.passable[obj_standing] is False:
+                    return False
+            return True
     """
     def try_get_cell_by_offset(self, row_offset, col_offset):
         return self.world.get_cell(self.row + row_offset, self.col + col_offset)

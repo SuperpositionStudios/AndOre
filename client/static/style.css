@@ -1,6 +1,14 @@
 #content {
-    display: block;
-    font-family: monospace;
-    white-space: pre;
-    margin: 1em 0;
+    /*#display: block;*/
+    font-family: 'Ubuntu Mono', monospace;
+    /*#white-space: pre;*/
+    /*margin: 1em 0;*/
+}
+
+.cell {
+    display: inline-block;
+    width: 0.7em;
+    height: 1em;
+    text-align: center;
+    vertical-align: middle;
 }

@@ -63,8 +63,11 @@ class Player(gameObject.GameObject):
         if key_pressed in direction_keys:
             self.dir_key = key_pressed
         elif key_pressed in primary_modifier_keys:
-            self.primary_modifier_key = key_pressed
-            self.secondary_modifier_key = '1'
+            if key_pressed == self.primary_modifier_key:
+                self.primary_modifier_key = 'm'
+            else:
+                self.primary_modifier_key = key_pressed
+                self.secondary_modifier_key = '1'
         elif key_pressed in secondary_modifier_keys:
             self.secondary_modifier_key = key_pressed
 
@@ -72,12 +75,13 @@ class Player(gameObject.GameObject):
             self.tick()
 
     def line_of_stats(self):
-        return '[hp {health} ore {ore}] [{pri_mod_key} {sec_mod_key}] [{world_age}] '.format(
+        los = '[hp {health} ore {ore}] [{pri_mod_key} {sec_mod_key}] [{world_age}] '.format(
             health=int(self.health),
             ore=self.corp.ore_quantity,
             pri_mod_key=self.primary_modifier_key,
             sec_mod_key=self.secondary_modifier_key,
             world_age=self.world.world_age)
+        return los.ljust(self.world.cols)
 
     def get_vitals(self):
         response = {
@@ -153,6 +157,8 @@ class Player(gameObject.GameObject):
                         return False
                 elif self.secondary_modifier_key == '4':  # Player is trying to build a Pharmacy
                     return self.try_building_pharmacy(affected_cell)
+                elif self.secondary_modifier_key == '5':  # Player is trying to build a door
+                    return self.try_building_door(affected_cell)
                 else:
                     return False
             elif self.primary_modifier_key == '-':  # Player is trying to worsen their standings towards the target player's corp
@@ -191,18 +197,27 @@ class Player(gameObject.GameObject):
         self.health = min(self.health_cap, self.health + amount)
 
     def try_building_pharmacy(self, _cell):
-        if _cell is not None and _cell.can_enter():
+        if _cell is not None and _cell.can_enter(player_obj=self):
             ore_cost = gameObject.Pharmacy.construction_price
-            if self.corp.amount_of_ore() > ore_cost:
+            if self.corp.amount_of_ore() >= ore_cost:
                 _cell.add_pharmacy(self.corp)
                 self.lose_ore(ore_cost)
                 return True
         return False
 
+    def try_building_door(self, _cell):
+        if _cell is not None and _cell.can_enter(player_obj=self):
+            ore_cost = gameObject.Door.construction_price
+            if self.corp.amount_of_ore() >= ore_cost:
+                _cell.add_door(self.corp)
+                self.lose_ore(ore_cost)
+                return True
+        return False
+
     def try_building_ore_generator(self, _cell):
-        if _cell is not None and _cell.can_enter():
+        if _cell is not None and _cell.can_enter(player_obj=self):
             ore_cost = _cell.add_ore_generator(self.corp)
-            if self.corp.amount_of_ore() > ore_cost:
+            if self.corp.amount_of_ore() >= ore_cost:
                 self.lose_ore(ore_cost)
                 return True
             else:
@@ -214,9 +229,9 @@ class Player(gameObject.GameObject):
                         return False
 
     def try_building_hospital(self, _cell):
-        if _cell is not None and _cell.can_enter():
+        if _cell is not None and _cell.can_enter(player_obj=self):
             ore_cost = _cell.add_hospital(self.corp)
-            if self.corp.amount_of_ore() > ore_cost:
+            if self.corp.amount_of_ore() >= ore_cost:
                 self.lose_ore(ore_cost)
                 return True
             else:
@@ -228,9 +243,9 @@ class Player(gameObject.GameObject):
                         return False
 
     def try_building_fence(self, _cell):
-        if _cell is not None and _cell.can_enter():
+        if _cell is not None and _cell.can_enter(player_obj=self):
             ore_cost = _cell.add_fence()
-            if self.corp.amount_of_ore() > ore_cost:
+            if self.corp.amount_of_ore() >= ore_cost:
                 self.lose_ore(ore_cost)
                 return True
             else:
@@ -307,8 +322,25 @@ class Player(gameObject.GameObject):
 
     def try_attacking(self, _cell):
         if _cell is not None:
-            print("Cell isn't none")
-            if _cell.contains_object_type('Fence')[0]:
+            if _cell.contains_object_type('Player')[0]:
+                #print("It's a player")
+                struct = _cell.contains_object_type('Player')
+                other_player = _cell.get_game_object_by_obj_id(struct[1])
+                if other_player[0]:
+                    corp_standing_to_other_players_corp = self.corp.fetch_standing(other_player[1].corp.corp_id)
+                    if self.corp.check_if_in_corp(struct[1]):
+                        return False  # You cannot attack another player in your corp
+                    elif corp_standing_to_other_players_corp == 'A':
+                        return False  # You cannot attack members of corporations that your corporation considers allies
+                    else:
+                        # Attacking someone not in your corp
+                        other_player[1].take_damage(self.attack_power)
+                        # Worsening their corp's standings towards your corp
+                        other_player[1].corp.worsen_standing(self.corp.corp_id)
+                        # Worsening your corp's standings towards their corp
+                        self.corp.worsen_standing(other_player[1].corp.corp_id)
+                        return True
+            elif _cell.contains_object_type('Fence')[0]:
                 struct = _cell.contains_object_type('Fence')
                 fence = _cell.get_game_object_by_obj_id(struct[1])
                 if fence[0]:
@@ -349,23 +381,16 @@ class Player(gameObject.GameObject):
                     else:
                         pharmacy_obj.take_damage(self.attack_power, self.corp)
                         return True
-            elif _cell.contains_object_type('Player')[0]:
-                print("It's a player")
-                struct = _cell.contains_object_type('Player')
-                other_player = _cell.get_game_object_by_obj_id(struct[1])
-                if other_player[0]:
-                    corp_standing_to_other_players_corp = self.corp.fetch_standing(other_player[1].corp.corp_id)
-                    if self.corp.check_if_in_corp(struct[1]):
-                        return False  # You cannot attack another player in your corp
-                    elif corp_standing_to_other_players_corp == 'A':
-                        return False  # You cannot attack members of corporations that your corporation considers allies
+            elif _cell.contains_object_type('Door')[0]:
+                struct = _cell.contains_object_type('Door')
+                door = _cell.get_game_object_by_obj_id(struct[1])
+                if door[0]:
+                    door_obj = door[1]
+                    corp_standings_to_obj_owner_corp = self.corp.fetch_standing(door_obj.owner_corp.corp_id)
+                    if corp_standings_to_obj_owner_corp == 'M' or corp_standings_to_obj_owner_corp == 'A':
+                        return False
                     else:
-                        # Attacking someone not in your corp
-                        other_player[1].take_damage(self.attack_power)
-                        # Worsening their corp's standings towards your corp
-                        other_player[1].corp.worsen_standing(self.corp.corp_id)
-                        # Worsening your corp's standings towards their corp
-                        self.corp.worsen_standing(other_player[1].corp.corp_id)
+                        door_obj.take_damage(self.attack_power, self.corp)
                         return True
         return False
 
@@ -427,7 +452,7 @@ class Player(gameObject.GameObject):
 
     def try_move(self, _cell):
         if _cell is not None:
-            if _cell.can_enter():
+            if _cell.can_enter(player_obj=self):
                 self.change_cell(_cell)
                 return True
             else:
