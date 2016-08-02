@@ -183,6 +183,7 @@ class Pharmacy(CorpOwnedStore):
         super().__init__(_cell, _corp, HealthPotion)
 
         self.health = 120
+        self.passable = False
 
         self.profits = {  # How much profit you'll make from selling this item
             'M': 0,
