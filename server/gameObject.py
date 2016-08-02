@@ -192,7 +192,7 @@ class CorpOwnedStore(CorpOwnedBuilding):
 
 class Pharmacy(CorpOwnedStore):
     # Class-Wide Variables
-    construction_price = 350
+    construction_price = 1000
 
     def __init__(self, _cell, _corp):
         assert (_cell.__class__.__name__ == 'Cell')
@@ -205,6 +205,26 @@ class Pharmacy(CorpOwnedStore):
             'A': 1,
             'N': 5,
             'E': 10
+        })
+        self.add_product(HealthCapPotion, {
+            'M': 0,
+            'A': 50,
+            'N': 100,
+            'E': 250
+        })
+
+        self.add_product(AttackPowerPotion, {
+            'M': 0,
+            'A': 20,
+            'N': 100,
+            'E': 500
+        })
+
+        self.add_product(MinerMultiplierPotion, {
+            'M': 0,
+            'A': 30,
+            'N': 50,
+            'E': 200
         })
 
         self.health = 120
@@ -236,7 +256,8 @@ class Consumable:
             'Health Delta': 0,  # Modifies the Health of the Player
             'Ore Delta': 0,  # Modifies the ore amount of the Player
             'Attack Power Delta': 0,  # Modifies the attack power of the Player
-            'Health Cap Delta': 0  # Modifies the max health of the Player
+            'Health Cap Delta': 0,  # Modifies the max health of the Player
+            'Ore Multiplier Delta': 0
         }
         self.owner_corp.add_to_inventory(self)
 
@@ -255,13 +276,23 @@ class HealthCapPotion(Consumable):
         self.icon = 'HC'
 
 
-class AttackPowerPotion(Consumable):
+class MinerMultiplierPotion(Consumable):
 
-    construction_cost = 100
+    construction_cost = 300
 
     def __init__(self, _corp):
         super().__init__(_corp)
-        self.effects['Attack Power Delta'] = 10
+        self.effects['Ore Multiplier Delta'] = 1
+        self.icon = 'MM'
+
+
+class AttackPowerPotion(Consumable):
+
+    construction_cost = 200
+
+    def __init__(self, _corp):
+        super().__init__(_corp)
+        self.effects['Attack Power Delta'] = 5
         self.icon = '⚒'
 
 

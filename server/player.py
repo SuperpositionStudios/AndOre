@@ -17,10 +17,13 @@ class Player(gameObject.GameObject):
         self.starting_health = 100
         self.health_cap = 100
         self.health_loss_per_turn = 0.1
-        self.health = 100
+        self.health = int(self.starting_health)
 
         self.starting_attack_power = 10
-        self.attack_power = 10
+        self.attack_power = int(self.starting_attack_power)
+
+        self.starting_ore_multiplier = 1
+        self.ore_multiplier = int(self.starting_ore_multiplier)
 
         self.delta_ore = 0  # The ore lost/gained in the last tick
         self.inner_icon = '@'
@@ -197,6 +200,8 @@ class Player(gameObject.GameObject):
 
         self.gain_ore(effects.get('Ore Delta', 0))
 
+        self.ore_multiplier += effects.get('Ore Multiplier Delta', 0)
+
         self.attack_power += effects.get('Attack Power Delta', 0)
 
         self.health_cap += effects.get('Health Cap Delta', 0)
@@ -302,7 +307,7 @@ class Player(gameObject.GameObject):
             if struct[0]:
                 ore_deposit = _cell.get_game_object_by_obj_id(struct[1])
                 if ore_deposit[0]:
-                    self.gain_ore(ore_deposit[1].ore_per_turn)
+                    self.gain_ore(ore_deposit[1].ore_per_turn * self.ore_multiplier)
                     return True
         return False
 
