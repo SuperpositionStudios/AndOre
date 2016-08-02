@@ -245,6 +245,8 @@ class HealthPotion(Consumable):
 
 
 class Door(CorpOwnedBuilding):
+    # Class-Wide Variables
+    construction_price = 1000
 
     def __init__(self, _cell, _corp):
         assert(_cell.__class__.__name__ == 'Cell')
@@ -253,6 +255,7 @@ class Door(CorpOwnedBuilding):
         super().__init__(_cell, _corp)
 
         self.icon = 'D'  # Deprecated
+        self.health = 250
 
         self.icons = {
             'M': '=',

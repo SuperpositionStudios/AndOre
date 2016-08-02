@@ -20,6 +20,11 @@ class Cell:
         a = gameObject.OreDeposit(self)
         self.contents.append(a)
 
+    def add_door(self, owner_corp):
+        assert(owner_corp.__class__.__name__ == 'Corporation')
+        a = gameObject.Door(self, owner_corp)
+        self.add_game_object(a)
+
     def add_pharmacy(self, owner_corp):
         assert(owner_corp.__class__.__name__ == 'Corporation')
         a = gameObject.Pharmacy(self, owner_corp)
@@ -82,7 +87,7 @@ class Cell:
 
     def render(self, **keyword_parameters):
 
-        priority = ['Player', 'OreDeposit', 'Hospital', 'Pharmacy', 'OreGenerator', 'Loot', 'Fence', 'EmptySpace']
+        priority = ['Player', 'OreDeposit', 'Hospital', 'Pharmacy', 'OreGenerator', 'Loot', 'Fence', 'Door']
 
         if 'player_id' in keyword_parameters:
             player_id = keyword_parameters['player_id']
@@ -99,9 +104,9 @@ class Cell:
                                     return obj.corp_member_icon
                                 else:
                                     return player_obj.corp.fetch_standing(obj.corp.corp_id)
-                            elif obj.__class__.__name__ == 'Hospital':
-                                hospital_owners = obj.owner_corp
-                                owner_standings_towards_us = hospital_owners.fetch_standing_for_player(player_id)
+                            elif obj.__class__.__name__ == 'Hospital' or obj.__class__.__name__ == 'Door':
+                                owners = obj.owner_corp
+                                owner_standings_towards_us = owners.fetch_standing_for_player(player_id)
                                 return obj.icons[owner_standings_towards_us]
                             elif obj.__class__.__name__ == 'OreGenerator':
                                 generator_owners = obj.owner_corp
