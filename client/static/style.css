@@ -1,6 +1,6 @@
 #content {
     display: block;
-    font-family: monospace;
+    font-family: 'Ubuntu Mono', monospace;
     white-space: pre;
     margin: 1em 0;
 }
