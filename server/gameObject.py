@@ -198,6 +198,13 @@ class Pharmacy(CorpOwnedStore):
         super().__init__(_cell, _corp, HealthPotion)
 
         self.health = 120
+
+        self.icons = {
+            'M': '⚕',
+            'A': '⚕',
+            'N': '⚕',
+            'E': '⚕'
+        }
         self.passable = {
             'M': False,
             'A': False,
@@ -284,6 +291,7 @@ class Hospital(CorpOwnedBuilding):
 
         self.icons = {
             'M': '⊞',
+            #'M': '🏥',
             'A': '±',
             'N': '+',
             'E': '∓'
