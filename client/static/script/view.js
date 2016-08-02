@@ -2,7 +2,7 @@
 //using (from app.js) id, CallCallback
 
 //called by app.js after id is populated, etc
-var contentSelector = "#content span";
+var contentSelector = "#content";
 var pollDelay = 350;
 var validKeys = {
     "w": true,  // Direction Key
@@ -28,23 +28,64 @@ var validKeys = {
     "8": true,  // Secondary Modifier Key
     "9": true   // Secondary Modifier Key
 };
+var firstTime = true;
+var createRowID = function(row) {
+    return "row" + row;
+};
+var createColumnID = function(col) {
+    return "col" + col;
+}
+
+var createCellID = function(row, col) {
+    return "row" + row + "col" + col;
+}
 var view = {
-  contentSpan: null,
+  contentDiv: null,
   SetupView : function(callback) {
-    view.contentSpan = $(contentSelector);
+    view.contentDiv = $(contentSelector);
     view.SetupInput();
     view.Poll();
     CallCallback(callback);
   },
-  Draw: function(world){
-    var out = "";
-    for (var rowKey in world){
-      var row = world[rowKey];
-      out += row.join("") + "\n";
-    }
-    //console.log(out);
-    view.contentSpan.html(out);
-  },
+    Draw: function(world){
+        console.log("meow");
+        var rows = world.length;
+        var cols = world[0].length;
+
+        if (firstTime) {
+            console.log("firstTime");
+            firstTime = false;
+
+            for (var rowNum = 0; rowNum < rows; rowNum++) {
+                // Creating the row div
+                $(contentSelector).append('<div class="row" id="' + createRowID(rowNum) + '"></div>');
+
+                for (var colNum = 0; colNum < cols; colNum++) {
+                    // Creating the cell
+                    console.log(createCellID(rowNum, colNum));
+                    $('#' + createRowID(rowNum)).append('<div class="cell" id="' + createCellID(rowNum, colNum) + '">' + world[rowNum][colNum] + '</div>');
+                }
+            }
+        } else {
+            for (var rowNum = 0; rowNum < rows; rowNum++) {
+                for (var colNum = 0; colNum < cols; colNum++) {
+                    $('#' + createCellID(rowNum, colNum)).html(world[rowNum][colNum]);
+                }
+            }
+        }
+        /*
+        for (var rowKey in world){
+            for (var cellKey in world[rowKey]) {
+                out += "<span class='cell'>" + world[rowKey][cellKey] + "</span>";
+            }
+            out += "<br>";
+            //var row = world[rowKey];
+            //out += row.join("") + "\n";
+        }
+        //console.log(out);
+        view.contentDiv.html(out);
+        */
+    },
   Poll: function(){
     setTimeout(function() {
       app.GetDisplay(view.Poll, pollDelay);
