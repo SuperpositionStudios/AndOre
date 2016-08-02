@@ -110,7 +110,7 @@ def send_state(**keyword_parameters):
     response['vitals'] = world.players[_id].get_vitals()
 
     request_time = datetime.datetime.now() - start_of_request
-    print("Time to answer sendState request: {}".format(request_time.microseconds / 1000))
+    #print("Time to answer sendState request: {}".format(request_time.microseconds / 1000))
     return home_cor(jsonify(**response))
 
 
