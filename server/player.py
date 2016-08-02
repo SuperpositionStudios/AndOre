@@ -63,8 +63,11 @@ class Player(gameObject.GameObject):
         if key_pressed in direction_keys:
             self.dir_key = key_pressed
         elif key_pressed in primary_modifier_keys:
-            self.primary_modifier_key = key_pressed
-            self.secondary_modifier_key = '1'
+            if key_pressed == self.primary_modifier_key:
+                self.primary_modifier_key = 'm'
+            else:
+                self.primary_modifier_key = key_pressed
+                self.secondary_modifier_key = '1'
         elif key_pressed in secondary_modifier_keys:
             self.secondary_modifier_key = key_pressed
 
