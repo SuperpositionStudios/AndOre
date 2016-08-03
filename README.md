@@ -2,7 +2,7 @@
 A game about gathering ore, simple enough to take a reasonable amount of time to train a neural net, yet complex enough to be fun for a human player.
 
 ## Try the game out
-* You can try the game out at http://andore.iwanttorule.space:7002
+* You can try the game out at http://ao.iwanttorule.space
 * You can also play the game by setting it up to run on your own server by following the instructions below.
 
 ##Setup
