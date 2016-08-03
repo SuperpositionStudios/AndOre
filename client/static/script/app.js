@@ -9,8 +9,8 @@ var devServerUrl = "http://localhost";
 var dev_game_server_endpoint = ":7001";
 var dev_ai_storage_endpoint = ":7003";
 
-var use_dev_server = true;  // Used for development
-var use_ai_storage_server = false;
+var use_dev_server = false;  // Used for development
+var use_ai_storage_server = true;
 var internetOff = false;  // Used for testing view.js
 
 var ai_name = '';
