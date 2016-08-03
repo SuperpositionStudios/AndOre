@@ -14,6 +14,27 @@ class Cell:
         self.col = _col
         self.contents = []
 
+    def try_get_cell_by_offset(self, row_offset, col_offset):
+        fetched_cell = self.world.get_cell(self.row + row_offset, self.col + col_offset)
+        if fetched_cell is False or fetched_cell is None:
+            return False
+        else:
+            return fetched_cell
+
+    def next_to_ore_deposit(self):
+        directions = [[-1, 0], [-1, 1], [0, 1], [1, 1], [1, 0], [1, -1], [0, -1], [-1, -1]]
+        for tup in directions:
+            _cell = self.try_get_cell_by_offset(tup[0], tup[1])
+            if _cell is not False:
+                struct = _cell.contains_object_type('OreDeposit')
+                if struct[0]:
+                    od = _cell.get_game_object_by_obj_id(struct[1])
+                    if od[0]:
+                        od_obj = od[1]
+                        assert (od_obj.__class__.__name__ == 'OreDeposit')
+                        return True
+        return False
+
     def add_game_object(self, x):
         self.contents.append(x)
 
