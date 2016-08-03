@@ -10,7 +10,7 @@ var dev_game_server_endpoint = ":7001";
 var dev_ai_storage_endpoint = ":7003";
 
 var use_dev_server = true;  // Used for development
-var use_ai_storage_server = false;
+var use_ai_storage_server = true;
 var internetOff = false;  // Used for testing view.js
 
 var ai_name = '';
@@ -91,8 +91,12 @@ App.prototype = {
       $("body").keypress(function(e) {
         if (String.fromCharCode(e.which) == self.startAiKey && self.AiStarted == false) {
           self.ai = new BaseAi(self);
-          self.ai.Start();
-            self.AiStarted = true;
+          if(use_ai_storage_server)  {
+            self.ai.GetModel();
+          }else {
+            self.ai.Start();
+          }
+          self.AiStarted = true;
         }
       });
       CallCallback(callback);
@@ -111,9 +115,7 @@ App.prototype = {
       view.Draw(data.world);
     });
   },
-  StartAi: function(){
-      this.ai = new BaseAi();
-  },
+
   UpdateAi: function(data, callback){
     this.ai.Update(data);
     this.repeats += 1;
@@ -160,5 +162,6 @@ var testData = {"id":"49f282b5-6ac9-4705-a692-fa1c23809f87","world":[["!","!","!
 
 $(function(){
   app = new App();
+  var ai = new BaseAi(app);
   app.Init();
 });
