@@ -18,6 +18,7 @@ class World:  # World is not really world, it's more Level
         self.players = dict()
         self.corporations = dict()
         self.buildings = dict()
+        self.nature_corp = self.new_corporation(None)
 
         for row in range(self.rows):
             current_row = []
@@ -85,7 +86,7 @@ class World:  # World is not really world, it's more Level
         return random_cell
 
     def new_corporation(self, initial_player_object):
-        new_corp = Corporation(initial_player_object, self)
+        new_corp = Corporation(self, initial_member=initial_player_object)
         self.corporations[new_corp.corp_id] = new_corp
         return new_corp
 

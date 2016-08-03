@@ -3,8 +3,8 @@ import gameObject, uuid, config
 
 class Corporation:
 
-    def __init__(self, initial_member, _world):
-        assert(initial_member.__class__.__name__ == 'Player')
+    def __init__(self, _world, initial_member=None):
+        #assert(initial_member.__class__.__name__ == 'Player')
 
         self.corp_id = str(uuid.uuid4())
         self.world = _world
@@ -30,7 +30,10 @@ class Corporation:
         self.received_merge_invites = []  # A list containing ids of corps that have sent use merge invites
         self.standings = dict()
 
-        self.add_member(initial_member)
+        if initial_member is not None:
+            self.add_member(initial_member)
+        else:
+            pass # probably an npc corp
 
     def render_inventory(self):
         rendered_inventory = ''

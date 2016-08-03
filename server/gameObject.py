@@ -40,6 +40,7 @@ class GameObject:
 class CorpOwnedBuilding(GameObject):
 
     construction_cost = 0
+    ore_in_loot = None
 
     def __init__(self, _cell, _corp):
         assert(_cell.__class__.__name__ == 'Cell')
@@ -88,8 +89,10 @@ class CorpOwnedBuilding(GameObject):
 
     def drop_ore(self):
         loot_object = Loot(self.cell)
-
-        ore_loss = int(self.construction_cost / 3)
+        if self.ore_in_loot is None:
+            ore_loss = int(self.construction_cost / 3)
+        else:
+            ore_loss = int(self.ore_in_loot)
 
         loot_object.ore_quantity = ore_loss
 
@@ -121,12 +124,12 @@ class OreGenerator(CorpOwnedBuilding):
         assert(_corp.__class__.__name__ == 'Corporation')
 
         super().__init__(_cell, _corp)
-        self.icon = '€'
+        self.icon = '🏭'
         self.icons = {
-            'M': ['Ƀ', standing_colors.mane['M']],
-            'A': ['Ƀ', standing_colors.mane['A']],
-            'N': ['Ƀ', standing_colors.mane['N']],
-            'E': ['Ƀ', standing_colors.mane['E']]
+            'M': ['🏭', standing_colors.mane['M']],
+            'A': ['🏭', standing_colors.mane['A']],
+            'N': ['🏭', standing_colors.mane['N']],
+            'E': ['🏭', standing_colors.mane['E']]
         }
 
         self.passable = {
@@ -144,6 +147,34 @@ class OreGenerator(CorpOwnedBuilding):
     def tick(self):
         self.owner_corp.gain_ore(self.ore_generated_per_tick)
         self.health -= 1
+        self.check_if_dead_and_if_so_die()
+
+
+class Tree(CorpOwnedBuilding):
+
+    construction_cost = 0
+    ore_in_loot = 5
+
+    def __init__(self, _cell, _corp):
+        assert (_cell.__class__.__name__ == 'Cell')
+        assert (_corp.__class__.__name__ == 'Corporation')
+        super().__init__(_cell, _corp)
+        self.icon = '🌲'
+        self.icons = {
+            'M': ['🌲', standing_colors.mane['M']],
+            'A': ['🌲', standing_colors.mane['A']],
+            'N': ['🌲', standing_colors.mane['N']],
+            'E': ['🌲', standing_colors.mane['E']]
+        }
+        self.passable = {
+            'M': False,
+            'A': False,
+            'N': False,
+            'E': False
+        }
+        self.health = 80
+
+    def tick(self):
         self.check_if_dead_and_if_so_die()
 
 
@@ -305,7 +336,7 @@ class MinerMultiplierPotion(Consumable):
     def __init__(self, _corp):
         super().__init__(_corp)
         self.effects['Ore Multiplier Multiplier Delta'] = 1.15
-        self.icon = 'MM'
+        self.icon = '⚒'
 
 
 class AttackPowerPotion(Consumable):
@@ -315,7 +346,7 @@ class AttackPowerPotion(Consumable):
     def __init__(self, _corp):
         super().__init__(_corp)
         self.effects['Attack Power Delta'] = 5
-        self.icon = '⚒'
+        self.icon = '💪'
 
 
 class HealthPotion(Consumable):
