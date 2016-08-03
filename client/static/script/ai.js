@@ -278,7 +278,16 @@ SimpleAi.prototype = {
     }
     repeat();
   },
-  Update: function(data, callback) {
+  Update: function(data, callback){
+    this.Tick();
+    this.repeats += 1;
+    if (this.repeats % this.app.repeatsUntilUpload == 0) {
+        this.uploadModel(JSON.stringify(this.agent.toJSON()));
+    }
+
+    setTimeout(callback, self.app.delay);
+  },
+  Tick: function(data, callback) {
     var env = this.env;
 
     if(this.lastVitals == null){

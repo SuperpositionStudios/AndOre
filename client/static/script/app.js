@@ -10,7 +10,7 @@ var dev_game_server_endpoint = ":7001";
 var dev_ai_storage_endpoint = ":7003";
 
 var use_dev_server = true;  // Used for development
-var use_ai_storage_server = true;
+var use_ai_storage_server = false;
 var internetOff = false;  // Used for testing view.js
 
 var ai_name = '';
@@ -114,16 +114,6 @@ App.prototype = {
     AjaxCall("/action", {id: userId, action: command, sendState:true}, function(data){
       view.Draw(data.world);
     });
-  },
-
-  UpdateAi: function(data, callback){
-    this.ai.Update(data);
-    this.repeats += 1;
-    if (this.repeats % this.repeatsUntilUpload == 0) {
-        this.uploadModel(JSON.stringify(this.agent.toJSON()));
-    }
-
-    setTimeout(callback, self.delay);
   },
 }
 
