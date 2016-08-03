@@ -247,45 +247,29 @@ class Player(gameObject.GameObject):
 
     def try_building_ore_generator(self, _cell):
         if _cell is not None and _cell.can_enter(player_obj=self) and _cell.next_to_ore_deposit():
-            ore_cost = _cell.add_ore_generator(self.corp)
+            ore_cost = gameObject.OreGenerator.construction_cost
             if self.corp.amount_of_ore() >= ore_cost:
+                _cell.add_ore_generator(self.corp)
                 self.lose_ore(ore_cost)
                 return True
-            else:
-                struct = _cell.contains_object_type('OreGenerator')
-                if struct[0]:
-                    ore_generator = _cell.get_game_object_by_obj_id(struct[1])
-                    if ore_generator[0]:
-                        ore_generator[1].delete()
-                        return False
+        return False
 
     def try_building_hospital(self, _cell):
         if _cell is not None and _cell.can_enter(player_obj=self):
-            ore_cost = _cell.add_hospital(self.corp)
+            ore_cost = gameObject.Hospital.construction_cost
             if self.corp.amount_of_ore() >= ore_cost:
+                _cell.add_hospital(self.corp)
                 self.lose_ore(ore_cost)
                 return True
-            else:
-                struct = _cell.contains_object_type('Hospital')
-                if struct[0]:
-                    hospital = _cell.get_game_object_by_obj_id(struct[1])
-                    if hospital[0]:
-                        hospital[1].delete()
-                        return False
+        return False
 
     def try_building_fence(self, _cell):
         if _cell is not None and _cell.can_enter(player_obj=self):
-            ore_cost = _cell.add_fence()
+            ore_cost = gameObject.Fence.construction_cost
             if self.corp.amount_of_ore() >= ore_cost:
+                _cell.add_fence()
                 self.lose_ore(ore_cost)
                 return True
-            else:
-                struct = _cell.contains_object_type('Fence')
-                if struct[0]:
-                    fence = _cell.get_game_object_by_obj_id(struct[1])
-                    if fence[0]:
-                        fence[1].delete()
-                        return False
         return False
 
     def try_merge_corp(self, _cell):

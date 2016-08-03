@@ -457,6 +457,8 @@ class HealthPack(Loot):
 
 class Fence(GameObject):
 
+    construction_cost = 30
+
     def __init__(self, _cell):
         super().__init__(_cell)
         self.health = 60
