@@ -2,6 +2,7 @@ import uuid, random
 import gameObject
 import warnings
 from corporation import Corporation
+import standing_colors
 
 
 class Cell:
@@ -103,13 +104,18 @@ class Cell:
                     for obj in self.contents:
                         if obj.__class__.__name__ == i:
                             if obj.__class__.__name__ == 'Player':
-                                if obj.obj_id == player_id:
+                                """if obj.obj_id == player_id:
                                     return obj.inner_icon
                                 elif player_obj.corp.check_if_in_corp(obj.obj_id):
                                     return obj.corp_member_icon
                                 else:
-                                    return player_obj.corp.fetch_standing(obj.corp.corp_id)
-                            elif obj.__class__.__name__ == 'Hospital' or obj.__class__.__name__ == 'Door':
+                                    return player_obj.corp.fetch_standing(obj.corp.corp_id)"""
+                                if player_obj.obj_id == obj.obj_id:
+                                    return obj.inner_icon
+                                else:
+                                    standings_towards_player = player_obj.corp.fetch_standing_for_player(obj.obj_id)
+                                    return obj.icons[standings_towards_player]
+                            elif obj.__class__.__name__ == 'Pharmacy' or obj.__class__.__name__ == 'Hospital' or obj.__class__.__name__ == 'Door' or obj.__class__.__name__ == 'RespawnBeacon':
                                 owners = obj.owner_corp
                                 owner_standings_towards_us = owners.fetch_standing_for_player(player_id)
                                 return obj.icons[owner_standings_towards_us]
@@ -123,14 +129,14 @@ class Cell:
                                 return obj.icons[corp_standing_to_owners]
                             else:
                                 return obj.icon
-            return '.'  # Returns Empty Space
+            return ['.', standing_colors.mane['N']]  # Returns Empty Space
         else:
             for i in priority:
                 if self.contains_object_type(i)[0]:
                     for obj in self.contents:
                         if obj.__class__.__name__ == i:
                             return obj.icon
-            return '.'  # Returns Empty Space
+            return ['.', standing_colors.mane['N']]  # Returns Empty Space
 
     def can_enter(self, player_obj=None):
         if player_obj is not None:

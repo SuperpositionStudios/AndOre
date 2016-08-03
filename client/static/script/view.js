@@ -63,16 +63,30 @@ var view = {
                 $(contentSelector).append('<div class="row" id="' + createRowID(rowNum) + '"></div>');
 
                 for (var colNum = 0; colNum < cols; colNum++) {
+                    var cellSelector = '#' + createCellID(rowNum, colNum);
                     // Creating the cell
                     //console.log(createCellID(rowNum, colNum));
-                    $('#' + createRowID(rowNum)).append('<div class="cell" id="' + createCellID(rowNum, colNum) + '">' + world[rowNum][colNum] + '</div>');
+                    if (world[rowNum][colNum].length == 2) {
+                        // Icon is using new format
+                        $('#' + createRowID(rowNum)).append('<div class="cell" id="' + createCellID(rowNum, colNum) + '">' + world[rowNum][colNum][0] + '</div>');
+                        $(cellSelector).css('color', world[rowNum][colNum][1]);
+                    } else {
+                        $('#' + createRowID(rowNum)).append('<div class="cell" id="' + createCellID(rowNum, colNum) + '">' + world[rowNum][colNum] + '</div>');
+                    }
                 }
             }
         } else {
             //console.log("Updating world");
             for (var rowNum = 0; rowNum < rows; rowNum++) {
                 for (var colNum = 0; colNum < cols; colNum++) {
-                    $('#' + createCellID(rowNum, colNum)).html(world[rowNum][colNum]);
+                    var cellSelector = '#' + createCellID(rowNum, colNum);
+                    if (world[rowNum][colNum].length == 2) {
+                        // Icon is using new format
+                        $(cellSelector).html(world[rowNum][colNum][0]);
+                        $(cellSelector).css('color', world[rowNum][colNum][1]);
+                    } else {
+                        $('#' + createCellID(rowNum, colNum)).html(world[rowNum][colNum]);
+                    }
                 }
             }
         }
