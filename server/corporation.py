@@ -50,6 +50,16 @@ class Corporation:
         # Selected are the Secondary Modifier Keys for the Usage Inventory Modifier key, so 1, 2, 3, 4, 5, 6, 7, 8, 9, 0
         # 1 refers to self.usage_inventory[0]
         # 0 refers to self.usage_inventory[9]
+        # 1 -> 0
+        # 2 -> 1
+        # 3 -> 2
+        # 4 -> 3
+        # 5 -> 4
+        # 6 -> 5
+        # 7 -> 6
+        # 8 -> 7
+        # 9 -> 8
+        # 0 -> 9
         if selected == 0:
             return self.usage_inventory[9]
         else:
@@ -82,7 +92,6 @@ class Corporation:
             self.inventory[item_obj.item_type] = dict()
             self.add_to_inventory(item_obj)
 
-
     def tick_buildings(self):
         for building in self.buildings:
             building.tick()
@@ -96,6 +105,17 @@ class Corporation:
             if self.buildings[i].obj_id == obj_id:
                 del self.buildings[i]
                 return
+
+    def get_respawn_cell(self):
+        for building in self.buildings:
+            if building.__class__.__name__ == 'RespawnBeacon':
+                return building.cell
+        return self.world.random_can_enter_cell()
+
+    def destroy_other_respawn_beacons(self, new_beacon):
+        for building in self.buildings:
+            if building.__class__.__name__ == 'RespawnBeacon' and building.obj_id != new_beacon.obj_id:
+                building.delete()
 
     def fetch_standing(self, corp_id):
         if corp_id == self.corp_id:

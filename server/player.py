@@ -82,6 +82,9 @@ class Player(gameObject.GameObject):
 
         if self.world.world_age > self.last_action_at_world_age:
             self.tick()
+            return True
+        else:
+            return False
 
     def line_of_stats(self):
         los = '[hp {health} ore {ore}] [{pri_mod_key} {sec_mod_key}] [{world_age}] '.format(
@@ -168,6 +171,8 @@ class Player(gameObject.GameObject):
                     return self.try_building_pharmacy(affected_cell)
                 elif self.secondary_modifier_key == '5':  # Player is trying to build a door
                     return self.try_building_door(affected_cell)
+                elif self.secondary_modifier_key == '6':
+                    return self.try_building_respawn_beacon(affected_cell)
                 else:
                     return False
             elif self.primary_modifier_key == '-':  # Player is trying to worsen their standings towards the target player's corp
@@ -216,6 +221,15 @@ class Player(gameObject.GameObject):
             ore_cost = gameObject.Pharmacy.construction_price
             if self.corp.amount_of_ore() >= ore_cost:
                 _cell.add_pharmacy(self.corp)
+                self.lose_ore(ore_cost)
+                return True
+        return False
+
+    def try_building_respawn_beacon(self, _cell):
+        if _cell is not None and _cell.can_enter(player_obj=self):
+            ore_cost = gameObject.RespawnBeacon.construction_cost
+            if self.corp.amount_of_ore() >= ore_cost:
+                _cell.add_respawn_beacon(self.corp)
                 self.lose_ore(ore_cost)
                 return True
         return False
@@ -407,6 +421,17 @@ class Player(gameObject.GameObject):
                     else:
                         door_obj.take_damage(self.attack_power, self.corp)
                         return True
+            elif _cell.contains_object_type('RespawnBeacon')[0]:
+                struct = _cell.contains_object_type('RespawnBeacon')
+                respawn_beacon = _cell.get_game_object_by_obj_id(struct[1])
+                if respawn_beacon[0]:
+                    respawn_beacon_obj = respawn_beacon[1]
+                    corp_standings_to_obj_owner_corp = self.corp.fetch_standing(respawn_beacon_obj.owner_corp.corp_id)
+                    if corp_standings_to_obj_owner_corp == 'M' or corp_standings_to_obj_owner_corp == 'A':
+                        return False
+                    else:
+                        respawn_beacon_obj.take_damage(self.attack_power, self.corp)
+                        return True
         return False
 
     def gain_ore(self, amount):
@@ -509,4 +534,4 @@ class Player(gameObject.GameObject):
             self.primary_modifier_key = 'm'
 
     def go_to_respawn_location(self):
-        self.change_cell(self.world.random_can_enter_cell())
+        self.change_cell(self.corp.get_respawn_cell())
