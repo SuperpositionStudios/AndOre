@@ -25,7 +25,7 @@ class Player(gameObject.GameObject):
         self.attack_power = int(self.starting_attack_power)
 
         self.starting_ore_multiplier = 1
-        self.ore_multiplier = int(self.starting_ore_multiplier)
+        self.ore_multiplier = float(self.starting_ore_multiplier)
 
         self.delta_ore = 0  # The ore lost/gained in the last tick
         self.inner_icon = ['@', standing_colors.mane['M']]
@@ -91,7 +91,7 @@ class Player(gameObject.GameObject):
     def line_of_stats(self):
         los = '[hp {health} ore {ore}] [{pri_mod_key} {sec_mod_key}] [{world_age}] '.format(
             health=int(self.health),
-            ore=self.corp.ore_quantity,
+            ore=int(self.corp.ore_quantity),
             pri_mod_key=self.primary_modifier_key,
             sec_mod_key=self.secondary_modifier_key,
             world_age=self.world.world_age)
@@ -214,6 +214,8 @@ class Player(gameObject.GameObject):
         self.attack_power += effects.get('Attack Power Delta', 0)
 
         self.health_cap += effects.get('Health Cap Delta', 0)
+
+        self.ore_multiplier *= effects.get('Ore Multiplier Multiplier Delta', 1)
 
     def gain_health(self, amount):
         self.health = min(self.health_cap, self.health + amount)
@@ -513,7 +515,7 @@ class Player(gameObject.GameObject):
         if self.health <= 0:
             self.drop_ore()
             self.health = int(self.starting_health)
-            self.ore_multiplier = int(self.starting_ore_multiplier)
+            self.ore_multiplier = float(self.starting_ore_multiplier)
             self.attack_power = int(self.starting_attack_power)
             self.health_cap = int(self.starting_health_cap)
             self.go_to_respawn_location()
