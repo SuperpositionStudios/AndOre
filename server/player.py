@@ -211,7 +211,10 @@ class Player(gameObject.GameObject):
 
         self.ore_multiplier += effects.get('Ore Multiplier Delta', 0)
 
-        self.attack_power += effects.get('Attack Power Delta', 0)
+        if effects.get('Attack Power Delta', 0) > 0:
+            apd = effects.get('Attack Power Delta', 0)
+            apd = apd / (self.attack_power / 10)
+            self.attack_power += apd
 
         self.health_cap += effects.get('Health Cap Delta', 0)
 
