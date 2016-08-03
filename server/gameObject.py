@@ -139,7 +139,7 @@ class OreGenerator(CorpOwnedBuilding):
 
         self.ore_generated_per_tick = 3
         self.price_to_construct = OreGenerator.construction_cost
-        self.health = 300
+        self.health = 225
 
     def tick(self):
         self.owner_corp.gain_ore(self.ore_generated_per_tick)
