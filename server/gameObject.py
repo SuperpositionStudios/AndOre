@@ -39,6 +39,8 @@ class GameObject:
 
 class CorpOwnedBuilding(GameObject):
 
+    construction_cost = 0
+
     def __init__(self, _cell, _corp):
         assert(_cell.__class__.__name__ == 'Cell')
         assert(_corp.__class__.__name__ == 'Corporation')
@@ -80,8 +82,18 @@ class CorpOwnedBuilding(GameObject):
         return
 
     def delete(self):
+        self.drop_ore()
         self.leave_cell()
         self.owner_corp.remove_corp_building(self)
+
+    def drop_ore(self):
+        loot_object = Loot(self.cell)
+
+        ore_loss = int(self.construction_cost / 3)
+
+        loot_object.ore_quantity = ore_loss
+
+        self.cell.add_game_object(loot_object)
 
 
 class OreDeposit(GameObject):
@@ -101,6 +113,8 @@ class OreDeposit(GameObject):
 
 
 class OreGenerator(CorpOwnedBuilding):
+
+    construction_cost = 100
 
     def __init__(self, _cell, _corp):
         assert(_cell.__class__.__name__ == 'Cell')
@@ -124,7 +138,7 @@ class OreGenerator(CorpOwnedBuilding):
         self.blocking = True
 
         self.ore_generated_per_tick = 1
-        self.price_to_construct = 100
+        self.price_to_construct = OreGenerator.construction_cost
         self.health = 300
 
     def tick(self):
@@ -170,7 +184,7 @@ class CorpOwnedStore(CorpOwnedBuilding):
     def get_profit(self, _corp, item_num):
         return self.products[item_num]['profits'][self.owner_corp.fetch_standing(_corp.corp_id)]
 
-    def construction_cost(self, item_num):
+    def asd(self, item_num):
         return self.products[item_num]['item'].construction_cost
 
     def buy_item(self, _corp, item_num):
@@ -182,7 +196,7 @@ class CorpOwnedStore(CorpOwnedBuilding):
         assert(_corp.__class__.__name__ == 'Corporation')
 
         # Checking if both parties are able to pay
-        if (_corp.amount_of_ore() >= self.get_price(_corp, item_num) and self.owner_corp.amount_of_ore() >= self.construction_cost(item_num)) is False:
+        if (_corp.amount_of_ore() >= self.get_price(_corp, item_num) and self.owner_corp.amount_of_ore() >= self.asd(item_num)) is False:
             return False
 
         # Payment
@@ -190,7 +204,7 @@ class CorpOwnedStore(CorpOwnedBuilding):
         self.owner_corp.gain_ore(self.get_price(_corp, item_num))
 
         # Manufacturing & delivery
-        self.owner_corp.lose_ore(self.construction_cost(item_num))
+        self.owner_corp.lose_ore(self.asd(item_num))
         manufactured_item = self.products[item_num]['item'](_corp)
 
         return True
@@ -199,6 +213,7 @@ class CorpOwnedStore(CorpOwnedBuilding):
 class Pharmacy(CorpOwnedStore):
     # Class-Wide Variables
     construction_price = 1000
+    construction_cost = construction_price
 
     def __init__(self, _cell, _corp):
         assert (_cell.__class__.__name__ == 'Cell')
@@ -233,7 +248,7 @@ class Pharmacy(CorpOwnedStore):
             'E': 200
         })
 
-        self.health = 120
+        self.health = 180
 
         self.icons = {
             'M': '⚕',
@@ -315,6 +330,7 @@ class HealthPotion(Consumable):
 class Door(CorpOwnedBuilding):
     # Class-Wide Variables
     construction_price = 1000
+    construction_cost = construction_price
 
     def __init__(self, _cell, _corp):
         assert(_cell.__class__.__name__ == 'Cell')
@@ -341,6 +357,8 @@ class Door(CorpOwnedBuilding):
 
 
 class Hospital(CorpOwnedBuilding):
+
+    construction_cost = 200
 
     def __init__(self, _cell, _corp):
         assert(_cell.__class__.__name__ == 'Cell')
