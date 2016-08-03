@@ -279,7 +279,7 @@ class Consumable:
             'Attack Power Delta': 0,  # Modifies the attack power of the Player
             'Health Cap Delta': 0,  # Modifies the max health of the Player
             'Ore Multiplier Delta': 0,  # Adds this to the player's ore multiplier
-            'Ore Multiplier Multiplier Delta': 1  # Multiplies the player's ore multiplier by this
+            'Ore Multiplier Multiplier Delta': 0  # Multiplies the player's ore multiplier by this + 1.
         }
         self.owner_corp.add_to_inventory(self)
 
@@ -304,7 +304,7 @@ class MinerMultiplierPotion(Consumable):
 
     def __init__(self, _corp):
         super().__init__(_corp)
-        self.effects['Ore Multiplier Multiplier Delta'] = 1.15
+        self.effects['Ore Multiplier Multiplier Delta'] = .15
         self.icon = 'MM'
 
 

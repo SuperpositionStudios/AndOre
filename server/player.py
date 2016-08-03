@@ -218,7 +218,11 @@ class Player(gameObject.GameObject):
 
         self.health_cap += effects.get('Health Cap Delta', 0)
 
-        self.ore_multiplier *= effects.get('Ore Multiplier Multiplier Delta', 1)
+        if effects.get('Ore Multiplier Multiplier Delta', 0) > 0:
+            omm = effects.get('Ore Multiplier Multiplier Delta', 0)
+            omm = omm / self.ore_multiplier
+            omm += 1
+            self.ore_multiplier *= omm
 
     def gain_health(self, amount):
         self.health = min(self.health_cap, self.health + amount)
