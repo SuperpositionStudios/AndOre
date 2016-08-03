@@ -31,12 +31,14 @@ View.prototype = {
     CallCallback(callback);
   },
     Draw: function(world){
-        console.log("meow");
+        if (world == '') {
+            //console.log("Didn't update the world because the world response was empty");
+            return "Didn't update the world because the world response was empty";
+        }
         var rows = world.length;
         var cols = world[0].length;
 
         if (firstTime) {
-            console.log("firstTime");
             firstTime = false;
 
             for (var rowNum = 0; rowNum < rows; rowNum++) {
@@ -44,15 +46,30 @@ View.prototype = {
                 $(contentSelector).append('<div class="row" id="' + createRowID(rowNum) + '"></div>');
 
                 for (var colNum = 0; colNum < cols; colNum++) {
+                    var cellSelector = '#' + createCellID(rowNum, colNum);
                     // Creating the cell
-                    console.log(createCellID(rowNum, colNum));
-                    $('#' + createRowID(rowNum)).append('<div class="cell" id="' + createCellID(rowNum, colNum) + '">' + world[rowNum][colNum] + '</div>');
+                    //console.log(createCellID(rowNum, colNum));
+                    if (world[rowNum][colNum].length == 2) {
+                        // Icon is using new format
+                        $('#' + createRowID(rowNum)).append('<div class="cell" id="' + createCellID(rowNum, colNum) + '">' + world[rowNum][colNum][0] + '</div>');
+                        $(cellSelector).css('color', world[rowNum][colNum][1]);
+                    } else {
+                        $('#' + createRowID(rowNum)).append('<div class="cell" id="' + createCellID(rowNum, colNum) + '">' + world[rowNum][colNum] + '</div>');
+                    }
                 }
             }
         } else {
+            //console.log("Updating world");
             for (var rowNum = 0; rowNum < rows; rowNum++) {
                 for (var colNum = 0; colNum < cols; colNum++) {
-                    $('#' + createCellID(rowNum, colNum)).html(world[rowNum][colNum]);
+                    var cellSelector = '#' + createCellID(rowNum, colNum);
+                    if (world[rowNum][colNum].length == 2) {
+                        // Icon is using new format
+                        $(cellSelector).html(world[rowNum][colNum][0]);
+                        $(cellSelector).css('color', world[rowNum][colNum][1]);
+                    } else {
+                        $('#' + createCellID(rowNum, colNum)).html(world[rowNum][colNum]);
+                    }
                 }
             }
         }

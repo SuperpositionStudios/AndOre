@@ -2,6 +2,7 @@ import uuid, random
 import gameObject
 import warnings
 from corporation import Corporation
+import standing_colors
 
 
 class Cell:
@@ -13,12 +14,38 @@ class Cell:
         self.col = _col
         self.contents = []
 
+    def try_get_cell_by_offset(self, row_offset, col_offset):
+        fetched_cell = self.world.get_cell(self.row + row_offset, self.col + col_offset)
+        if fetched_cell is False or fetched_cell is None:
+            return False
+        else:
+            return fetched_cell
+
+    def next_to_ore_deposit(self):
+        directions = [[-1, 0], [-1, 1], [0, 1], [1, 1], [1, 0], [1, -1], [0, -1], [-1, -1]]
+        for tup in directions:
+            _cell = self.try_get_cell_by_offset(tup[0], tup[1])
+            if _cell is not False:
+                struct = _cell.contains_object_type('OreDeposit')
+                if struct[0]:
+                    od = _cell.get_game_object_by_obj_id(struct[1])
+                    if od[0]:
+                        od_obj = od[1]
+                        assert (od_obj.__class__.__name__ == 'OreDeposit')
+                        return True
+        return False
+
     def add_game_object(self, x):
         self.contents.append(x)
 
     def add_ore_deposit(self):
         a = gameObject.OreDeposit(self)
         self.contents.append(a)
+
+    def add_respawn_beacon(self, owner_corp):
+        assert(owner_corp.__class__.__name__ == 'Corporation')
+        a = gameObject.RespawnBeacon(self, owner_corp)
+        self.add_game_object(a)
 
     def add_door(self, owner_corp):
         assert(owner_corp.__class__.__name__ == 'Corporation')
@@ -87,7 +114,7 @@ class Cell:
 
     def render(self, **keyword_parameters):
 
-        priority = ['Player', 'OreDeposit', 'Hospital', 'Pharmacy', 'OreGenerator', 'Loot', 'Fence', 'Door']
+        priority = ['Player', 'OreDeposit', 'Hospital', 'Pharmacy', 'OreGenerator', 'Loot', 'Fence', 'Door', 'RespawnBeacon']
 
         if 'player_id' in keyword_parameters:
             player_id = keyword_parameters['player_id']
@@ -98,13 +125,18 @@ class Cell:
                     for obj in self.contents:
                         if obj.__class__.__name__ == i:
                             if obj.__class__.__name__ == 'Player':
-                                if obj.obj_id == player_id:
+                                """if obj.obj_id == player_id:
                                     return obj.inner_icon
                                 elif player_obj.corp.check_if_in_corp(obj.obj_id):
                                     return obj.corp_member_icon
                                 else:
-                                    return player_obj.corp.fetch_standing(obj.corp.corp_id)
-                            elif obj.__class__.__name__ == 'Hospital' or obj.__class__.__name__ == 'Door':
+                                    return player_obj.corp.fetch_standing(obj.corp.corp_id)"""
+                                if player_obj.obj_id == obj.obj_id:
+                                    return obj.inner_icon
+                                else:
+                                    standings_towards_player = player_obj.corp.fetch_standing_for_player(obj.obj_id)
+                                    return obj.icons[standings_towards_player]
+                            elif obj.__class__.__name__ == 'Pharmacy' or obj.__class__.__name__ == 'Hospital' or obj.__class__.__name__ == 'Door' or obj.__class__.__name__ == 'RespawnBeacon':
                                 owners = obj.owner_corp
                                 owner_standings_towards_us = owners.fetch_standing_for_player(player_id)
                                 return obj.icons[owner_standings_towards_us]
@@ -118,20 +150,20 @@ class Cell:
                                 return obj.icons[corp_standing_to_owners]
                             else:
                                 return obj.icon
-            return '.'  # Returns Empty Space
+            return ['.', standing_colors.mane['N']]  # Returns Empty Space
         else:
             for i in priority:
                 if self.contains_object_type(i)[0]:
                     for obj in self.contents:
                         if obj.__class__.__name__ == i:
                             return obj.icon
-            return '.'  # Returns Empty Space
+            return ['.', standing_colors.mane['N']]  # Returns Empty Space
 
     def can_enter(self, player_obj=None):
         if player_obj is not None:
             assert(player_obj.__class__.__name__ == 'Player')
             for obj in self.contents:
-                if obj.__class__.__name__ == 'OreDeposit':
+                if obj.__class__.__name__ == 'OreDeposit' or obj.__class__.__name__ == 'Fence':
                     obj_standing = 'N'
                 else:
                     obj_standing = obj.owner_corp.fetch_standing_for_player(player_obj.obj_id)

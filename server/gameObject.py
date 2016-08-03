@@ -1,4 +1,4 @@
-import uuid
+import uuid, standing_colors
 
 
 class GameObject:
@@ -121,12 +121,12 @@ class OreGenerator(CorpOwnedBuilding):
         assert(_corp.__class__.__name__ == 'Corporation')
 
         super().__init__(_cell, _corp)
-        self.icon = '€'
+        self.icon = '🏭'
         self.icons = {
-            'M': 'Ƀ',
-            'A': '₳',
-            'N': '€',
-            'E': '€'
+            'M': ['🏭', standing_colors.mane['M']],
+            'A': ['🏭', standing_colors.mane['A']],
+            'N': ['🏭', standing_colors.mane['N']],
+            'E': ['🏭', standing_colors.mane['E']]
         }
 
         self.passable = {
@@ -137,7 +137,7 @@ class OreGenerator(CorpOwnedBuilding):
         }
         self.blocking = True
 
-        self.ore_generated_per_tick = 1
+        self.ore_generated_per_tick = 3
         self.price_to_construct = OreGenerator.construction_cost
         self.health = 300
 
@@ -157,10 +157,10 @@ class CorpOwnedStore(CorpOwnedBuilding):
         self.icon = '|'
 
         self.icons = {
-            'M': '|',
-            'A': '|',
-            'N': '|',
-            'E': '|'
+            'M': ['|', standing_colors.mane['M']],
+            'A': ['|', standing_colors.mane['A']],
+            'N': ['|', standing_colors.mane['N']],
+            'E': ['|', standing_colors.mane['E']]
         }
 
         self.products = dict()
@@ -251,10 +251,10 @@ class Pharmacy(CorpOwnedStore):
         self.health = 180
 
         self.icons = {
-            'M': '⚕',
-            'A': '⚕',
-            'N': '⚕',
-            'E': '⚕'
+            'M': ['🏥', standing_colors.mane['M']],
+            'A': ['🏥', standing_colors.mane['A']],
+            'N': ['🏥', standing_colors.mane['N']],
+            'E': ['🏥', standing_colors.mane['E']]
         }
         self.passable = {
             'M': False,
@@ -278,7 +278,8 @@ class Consumable:
             'Ore Delta': 0,  # Modifies the ore amount of the Player
             'Attack Power Delta': 0,  # Modifies the attack power of the Player
             'Health Cap Delta': 0,  # Modifies the max health of the Player
-            'Ore Multiplier Delta': 0
+            'Ore Multiplier Delta': 0,  # Adds this to the player's ore multiplier
+            'Ore Multiplier Multiplier Delta': 1  # Multiplies the player's ore multiplier by this
         }
         self.owner_corp.add_to_inventory(self)
 
@@ -303,7 +304,7 @@ class MinerMultiplierPotion(Consumable):
 
     def __init__(self, _corp):
         super().__init__(_corp)
-        self.effects['Ore Multiplier Delta'] = 1
+        self.effects['Ore Multiplier Multiplier Delta'] = 1.15
         self.icon = 'MM'
 
 
@@ -327,6 +328,35 @@ class HealthPotion(Consumable):
         self.icon = '♥'
 
 
+class RespawnBeacon(CorpOwnedBuilding):
+    construction_cost = 5
+
+    def __init__(self, _cell, _corp):
+        assert(_cell.__class__.__name__ == 'Cell')
+        assert(_corp.__class__.__name__ == 'Corporation')
+
+        super().__init__(_cell, _corp)
+
+        self.icon = '𝌩'
+        self.health = 1000
+
+        self.icons = {
+            'M': ['𝌩', standing_colors.mane['M']],
+            'A': ['𝌩', standing_colors.mane['A']],
+            'N': ['𝌩', standing_colors.mane['N']],
+            'E': ['𝌩', standing_colors.mane['E']]
+        }
+
+        self.passable = {
+            'M': True,
+            'A': True,
+            'N': True,
+            'E': True
+        }
+
+        self.owner_corp.destroy_other_respawn_beacons(self)
+
+
 class Door(CorpOwnedBuilding):
     # Class-Wide Variables
     construction_price = 1000
@@ -342,10 +372,10 @@ class Door(CorpOwnedBuilding):
         self.health = 250
 
         self.icons = {
-            'M': '=',
-            'A': '=',
-            'N': '-',
-            'E': '-'
+            'M': ['=', standing_colors.mane['M']],
+            'A': ['=', standing_colors.mane['A']],
+            'N': ['=', standing_colors.mane['N']],
+            'E': ['=', standing_colors.mane['E']]
         }
 
         self.passable = {
@@ -369,11 +399,10 @@ class Hospital(CorpOwnedBuilding):
         self.icon = '+'  # Deprecated
 
         self.icons = {
-            'M': '⊞',
-            #'M': '🏥',
-            'A': '±',
-            'N': '+',
-            'E': '∓'
+            'M': ['⚕', standing_colors.mane['M']],
+            'A': ['⚕', standing_colors.mane['A']],
+            'N': ['⚕', standing_colors.mane['N']],
+            'E': ['⚕', standing_colors.mane['E']]
         }
 
         self.prices_to_use = {
@@ -428,6 +457,8 @@ class HealthPack(Loot):
 
 
 class Fence(GameObject):
+
+    construction_cost = 30
 
     def __init__(self, _cell):
         super().__init__(_cell)
