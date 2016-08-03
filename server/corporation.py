@@ -50,6 +50,16 @@ class Corporation:
         # Selected are the Secondary Modifier Keys for the Usage Inventory Modifier key, so 1, 2, 3, 4, 5, 6, 7, 8, 9, 0
         # 1 refers to self.usage_inventory[0]
         # 0 refers to self.usage_inventory[9]
+        # 1 -> 0
+        # 2 -> 1
+        # 3 -> 2
+        # 4 -> 3
+        # 5 -> 4
+        # 6 -> 5
+        # 7 -> 6
+        # 8 -> 7
+        # 9 -> 8
+        # 0 -> 9
         if selected == 0:
             return self.usage_inventory[9]
         else:

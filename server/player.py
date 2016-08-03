@@ -82,6 +82,9 @@ class Player(gameObject.GameObject):
 
         if self.world.world_age > self.last_action_at_world_age:
             self.tick()
+            return True
+        else:
+            return False
 
     def line_of_stats(self):
         los = '[hp {health} ore {ore}] [{pri_mod_key} {sec_mod_key}] [{world_age}] '.format(
