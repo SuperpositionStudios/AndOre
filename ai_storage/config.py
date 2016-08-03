@@ -1,4 +1,4 @@
-johns_path_to_database = 'sqlite:////home/jcharante/Projects/AndOre/AndOre/ai_storage/database.db'
+johns_path_to_database = 'sqlite:////Users/hlarsson/repos/AndOre/AndOre/ai_storage/database.db'
 production_path_to_database = 'sqlite:////home/andore/AndOre/ai_storage/database.db'
 developing = True
 

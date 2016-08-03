@@ -3,31 +3,7 @@
 
 //called by app.js after id is populated, etc
 var contentSelector = "#content";
-var pollDelay = 350;
-var validKeys = {
-    "w": true,  // Direction Key
-    "a": true,  // Direction Key
-    "s": true,  // Direction Key
-    "d": true,  // Direction Key
-    "m": true,  // Primary Modifier Key
-    "k": true,  // Primary Modifier Key
-    "l": true,  // Primary Modifier Key
-    "i": true,  // Primary Modifier Key
-    "-": true,  // Primary Modifier Key
-    "+": true,  // Primary Modifier Key
-    "b": true,  // Primary Modifier Key
-    "u": true,  // Primary Modifier Key
-    "0": true,  // Secondary Modifier Key
-    "1": true,  // Secondary Modifier Key
-    "2": true,  // Secondary Modifier Key
-    "3": true,  // Secondary Modifier Key
-    "4": true,  // Secondary Modifier Key
-    "5": true,  // Secondary Modifier Key
-    "6": true,  // Secondary Modifier Key
-    "7": true,  // Secondary Modifier Key
-    "8": true,  // Secondary Modifier Key
-    "9": true   // Secondary Modifier Key
-};
+
 var firstTime = true;
 var createRowID = function(row) {
     return "row" + row;
@@ -39,12 +15,19 @@ var createColumnID = function(col) {
 var createCellID = function(row, col) {
     return "row" + row + "col" + col;
 }
-var view = {
+
+View = function() {
+
+}
+
+View.prototype = {
   contentDiv: null,
-  SetupView : function(callback) {
-    view.contentDiv = $(contentSelector);
-    view.SetupInput();
-    view.Poll();
+  pollDelay: 350,
+  SetupView : function(app, callback) {
+    this.app = app;
+    this.contentDiv = $(contentSelector);
+    this.SetupInput();
+    this.Poll();
     CallCallback(callback);
   },
     Draw: function(world){
@@ -90,29 +73,17 @@ var view = {
                 }
             }
         }
-        /*
-        for (var rowKey in world){
-            for (var cellKey in world[rowKey]) {
-                out += "<span class='cell'>" + world[rowKey][cellKey] + "</span>";
-            }
-            out += "<br>";
-            //var row = world[rowKey];
-            //out += row.join("") + "\n";
-        }
-        //console.log(out);
-        view.contentDiv.html(out);
-        */
     },
   Poll: function(){
     setTimeout(function() {
-      app.GetDisplay(view.Poll, pollDelay);
-    }, pollDelay);
+      app.GetDisplay(this.Poll, this.pollDelay);
+    }, this.pollDelay);
   },
   SetupInput: function() {
     $("body").keypress(function(e){
-      command = String.fromCharCode(e.which).toLowerCase()
-      //console.log(command);
-      if(validKeys[command]) {
+      command = String.fromCharCode(e.which).toLowerCase();
+      console.log(app.actionsLut);
+      if(app.actionsLut[command]) {
         app.SendCommand(command);
       }
     });
