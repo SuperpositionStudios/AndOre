@@ -327,6 +327,35 @@ class HealthPotion(Consumable):
         self.icon = '♥'
 
 
+class RespawnBeacon(CorpOwnedBuilding):
+    construction_cost = 5
+
+    def __init__(self, _cell, _corp):
+        assert(_cell.__class__.__name__ == 'Cell')
+        assert(_corp.__class__.__name__ == 'Corporation')
+
+        super().__init__(_cell, _corp)
+
+        self.icon = '𝌩'
+        self.health = 1000
+
+        self.icons = {
+            'M': '𝌩',
+            'A': '𝌩',
+            'N': '𝌩',
+            'E': '𝌩'
+        }
+
+        self.passable = {
+            'M': True,
+            'A': True,
+            'N': True,
+            'E': True
+        }
+
+        self.owner_corp.destroy_other_respawn_beacons(self)
+
+
 class Door(CorpOwnedBuilding):
     # Class-Wide Variables
     construction_price = 1000

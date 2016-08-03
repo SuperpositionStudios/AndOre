@@ -92,7 +92,6 @@ class Corporation:
             self.inventory[item_obj.item_type] = dict()
             self.add_to_inventory(item_obj)
 
-
     def tick_buildings(self):
         for building in self.buildings:
             building.tick()
@@ -106,6 +105,17 @@ class Corporation:
             if self.buildings[i].obj_id == obj_id:
                 del self.buildings[i]
                 return
+
+    def get_respawn_cell(self):
+        for building in self.buildings:
+            if building.__class__.__name__ == 'RespawnBeacon':
+                return building.cell
+        return self.world.random_can_enter_cell()
+
+    def destroy_other_respawn_beacons(self, new_beacon):
+        for building in self.buildings:
+            if building.__class__.__name__ == 'RespawnBeacon' and building.obj_id != new_beacon.obj_id:
+                building.delete()
 
     def fetch_standing(self, corp_id):
         if corp_id == self.corp_id:

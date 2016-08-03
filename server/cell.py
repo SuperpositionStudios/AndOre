@@ -20,6 +20,11 @@ class Cell:
         a = gameObject.OreDeposit(self)
         self.contents.append(a)
 
+    def add_respawn_beacon(self, owner_corp):
+        assert(owner_corp.__class__.__name__ == 'Corporation')
+        a = gameObject.RespawnBeacon(self, owner_corp)
+        self.add_game_object(a)
+
     def add_door(self, owner_corp):
         assert(owner_corp.__class__.__name__ == 'Corporation')
         a = gameObject.Door(self, owner_corp)
@@ -87,7 +92,7 @@ class Cell:
 
     def render(self, **keyword_parameters):
 
-        priority = ['Player', 'OreDeposit', 'Hospital', 'Pharmacy', 'OreGenerator', 'Loot', 'Fence', 'Door']
+        priority = ['Player', 'OreDeposit', 'Hospital', 'Pharmacy', 'OreGenerator', 'Loot', 'Fence', 'Door', 'RespawnBeacon']
 
         if 'player_id' in keyword_parameters:
             player_id = keyword_parameters['player_id']
