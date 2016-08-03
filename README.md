@@ -6,29 +6,9 @@ A game about gathering ore, simple enough to take a reasonable amount of time to
 * You can also play the game by setting it up to run on your own server by following the instructions below.
 
 ##Setup
-1. Download the requirements
-    `sudo apt install -y virtualenv python3.5 git python3-dev;`
-2. Clone the repo
-    `mkdir AndOre; cd AndOre; git clone https://github.com/baxter-oop/AndOre.git;`
-3. Create the virtual environments and install the python requirements
-    `virtualenv -p python3.5 client-env; virtualenv -p python3.5 server-env; virtualenv -p python3.5 ai-storage-env;`
-    
-    `source client-env/bin/activate; cd AndOre/client; pip install -r requirements.txt; cd ../..;`
-    `source server-env/bin/activate; cd AndOre/server; pip install -r requirements.txt; cd ../..;`
-    `source ai-storage-env/bin/activate; d AndOre/ai_storage; pip install -r requirements.txt; cd ../..;`
-4. Run the servers
-    `source server-env/bin/activate; cd AndOre/server; python server.py;`
-    
-    and in another terminal
-    
-    `source client-env/bin/activate; cd AndOre/client; python client-server.py;`
 
-    and in another terminal
+See https://github.com/baxter-oop/AndOre/wiki/Setup-(Developers)
     
-    `source ai-storage-env/bin/activate; cd AndOre/ai_storage; python ai_server.py;`
-    
-5. Play at the game at http://localhost:7002
-
 ##Versions/Releases
 
 ###Exodus - Version 1.2 (Found in Exodus Branch)
