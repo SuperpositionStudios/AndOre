@@ -70,6 +70,7 @@ def join():
 
 @app.route('/action')
 def action():
+    #start_of_request = datetime.datetime.now()
     tick_server_if_needed()
     response = dict()
 
@@ -79,18 +80,22 @@ def action():
         return home_cor(jsonify(**response))
 
     _act = request.args.get('action', '')
-    world.players[_id].action(_act)
+    re_render_world = world.players[_id].action(_act)
+    #request_time = datetime.datetime.now() - start_of_request
+    #print("Time to answer action request: {} milliseconds".format(request_time.microseconds / 1000))
 
     _sendState = request.args.get('sendState', 'false')
 
-    if _sendState == 'true':
+    if _sendState == 'true' and re_render_world:
         return send_state(_id=_id)
-    return home_cor(jsonify(**response))
+    else:
+        response['world'] = ''
+        return home_cor(jsonify(**response))
 
 
 @app.route('/sendState')
 def send_state(**keyword_parameters):
-    start_of_request = datetime.datetime.now()
+    #start_of_request = datetime.datetime.now()
 
     tick_server_if_needed()
     response = dict()
@@ -109,7 +114,7 @@ def send_state(**keyword_parameters):
     response['id'] = _id
     response['vitals'] = world.players[_id].get_vitals()
 
-    request_time = datetime.datetime.now() - start_of_request
+    #request_time = datetime.datetime.now() - start_of_request
     #print("Time to answer sendState request: {}".format(request_time.microseconds / 1000))
     return home_cor(jsonify(**response))
 
