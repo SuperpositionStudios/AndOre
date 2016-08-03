@@ -137,7 +137,7 @@ class OreGenerator(CorpOwnedBuilding):
         }
         self.blocking = True
 
-        self.ore_generated_per_tick = 1
+        self.ore_generated_per_tick = 3
         self.price_to_construct = OreGenerator.construction_cost
         self.health = 300
 
@@ -278,7 +278,8 @@ class Consumable:
             'Ore Delta': 0,  # Modifies the ore amount of the Player
             'Attack Power Delta': 0,  # Modifies the attack power of the Player
             'Health Cap Delta': 0,  # Modifies the max health of the Player
-            'Ore Multiplier Delta': 0
+            'Ore Multiplier Delta': 0,  # Adds this to the player's ore multiplier
+            'Ore Multiplier Multiplier Delta': 1  # Multiplies the player's ore multiplier by this
         }
         self.owner_corp.add_to_inventory(self)
 
@@ -303,7 +304,7 @@ class MinerMultiplierPotion(Consumable):
 
     def __init__(self, _corp):
         super().__init__(_corp)
-        self.effects['Ore Multiplier Delta'] = 1
+        self.effects['Ore Multiplier Multiplier Delta'] = 1.15
         self.icon = 'MM'
 
 
@@ -456,6 +457,8 @@ class HealthPack(Loot):
 
 
 class Fence(GameObject):
+
+    construction_cost = 30
 
     def __init__(self, _cell):
         super().__init__(_cell)

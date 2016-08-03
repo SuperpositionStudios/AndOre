@@ -25,7 +25,7 @@ class Player(gameObject.GameObject):
         self.attack_power = int(self.starting_attack_power)
 
         self.starting_ore_multiplier = 1
-        self.ore_multiplier = int(self.starting_ore_multiplier)
+        self.ore_multiplier = float(self.starting_ore_multiplier)
 
         self.delta_ore = 0  # The ore lost/gained in the last tick
         self.inner_icon = ['@', standing_colors.mane['M']]
@@ -91,7 +91,7 @@ class Player(gameObject.GameObject):
     def line_of_stats(self):
         los = '[hp {health} ore {ore}] [{pri_mod_key} {sec_mod_key}] [{world_age}] '.format(
             health=int(self.health),
-            ore=self.corp.ore_quantity,
+            ore=int(self.corp.ore_quantity),
             pri_mod_key=self.primary_modifier_key,
             sec_mod_key=self.secondary_modifier_key,
             world_age=self.world.world_age)
@@ -215,6 +215,8 @@ class Player(gameObject.GameObject):
 
         self.health_cap += effects.get('Health Cap Delta', 0)
 
+        self.ore_multiplier *= effects.get('Ore Multiplier Multiplier Delta', 1)
+
     def gain_health(self, amount):
         self.health = min(self.health_cap, self.health + amount)
 
@@ -246,46 +248,30 @@ class Player(gameObject.GameObject):
         return False
 
     def try_building_ore_generator(self, _cell):
-        if _cell is not None and _cell.can_enter(player_obj=self):
-            ore_cost = _cell.add_ore_generator(self.corp)
+        if _cell is not None and _cell.can_enter(player_obj=self) and _cell.next_to_ore_deposit():
+            ore_cost = gameObject.OreGenerator.construction_cost
             if self.corp.amount_of_ore() >= ore_cost:
+                _cell.add_ore_generator(self.corp)
                 self.lose_ore(ore_cost)
                 return True
-            else:
-                struct = _cell.contains_object_type('OreGenerator')
-                if struct[0]:
-                    ore_generator = _cell.get_game_object_by_obj_id(struct[1])
-                    if ore_generator[0]:
-                        ore_generator[1].delete()
-                        return False
+        return False
 
     def try_building_hospital(self, _cell):
         if _cell is not None and _cell.can_enter(player_obj=self):
-            ore_cost = _cell.add_hospital(self.corp)
+            ore_cost = gameObject.Hospital.construction_cost
             if self.corp.amount_of_ore() >= ore_cost:
+                _cell.add_hospital(self.corp)
                 self.lose_ore(ore_cost)
                 return True
-            else:
-                struct = _cell.contains_object_type('Hospital')
-                if struct[0]:
-                    hospital = _cell.get_game_object_by_obj_id(struct[1])
-                    if hospital[0]:
-                        hospital[1].delete()
-                        return False
+        return False
 
     def try_building_fence(self, _cell):
         if _cell is not None and _cell.can_enter(player_obj=self):
-            ore_cost = _cell.add_fence()
+            ore_cost = gameObject.Fence.construction_cost
             if self.corp.amount_of_ore() >= ore_cost:
+                _cell.add_fence()
                 self.lose_ore(ore_cost)
                 return True
-            else:
-                struct = _cell.contains_object_type('Fence')
-                if struct[0]:
-                    fence = _cell.get_game_object_by_obj_id(struct[1])
-                    if fence[0]:
-                        fence[1].delete()
-                        return False
         return False
 
     def try_merge_corp(self, _cell):
@@ -529,7 +515,7 @@ class Player(gameObject.GameObject):
         if self.health <= 0:
             self.drop_ore()
             self.health = int(self.starting_health)
-            self.ore_multiplier = int(self.starting_ore_multiplier)
+            self.ore_multiplier = float(self.starting_ore_multiplier)
             self.attack_power = int(self.starting_attack_power)
             self.health_cap = int(self.starting_health_cap)
             self.go_to_respawn_location()
