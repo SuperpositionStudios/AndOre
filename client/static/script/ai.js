@@ -9,9 +9,17 @@ BaseAi = function(app) {
 
 BaseAi.prototype = {
   app: null,
-  actions: [], 
+  actions: [
+      "a",  // Direction Key
+      "w",  // Direction Key
+      "s",  // Direction Key
+      "d",  // Direction Key
+      "l",  // Primary Modifier Key
+      "m",  // Primary Modifier Key
+  ],
   dataSize: 1024,
   lastHealth: 0,
+  lastAge: 0,
   hasActed: false,
   lastAction: null,
   lastVitals: null,
@@ -44,45 +52,56 @@ BaseAi.prototype = {
     return {
       getNumStates: function() { return self.dataSize; },
       getMaxNumActions: function() { return self.actions.length; },
-      allowedActions: function() { return self.actions; },
+      allowedActions: function() { 
+        var allowed = [];
+          for (var i = 0; i < self.actions.length; i++) {
+            allowed.push(i);
+          }
+          return allowed;
+        },
     }
   },
   Start: function() {
-    console.log(this.app.keys);
     this.actions = this.actions.length > 0? this.actions : this.app.actions;
     this.env = this.NewEnv();
     //var oldBrain = localStorage.getItem("aiModel");
     var spec = { alpha: 0.01 };
-    this.agent = new RL.DQNAgent(self.env, spec);  
+    this.agent = new RL.DQNAgent(this.env, spec);  
     if(this.oldBrain != null){
       this.agent.fromJSON(this.oldBrain);
       console.log("Parsed stored model into Agent.");
     }
-    this.AiTick();
+    this.StartTicks();
   },
-  Tick: function(){
+  StartTicks: function(){
     var self = this;
     var repeat;
     repeat = function() {
-      var command = self.keys[self.lastAction];
+      var command;
+      if(self.lastAction == null){
+        command = self.actions[0];
+      } else {
+        command = self.actions[self.lastAction];        
+      }
       AjaxCall("/action", {id: userId, action: command, sendState:true}, function(data){ 
         var worldAge = data.vitals.world_age;
         if (worldAge > self.lastAge) {
-          view.Draw(data.world);
-          self.UpdateAi(data, repeat);
+          console.log(worldAge);
+          app.view.Draw(data.world);
+          self.Update(data, repeat);
         } else {
-          view.Draw(data.world);
+          app.view.Draw(data.world);
           setTimeout(repeat, self.delay);
         }
       }, repeat);
     }
     repeat();
   },
-  Update: function(data) {
+  Update: function(data, callback) {
     var env = this.env;
 
     if(this.lastVitals == null){
-    this.lastVitals = data.vitals;
+      this.lastVitals = data.vitals;
     }
 
     this.lastAge = data.vitals.world_age;
@@ -107,16 +126,22 @@ BaseAi.prototype = {
     }
 
     if(this.lastAction != null){  
-      this.agent.learn(reward);      
+      this.agent.learn(reward);   
+    } else {
+      this.agent.act(state);
+      this.agent.act(state);
+      this.agent.act(state);
+      this.agent.act(state);
+      this.agent.act(state);
     }
-
-    var action = this.agent.act(this.state);
+    var action = this.agent.act(state);
     if(this.lastAction != action){
       this.newAction = true;
     } else {
       this.newAction = false;
     }
-    this.lastAction = action;    
+    this.lastAction = action;
+    callback();    
   },
   UploadModel: function(ai_model) {
     console.log("Uploading Model...");
