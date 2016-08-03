@@ -89,6 +89,8 @@ def action():
     if _sendState == 'true' and re_render_world:
         return send_state(_id=_id)
     else:
+        response['id'] = _id
+        response['vitals'] = world.players[_id].get_vitals()
         response['world'] = ''
         return home_cor(jsonify(**response))
 
