@@ -25,7 +25,7 @@ class Corporation:
         self.usage_inventory = []
         self.ore_quantity = 0
         if config.developing:
-            self.ore_quantity += 1000
+            self.ore_quantity += 10000
         self.sent_merge_invites = []  # A list containing ids of corps that have been sent merge invites
         self.received_merge_invites = []  # A list containing ids of corps that have sent use merge invites
         self.standings = dict()
@@ -42,7 +42,7 @@ class Corporation:
                 quantity = len(self.inventory[item_type][item_name])
                 if quantity > 0:
                     icon = self.inventory[item_type][item_name][0].icon
-                    rendered_inventory += '{icon}: {quantity}'.format(icon=icon, quantity=quantity)
+                    rendered_inventory += '{icon}: {quantity} '.format(icon=icon, quantity=quantity)
                     self.usage_inventory.append(self.inventory[item_type][item_name][0])
         return rendered_inventory.ljust(self.world.cols)
 

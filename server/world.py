@@ -14,6 +14,7 @@ class World:  # World is not really world, it's more Level
         self.world_age = 1
         self.last_tick = datetime.datetime.now()
         self.microseconds_per_tick = 350000
+        #self.microseconds_per_tick = 35000
         self.players = dict()
         self.corporations = dict()
         self.buildings = dict()
