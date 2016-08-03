@@ -1,7 +1,7 @@
 import uuid, random
 from cell import Cell
 import gameObject
-import corporation
+import corporation, standing_colors
 
 
 class Player(gameObject.GameObject):
@@ -28,11 +28,13 @@ class Player(gameObject.GameObject):
         self.ore_multiplier = int(self.starting_ore_multiplier)
 
         self.delta_ore = 0  # The ore lost/gained in the last tick
-        self.inner_icon = '@'
-        self.neutral_icon = 'N'
-        self.enemy_icon = 'E'
-        self.ally_icon = 'A'
-        self.corp_member_icon = 'M'
+        self.inner_icon = ['@', standing_colors.mane['M']]
+        self.icons = {
+            'M': ['M', standing_colors.mane['M']],
+            'A': ['A', standing_colors.mane['A']],
+            'N': ['N', standing_colors.mane['N']],
+            'E': ['E', standing_colors.mane['E']]
+        }
         self.icon = '!'
         self.row = self.cell.row
         self.col = self.cell.col

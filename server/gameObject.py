@@ -1,4 +1,4 @@
-import uuid
+import uuid, standing_colors
 
 
 class GameObject:
@@ -123,10 +123,10 @@ class OreGenerator(CorpOwnedBuilding):
         super().__init__(_cell, _corp)
         self.icon = '€'
         self.icons = {
-            'M': 'Ƀ',
-            'A': '₳',
-            'N': '€',
-            'E': '€'
+            'M': ['Ƀ', standing_colors.mane['M']],
+            'A': ['Ƀ', standing_colors.mane['A']],
+            'N': ['Ƀ', standing_colors.mane['N']],
+            'E': ['Ƀ', standing_colors.mane['E']]
         }
 
         self.passable = {
@@ -157,10 +157,10 @@ class CorpOwnedStore(CorpOwnedBuilding):
         self.icon = '|'
 
         self.icons = {
-            'M': '|',
-            'A': '|',
-            'N': '|',
-            'E': '|'
+            'M': ['|', standing_colors.mane['M']],
+            'A': ['|', standing_colors.mane['A']],
+            'N': ['|', standing_colors.mane['N']],
+            'E': ['|', standing_colors.mane['E']]
         }
 
         self.products = dict()
@@ -251,10 +251,10 @@ class Pharmacy(CorpOwnedStore):
         self.health = 180
 
         self.icons = {
-            'M': '⚕',
-            'A': '⚕',
-            'N': '⚕',
-            'E': '⚕'
+            'M': ['🏥', standing_colors.mane['M']],
+            'A': ['🏥', standing_colors.mane['A']],
+            'N': ['🏥', standing_colors.mane['N']],
+            'E': ['🏥', standing_colors.mane['E']]
         }
         self.passable = {
             'M': False,
@@ -340,10 +340,10 @@ class RespawnBeacon(CorpOwnedBuilding):
         self.health = 1000
 
         self.icons = {
-            'M': '𝌩',
-            'A': '𝌩',
-            'N': '𝌩',
-            'E': '𝌩'
+            'M': ['𝌩', standing_colors.mane['M']],
+            'A': ['𝌩', standing_colors.mane['A']],
+            'N': ['𝌩', standing_colors.mane['N']],
+            'E': ['𝌩', standing_colors.mane['E']]
         }
 
         self.passable = {
@@ -371,10 +371,10 @@ class Door(CorpOwnedBuilding):
         self.health = 250
 
         self.icons = {
-            'M': '=',
-            'A': '=',
-            'N': '-',
-            'E': '-'
+            'M': ['=', standing_colors.mane['M']],
+            'A': ['=', standing_colors.mane['A']],
+            'N': ['=', standing_colors.mane['N']],
+            'E': ['=', standing_colors.mane['E']]
         }
 
         self.passable = {
@@ -398,11 +398,10 @@ class Hospital(CorpOwnedBuilding):
         self.icon = '+'  # Deprecated
 
         self.icons = {
-            'M': '⊞',
-            #'M': '🏥',
-            'A': '±',
-            'N': '+',
-            'E': '∓'
+            'M': ['⚕', standing_colors.mane['M']],
+            'A': ['⚕', standing_colors.mane['A']],
+            'N': ['⚕', standing_colors.mane['N']],
+            'E': ['⚕', standing_colors.mane['E']]
         }
 
         self.prices_to_use = {
