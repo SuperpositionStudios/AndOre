@@ -194,14 +194,14 @@ class Player(gameObject.GameObject):
     def try_using_inventory(self):
         #  Consumables
         chosen = self.corp.return_obj_selected_in_rendered_inventory(int(self.secondary_modifier_key))
-        print(chosen)
+        #print(chosen)
         if chosen.item_type == 'Consumable':
-            print(True)
+            #print(True)
             effects = chosen.consume()
             self.take_effects(effects)
             return True
         else:
-            print("Else")
+            #print("Else")
             return False  # Not yet supported
 
     def take_effects(self, effects):
@@ -217,7 +217,7 @@ class Player(gameObject.GameObject):
         if effects.get('Attack Power Delta', 0) > 0:
             apd = effects.get('Attack Power Delta', 0)
             apd = apd / (self.attack_power / self.starting_attack_power)
-            print(apd)
+            #print(apd)
             self.attack_power += apd
 
         if effects.get('Health Cap Delta', 0) > 0:
@@ -226,14 +226,14 @@ class Player(gameObject.GameObject):
                 hc = a
             else:
                 hc = a / ((self.health_cap - self.starting_health_cap) / a)
-            print(hc)
+            #print(hc)
             self.health_cap += hc
 
         if effects.get('Ore Multiplier Multiplier Delta', 0) > 0:
             omm = effects.get('Ore Multiplier Multiplier Delta', 0)
             omm = omm / self.ore_multiplier
             omm += 1
-            print(omm)
+            #print(omm)
             self.ore_multiplier *= omm
 
     def gain_health(self, amount):
