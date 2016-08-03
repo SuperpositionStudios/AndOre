@@ -314,7 +314,7 @@ class AttackPowerPotion(Consumable):
 
     def __init__(self, _corp):
         super().__init__(_corp)
-        self.effects['Attack Power Delta'] = 5
+        self.effects['Attack Power Delta'] = 4
         self.icon = '⚒'
 
 
