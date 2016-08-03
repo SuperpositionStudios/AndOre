@@ -121,12 +121,12 @@ class OreGenerator(CorpOwnedBuilding):
         assert(_corp.__class__.__name__ == 'Corporation')
 
         super().__init__(_cell, _corp)
-        self.icon = '€'
+        self.icon = '🏭'
         self.icons = {
-            'M': ['Ƀ', standing_colors.mane['M']],
-            'A': ['Ƀ', standing_colors.mane['A']],
-            'N': ['Ƀ', standing_colors.mane['N']],
-            'E': ['Ƀ', standing_colors.mane['E']]
+            'M': ['🏭', standing_colors.mane['M']],
+            'A': ['🏭', standing_colors.mane['A']],
+            'N': ['🏭', standing_colors.mane['N']],
+            'E': ['🏭', standing_colors.mane['E']]
         }
 
         self.passable = {
