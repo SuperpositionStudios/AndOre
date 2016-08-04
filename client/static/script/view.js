@@ -76,13 +76,14 @@ View.prototype = {
     },
   Poll: function(){
     setTimeout(function() {
-      app.GetDisplay(this.Poll, this.pollDelay);
+      //console.log(typeof(View.prototype.Poll));
+      app.GetDisplay(View.prototype.Poll, this.pollDelay);
     }, this.pollDelay);
   },
   SetupInput: function() {
     $("body").keypress(function(e){
       command = String.fromCharCode(e.which).toLowerCase();
-      console.log(app.actionsLut);
+      //console.log(app.actionsLut);
       if(app.actionsLut[command]) {
         app.SendCommand(command);
       }

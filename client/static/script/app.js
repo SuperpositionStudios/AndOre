@@ -11,7 +11,7 @@ var dev_ai_storage_endpoint = ":7003";
 
 var use_dev_server = false;  // Used for development
 var use_ai_storage_server = true;
-var internetOff = false;  // Used for testing view.js
+var internetOff = false;  // Used for testing view.js with testData.js
 
 var ai_name = '';
 
@@ -106,7 +106,7 @@ App.prototype = {
     var view = this.view;
   	AjaxCall("/sendState", {id: userId}, function(data){
       view.Draw(data.world);
-  		CallCallback(callback);
+      CallCallback(callback);
   	});
   },
   SendCommand: function(command){
@@ -116,6 +116,7 @@ App.prototype = {
     });
   },
 }
+
 
 function CallCallback (callback){
   if(callback != null) {
@@ -131,14 +132,14 @@ function AjaxCall(endpoint, data, callback, failCallback){
   var ajax = $.ajax({
     method: "GET",
     url: game_server_endpoint + endpoint,
-    data: data,
+    data: data
   });
   ajax.done(function(data) {
-    //console.log("from " + apiUrl + endpoint + " returned: " + data);
+    //console.log("from " + game_server_endpoint + endpoint + " returned: " + data);
     callback(data);
   });
   ajax.fail(function(req, status, error){
-    //console.log("bad req to " + apiUrl + endpoint + ":  " + status + " | " + error);
+    console.log("bad req to " + game_server_endpoint + endpoint + ":  " + status + " | " + error);
     if(failCallback != null){
 
       failCallback();
