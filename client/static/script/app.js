@@ -115,8 +115,7 @@ App.prototype = {
       view.Draw(data.world);
     });
   },
-}
-
+};
 
 function CallCallback (callback){
   if(callback != null) {
