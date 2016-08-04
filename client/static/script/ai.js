@@ -53,7 +53,7 @@ BaseAi.prototype = {
     return {
       getNumStates: function() { return self.dataSize; },
       getMaxNumActions: function() { return self.actions.length; },
-      allowedActions: function() { 
+      allowedActions: function() {
         var allowed = [];
           for (var i = 0; i < self.actions.length; i++) {
             allowed.push(i);
@@ -67,7 +67,7 @@ BaseAi.prototype = {
     this.env = this.NewEnv();
     //var oldBrain = localStorage.getItem("aiModel");
     var spec = { alpha: 0.01 };
-    this.agent = new RL.DQNAgent(this.env, spec);  
+    this.agent = new RL.DQNAgent(this.env, spec);
     if(this.oldBrain != null){
       this.agent.fromJSON(this.oldBrain);
       console.log("Parsed stored model into Agent.");
@@ -82,16 +82,16 @@ BaseAi.prototype = {
       if(self.lastAction == null){
         command = self.actions[0];
       } else {
-        command = self.actions[self.lastAction];        
+        command = self.actions[self.lastAction];
       }
-      AjaxCall("/action", {id: userId, action: command, sendState:true}, function(data){ 
+      AjaxCall("/action", {id: userId, action: command, sendState:true}, function(data){
         var worldAge = data.vitals.world_age;
         if (worldAge > self.lastAge) {
           console.log(worldAge);
-          app.view.Draw(data.world);
+          app.view.Draw(data);
           self.Update(data, repeat);
         } else {
-          app.view.Draw(data.world);
+          app.view.Draw(data);
           setTimeout(repeat, self.delay);
         }
       }, repeat);
@@ -118,7 +118,7 @@ BaseAi.prototype = {
         error: function(jqXHR, textStatus, errorThrown) {
           console.log("Error uploading the model");
         }
-      });      
+      });
     }
   },
   Update: function(data, callback) {
@@ -129,7 +129,7 @@ BaseAi.prototype = {
     }
 
     this.lastAge = data.vitals.world_age;
-      
+
     var state = this.FlattenWorld(data.world);
     var deltaHealth = data.vitals.health - this.lastHealth;
     var reward = (data.vitals.delta_ore * 2 + deltaHealth * 1) / 3;
@@ -150,7 +150,7 @@ BaseAi.prototype = {
       reward = -5;
     }
 
-    if(this.lastAction != null){  
+    if(this.lastAction != null){
       this.agent.learn(reward);
     } else {
       this.agent.act(state);
@@ -162,15 +162,15 @@ BaseAi.prototype = {
       this.newAction = false;
     }
     this.lastAction = action;
-    callback();    
-  },  
+    callback();
+  },
   FlattenWorld: function(world){
     var state = [];
     for (var i in world){
       var line = world[i];
       for (var key in line){
         state.push(line[key][0].charCodeAt(0));
-      }    
+      }
     }
     while( state.length < this.dataSize){
       state.push(" ");
@@ -197,22 +197,22 @@ SimpleAi.prototype = $.extend(BaseAi.prototype, {
       "k",  // Primary Modifier Key
       "m",
       "b",  // Primary Modifier Key
-  ], 
+  ],
   NewEnv: function() {
     var self = this;
     return {
       getNumStates: function() { return self.dataSize; },
       getMaxNumActions: function() { return self.actions.length; },
-      allowedActions: function() { 
+      allowedActions: function() {
         var allowed = [];
           for (var i = 0; i < self.actions.length; i++) {
             if(self.tickCount %2 == 0 ) {
               if( i < 4){
-                allowed.push(i);              
+                allowed.push(i);
               }
             } else {
               if( i >= 4){
-                allowed.push(i);              
+                allowed.push(i);
               }
             }
           }
@@ -228,7 +228,7 @@ SimpleAi.prototype = $.extend(BaseAi.prototype, {
     }
 
     this.lastAge = data.vitals.world_age;
-      
+
     var state = this.FlattenWorld(data.world);
     var deltaHealth = data.vitals.health - this.lastHealth;
     var oreReward = Math.abs(data.vitals.delta_ore);
@@ -240,8 +240,8 @@ SimpleAi.prototype = $.extend(BaseAi.prototype, {
     this.lastVitals = data.vitals;
 
     this.lastHealth = data.vitals.health;
-    if(this.lastAction != null){  
-      this.agent.learn(reward);   
+    if(this.lastAction != null){
+      this.agent.learn(reward);
     } else {
       this.agent.act(state);
     }
@@ -252,7 +252,7 @@ SimpleAi.prototype = $.extend(BaseAi.prototype, {
       this.newAction = false;
     }
     this.lastAction = action;
-    callback();    
+    callback();
   },
 });
 

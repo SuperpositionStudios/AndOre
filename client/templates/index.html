@@ -1,19 +1,67 @@
 <html>
 	<head>
 		<link href="https://fonts.googleapis.com/css?family=Ubuntu+Mono" rel="stylesheet">
-		<script src="static/script/jquery-1.6.2.min.js"></script>
+
+		<script src="static/external/jquery-2.1.1.min.js"></script>
+
+		<link rel="stylesheet" type="text/css" href="static/external/materialize.min.css">
+		<script src="static/external/materialize.min.js"></script>
+
 		<script src="static/script/testData.js"></script>
 		<script src="static/external/rl.js"></script>
 		<script src="static/script/ai.js"></script>
 		<script src="static/script/view.js"></script>
 		<script src="static/script/app.js"></script>
 		<link rel="stylesheet" type="text/css" href="static/style.css">
+
+        <script async defer src="https://buttons.github.io/buttons.js"></script>
 	</head>
 	<body>
-		<div id="content">
+        <div class="row">
+            <div id="worldview" class="col s10 walls">
 
-		</div>
-		<div id="model">
-		</div>
+            </div>
+            <div class="col s2">
+                <div class="walls">
+                    <p><b>Action Log</b></p>
+                </div>
+                <div class="walls">
+                    <p><b>Info</b></p>
+                    <hr>
+                    <p>You are in <b><span id="infoModeMeaning">move</span></b> mode</p>
+                    <hr>
+                    <p>Found a bug? Have an idea for a feature? Please create an issue</p>
+                    <a class="github-button" href="https://github.com/baxter-oop/AndOre/issues" data-icon="octicon-issue-opened" data-style="mega" data-count-api="/repos/baxter-oop/AndOre#open_issues_count" data-count-aria-label="# issues on GitHub" aria-label="Issue baxter-oop/AndOre on GitHub">Issue</a>
+                    <hr>
+                    <a class="github-button" href="https://github.com/baxter-oop/AndOre/fork" data-icon="octicon-repo-forked" data-style="mega" data-count-href="/baxter-oop/AndOre/network" data-count-api="/repos/baxter-oop/AndOre#forks_count" data-count-aria-label="# forks on GitHub" aria-label="Fork baxter-oop/AndOre on GitHub">Help Develop: Fork</a>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col s4 walls">
+                <b>Inventory</b>
+                <hr>
+                <p id="inventory"></p>
+            </div>
+            <div class="col s4 walls">
+                <b>Player Stats</b>
+                <hr>
+                <div class="row">
+                    <div class="col s6">
+                        <p>Health: <span id="statHealth">0</span>/<span id="statHealthCap">100</span></p>
+                        <p>Attack Power: <span id="statAttackPower">10</span></p>
+                        <p>Row: <span id="statRow">0</span> Column: <span id="statCol">0</span></p>
+                        <p>Modifier Key: <span id="statModifierKey">m</span></p>
+                    </div>
+                    <div class="col s6">
+                        <p>Corp Wallet: <span id="statOre">0</span> Ore</p>
+                        <p>Mining Multiplier: <span id="statOreMultiplier">1</span>x</p>
+                        <p>Server Tick #: <span id="statWorldAge"></span></p>
+                        <p>Secondary Modifier Key: <span id="statSecondaryModifierKey">1</span></p>
+                    </div>
+                </div>
+            </div>
+            <div class="col s4 walls">Possible Actions</div>
+        </div>
 	</body>
 </html>

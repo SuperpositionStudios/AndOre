@@ -105,14 +105,14 @@ App.prototype = {
   GetDisplay: function(callback) {
     var view = this.view;
   	AjaxCall("/sendState", {id: userId}, function(data){
-      view.Draw(data.world);
+      view.Draw(data);
       CallCallback(callback);
   	});
   },
   SendCommand: function(command){
     var view = this.view;
     AjaxCall("/action", {id: userId, action: command, sendState:true}, function(data){
-      view.Draw(data.world);
+      view.Draw(data);
     });
   },
 };

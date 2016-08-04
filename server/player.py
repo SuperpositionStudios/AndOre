@@ -41,7 +41,12 @@ class Player(gameObject.GameObject):
         self.dir_key = ''
         self.primary_modifier_key = 'm'
         self.secondary_modifier_key = '1'
-        self.passable = False
+        self.passable = {
+            'M': False,
+            'A': False,
+            'N': False,
+            'E': False
+        }
         self.last_action_at_world_age = 0
         self.corp = self.world.new_corporation(self)
 
@@ -103,11 +108,16 @@ class Player(gameObject.GameObject):
     def get_vitals(self):
         response = {
             'ore_quantity': self.corp.amount_of_ore(),
+            'ore_multiplier': round(self.ore_multiplier, 1),
             'delta_ore': self.delta_ore,
-            'health': self.health,
+            'health': round(self.health, 1),
+            'health_cap': round(self.health_cap, 1),
+            'attack_power': round(self.attack_power, 1),
             'world_age': self.world.world_age,
             'row': self.row,
-            'col': self.col
+            'col': self.col,
+            'modifier_key': self.primary_modifier_key,
+            'secondary_modifier_key': self.secondary_modifier_key
         }
         return response
 
