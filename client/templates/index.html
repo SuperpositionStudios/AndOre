@@ -19,8 +19,13 @@
             <div id="worldview" class="col s10 walls">
 
             </div>
-            <div class="col s2 walls">
-                <p>Action Log</p>
+            <div class="col s2">
+                <div class="walls">
+                    <p><b>Action Log</b></p>
+                </div>
+                <div class="walls">
+                    <p><b>Info</b></p>
+                </div>
             </div>
         </div>
         <div class="row">
@@ -32,7 +37,20 @@
             <div class="col s4 walls">
                 <b>Player Stats</b>
                 <hr>
-                <p>Health: <span id="statHealth">0</span>/<span id="statHealthCap">100</span></p>
+                <div class="row">
+                    <div class="col s6">
+                        <p>Health: <span id="statHealth">0</span>/<span id="statHealthCap">100</span></p>
+                        <p>Attack Power: <span id="statAttackPower">10</span></p>
+                        <p>Row: <span id="statRow">0</span> Column: <span id="statCol">0</span></p>
+                        <p>Modifier Key: <span id="statModifierKey">m</span></p>
+                    </div>
+                    <div class="col s6">
+                        <p>Corp Wallet: <span id="statOre">0</span> Ore</p>
+                        <p>Mining Multiplier: <span id="statOreMultiplier">1</span>x</p>
+                        <p>Server Tick #: <span id="statWorldAge"></span></p>
+                        <p>Secondary Modifier Key: <span id="statSecondaryModifierKey">1</span></p>
+                    </div>
+                </div>
             </div>
             <div class="col s4 walls">Possible Actions</div>
         </div>

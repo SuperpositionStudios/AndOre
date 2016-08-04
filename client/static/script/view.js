@@ -63,7 +63,14 @@ View.prototype = {
   playerStatView: {
     currentHealth: null,
     healthCap: null,
-    attackPower: null
+    attackPower: null,
+    row: null,
+    column: null,
+    ore: null,
+    miningMultiplier: null,
+    worldAge: null,
+    modifierKey: null,
+    secondaryModifierKey: null
   },
   pollDelay: 350,
   SetupView : function(app, callback) {
@@ -72,6 +79,14 @@ View.prototype = {
     this.inventoryView = $(inventorySelector);
     this.playerStatView.currentHealth = $("#statHealth");
     this.playerStatView.healthCap = $("#statHealthCap");
+    this.playerStatView.attackPower = $("#statAttackPower");
+    this.playerStatView.row = $("#statRow");
+    this.playerStatView.column = $("#statCol");
+    this.playerStatView.ore = $("#statOre");
+    this.playerStatView.miningMultiplier = $("#statOreMultiplier");
+    this.playerStatView.worldAge = $("#statWorldAge");
+    this.playerStatView.modifierKey = $("#statModifierKey");
+    this.playerStatView.secondaryModifierKey = $("#statSecondaryModifierKey");
     this.SetupInput();
     this.Poll();
     CallCallback(callback);
@@ -134,9 +149,18 @@ View.prototype = {
 
     this.playerStatView.currentHealth.text(stats.health);
     this.playerStatView.healthCap.text(stats.health_cap);
+    this.playerStatView.attackPower.text(stats.attack_power);
+    this.playerStatView.row.text(stats.row);
+    this.playerStatView.column.text(stats.col);
+    this.playerStatView.ore.text(stats.ore_quantity);
+    this.playerStatView.miningMultiplier.text(stats.ore_multiplier);
+    this.playerStatView.worldAge.text(stats.world_age);
+    this.playerStatView.modifierKey.text(stats.modifier_key);
+    this.playerStatView.secondaryModifierKey.text(stats.secondary_modifier_key);
   },
   Draw: function(data){
     var world_json = copy(data.world);
+    world_json.pop();
     world_json.pop();
 
     this.DrawWorldView(world_json);
