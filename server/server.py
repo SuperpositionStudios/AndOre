@@ -11,6 +11,7 @@ import psutil
 import logging
 import warnings
 
+
 app = Flask(__name__)
 
 web_server_domain = "*"
@@ -138,4 +139,5 @@ def restart_route():
     restart_program()
     return "Restarted but since this restarted you won't be seeing this"
 
+logging.basicConfig(filename='error.log', level=logging.DEBUG)
 app.run(debug=True, host='0.0.0.0', port=7001, threaded=True)
