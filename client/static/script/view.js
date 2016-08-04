@@ -174,11 +174,13 @@ View.prototype = {
     this.playerStatView.secondaryModifierKey.text(stats.secondary_modifier_key);
   },
   Draw: function(data){
-    var world_json = copy(data.world);
-    world_json.pop();
-    world_json.pop();
+    if (data.world != '') {
+      var world_json = copy(data.world);
+      world_json.pop();
+      world_json.pop();
+      this.DrawWorldView(world_json);
+    }
 
-    this.DrawWorldView(world_json);
     this.DrawInventory(data.inventory);
     this.DrawPlayerStats(data.vitals);
   },
