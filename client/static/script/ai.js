@@ -74,6 +74,10 @@ BaseAi.prototype = {
     }
     this.StartTicks();
   },
+  SendCommand(command){
+    //does nothing right now, going to put in some AI specific commands
+    
+  }
   StartTicks: function(){
     var self = this;
     var repeat;
@@ -164,14 +168,31 @@ BaseAi.prototype = {
     this.lastAction = action;
     callback();    
   },  
-  FlattenWorld: function(world){
+  GetState: function(world){
     var state = [];
+    var playerX = 0;
+    var playerY = 0;
+    var y = 0;
     for (var i in world){
       var line = world[i];
+      x = 0;
       for (var key in line){
-        state.push(line[key][0].charCodeAt(0));
-      }    
+        var c = line[key][0].charCodeAt(0);
+        state.push(c);
+        if(c == '@') {
+          playerX = x;
+          playerY = y;
+        }
+        x++;
+      };
+      y++;
     }
+
+
+
+
+
+
     while( state.length < this.dataSize){
       state.push(" ");
     }
@@ -229,7 +250,7 @@ SimpleAi.prototype = $.extend(BaseAi.prototype, {
 
     this.lastAge = data.vitals.world_age;
       
-    var state = this.FlattenWorld(data.world);
+    var state = this.GetState(data.world);
     var deltaHealth = data.vitals.health - this.lastHealth;
     var oreReward = Math.abs(data.vitals.delta_ore);
     var healthReward = deltaHealth - (deltaHealth < 10? 30 : 0);

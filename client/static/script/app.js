@@ -111,9 +111,14 @@ App.prototype = {
   },
   SendCommand: function(command){
     var view = this.view;
-    AjaxCall("/action", {id: userId, action: command, sendState:true}, function(data){
-      view.Draw(data.world);
-    });
+    if(this.AiStarted) {
+      self.ai.SendCommand(command);
+    }
+    if(app.actionsLut[command]) {
+      AjaxCall("/action", {id: userId, action: command, sendState:true}, function(data){
+        view.Draw(data.world);
+      });
+    }
   },
 };
 
