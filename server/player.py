@@ -104,7 +104,8 @@ class Player(gameObject.GameObject):
         response = {
             'ore_quantity': self.corp.amount_of_ore(),
             'delta_ore': self.delta_ore,
-            'health': self.health,
+            'health': round(self.health, 1),
+            'health_cap': round(self.health_cap, 1),
             'world_age': self.world.world_age,
             'row': self.row,
             'col': self.col

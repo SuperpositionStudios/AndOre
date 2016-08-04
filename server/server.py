@@ -114,6 +114,7 @@ def send_state(**keyword_parameters):
 
     response = dict()
     response['world'] = world.players[_id].world_state()
+    response['inventory'] = world.players[_id].corp.render_inventory()
     response['id'] = _id
     response['vitals'] = world.players[_id].get_vitals()
 
@@ -139,5 +140,5 @@ def restart_route():
     restart_program()
     return "Restarted but since this restarted you won't be seeing this"
 
-logging.basicConfig(filename='error.log', level=logging.DEBUG)
+#logging.basicConfig(filename='error.log', level=logging.DEBUG)
 app.run(debug=True, host='0.0.0.0', port=7001, threaded=True)

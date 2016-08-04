@@ -1,7 +1,12 @@
 <html>
 	<head>
 		<link href="https://fonts.googleapis.com/css?family=Ubuntu+Mono" rel="stylesheet">
-		<script src="static/script/jquery-1.6.2.min.js"></script>
+
+		<script src="static/external/jquery-2.1.1.min.js"></script>
+
+		<link rel="stylesheet" type="text/css" href="static/external/materialize.min.css">
+		<script src="static/external/materialize.min.js"></script>
+
 		<script src="static/script/testData.js"></script>
 		<script src="static/external/rl.js"></script>
 		<script src="static/script/ai.js"></script>
@@ -10,10 +15,26 @@
 		<link rel="stylesheet" type="text/css" href="static/style.css">
 	</head>
 	<body>
-		<div id="content">
+        <div class="row">
+            <div id="worldview" class="col s10 walls">
 
-		</div>
-		<div id="model">
-		</div>
+            </div>
+            <div class="col s2 walls">
+                <p>Action Log</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col s4 walls">
+                <b>Inventory</b>
+                <hr>
+                <p id="inventory"></p>
+            </div>
+            <div class="col s4 walls">
+                <b>Player Stats</b>
+                <hr>
+                <p>Health: <span id="statHealth">0</span>/<span id="statHealthCap">100</span></p>
+            </div>
+            <div class="col s4 walls">Possible Actions</div>
+        </div>
 	</body>
 </html>
