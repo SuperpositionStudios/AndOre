@@ -90,9 +90,13 @@ App.prototype = {
       userId = data.id;
       $("body").keypress(function(e) {
         if (String.fromCharCode(e.which) == self.startAiKey && self.AiStarted == false) {
-          self.ai = new BaseAi(self);
-          self.ai.Start();
-            self.AiStarted = true;
+          self.ai = new SimpleAi(self);
+          if(use_ai_storage_server)  {
+            self.ai.GetModel();
+          }else {
+            self.ai.Start();
+          }
+          self.AiStarted = true;
         }
       });
       CallCallback(callback);
@@ -111,18 +115,6 @@ App.prototype = {
       view.Draw(data);
     });
   },
-  StartAi: function(){
-      this.ai = new BaseAi();
-  },
-  UpdateAi: function(data, callback){
-    this.ai.Update(data);
-    this.repeats += 1;
-    if (this.repeats % this.repeatsUntilUpload == 0) {
-        this.uploadModel(JSON.stringify(this.agent.toJSON()));
-    }
-
-    setTimeout(callback, self.delay);
-  }
 };
 
 function CallCallback (callback){
@@ -157,5 +149,6 @@ function AjaxCall(endpoint, data, callback, failCallback){
 
 $(function(){
   app = new App();
+  var ai = new BaseAi(app);
   app.Init();
 });
