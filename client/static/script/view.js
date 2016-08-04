@@ -72,11 +72,25 @@ View.prototype = {
     modifierKey: null,
     secondaryModifierKey: null
   },
+  infoView: {
+    modeMeaning: null,
+    modeMeanings: {
+      m: 'Movement',
+      k: 'Kill',
+      l: 'Loot',
+      i: 'Corp Invite',
+      b: 'Build',
+      u: 'Use Item From Inventory',
+      '+': 'Increase Corp Standing',
+      '-': 'Decrease Corp Standing'
+    }
+  },
   pollDelay: 350,
   SetupView : function(app, callback) {
     this.app = app;
     this.worldView = $(worldViewSelector);
     this.inventoryView = $(inventorySelector);
+    this.infoView.modeMeaning = $("#infoModeMeaning");
     this.playerStatView.currentHealth = $("#statHealth");
     this.playerStatView.healthCap = $("#statHealthCap");
     this.playerStatView.attackPower = $("#statAttackPower");
@@ -156,6 +170,7 @@ View.prototype = {
     this.playerStatView.miningMultiplier.text(stats.ore_multiplier);
     this.playerStatView.worldAge.text(stats.world_age);
     this.playerStatView.modifierKey.text(stats.modifier_key);
+    this.infoView.modeMeaning.text(this.infoView.modeMeanings[stats.modifier_key] || 'Unknown');
     this.playerStatView.secondaryModifierKey.text(stats.secondary_modifier_key);
   },
   Draw: function(data){
