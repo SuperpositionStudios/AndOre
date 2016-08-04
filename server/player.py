@@ -89,9 +89,12 @@ class Player(gameObject.GameObject):
             return False
 
     def line_of_stats(self):
-        los = '[hp {health} ore {ore}] [{pri_mod_key} {sec_mod_key}] [{world_age}] '.format(
+        los = '[hp {health}/{health_cap} ap {ap}] [ore {ore} om {mm}] [{pri_mod_key} {sec_mod_key}] [{world_age}] '.format(
             health=int(self.health),
+            health_cap=int(self.health_cap),
+            ap=int(self.attack_power),
             ore=int(self.corp.ore_quantity),
+            mm=round(self.ore_multiplier, 1),
             pri_mod_key=self.primary_modifier_key,
             sec_mod_key=self.secondary_modifier_key,
             world_age=self.world.world_age)
@@ -191,14 +194,14 @@ class Player(gameObject.GameObject):
     def try_using_inventory(self):
         #  Consumables
         chosen = self.corp.return_obj_selected_in_rendered_inventory(int(self.secondary_modifier_key))
-        print(chosen)
+        #print(chosen)
         if chosen.item_type == 'Consumable':
-            print(True)
+            #print(True)
             effects = chosen.consume()
             self.take_effects(effects)
             return True
         else:
-            print("Else")
+            #print("Else")
             return False  # Not yet supported
 
     def take_effects(self, effects):
@@ -211,11 +214,27 @@ class Player(gameObject.GameObject):
 
         self.ore_multiplier += effects.get('Ore Multiplier Delta', 0)
 
-        self.attack_power += effects.get('Attack Power Delta', 0)
+        if effects.get('Attack Power Delta', 0) > 0:
+            apd = effects.get('Attack Power Delta', 0)
+            apd = apd / (self.attack_power / self.starting_attack_power)
+            #print(apd)
+            self.attack_power += apd
 
-        self.health_cap += effects.get('Health Cap Delta', 0)
+        if effects.get('Health Cap Delta', 0) > 0:
+            a = effects.get('Health Cap Delta', 0)
+            if self.health_cap == self.starting_health_cap:
+                hc = a
+            else:
+                hc = a / ((self.health_cap - self.starting_health_cap) / a)
+            #print(hc)
+            self.health_cap += hc
 
-        self.ore_multiplier *= effects.get('Ore Multiplier Multiplier Delta', 1)
+        if effects.get('Ore Multiplier Multiplier Delta', 0) > 0:
+            omm = effects.get('Ore Multiplier Multiplier Delta', 0)
+            omm = omm / self.ore_multiplier
+            omm += 1
+            #print(omm)
+            self.ore_multiplier *= omm
 
     def gain_health(self, amount):
         self.health = min(self.health_cap, self.health + amount)
