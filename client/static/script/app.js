@@ -90,7 +90,7 @@ App.prototype = {
       userId = data.id;
       $("body").keypress(function(e) {
         if (String.fromCharCode(e.which) == self.startAiKey && self.AiStarted == false) {
-          self.ai = new BaseAi(self);
+          self.ai = new SimpleAi(self);
           if(use_ai_storage_server)  {
             self.ai.GetModel();
           }else {
@@ -114,7 +114,7 @@ App.prototype = {
     AjaxCall("/action", {id: userId, action: command, sendState:true}, function(data){
       view.Draw(data.world);
     });
-  }
+  },
 };
 
 function CallCallback (callback){

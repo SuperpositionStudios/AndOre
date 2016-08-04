@@ -3,7 +3,7 @@
 
 
 
-BaseAi = function(app) {
+var BaseAi = function(app) {
   this.app = app;
 }
 
@@ -15,7 +15,7 @@ BaseAi.prototype = {
       "s",  // Direction Key
       "d",  // Direction Key
       "l",  // Primary Modifier Key
-      "K",  // Primary Modifier Key
+      "k",  // Primary Modifier Key
       "m",  // Primary Modifier Key
   ],
   dataSize: 1024,
@@ -98,53 +98,7 @@ BaseAi.prototype = {
     }
     repeat();
   },
-  Update: function(data, callback) {
-    var env = this.env;
 
-    if(this.lastVitals == null){
-      this.lastVitals = data.vitals;
-    }
-
-    this.lastAge = data.vitals.world_age;
-      
-    var state = this.FlattenWorld(data.world);
-    var deltaHealth = data.vitals.health - this.lastHealth;
-    var reward = (data.vitals.delta_ore * 2 + deltaHealth * 1) / 3;
-
-
-    if (data.vitals.row == this.lastVitals.row && data.vitals.col == this.lastVitals.col){
-      reward -= 0.5;
-    } else {
-      reward += 0.2;
-    }
-
-
-    this.lastVitals = data.vitals;
-
-    this.lastHealth = data.vitals.health;
-
-    if(this.lastHealth < 10) {
-      reward = -5;
-    }
-
-    if(this.lastAction != null){  
-      this.agent.learn(reward);   
-    } else {
-      this.agent.act(state);
-      this.agent.act(state);
-      this.agent.act(state);
-      this.agent.act(state);
-      this.agent.act(state);
-    }
-    var action = this.agent.act(state);
-    if(this.lastAction != action){
-      this.newAction = true;
-    } else {
-      this.newAction = false;
-    }
-    this.lastAction = action;
-    callback();    
-  },
   UploadModel: function(ai_model) {
     console.log("Uploading Model...");
     data = {
@@ -167,6 +121,49 @@ BaseAi.prototype = {
       });      
     }
   },
+  Update: function(data, callback) {
+    var env = this.env;
+
+    if(this.lastVitals == null){
+      this.lastVitals = data.vitals;
+    }
+
+    this.lastAge = data.vitals.world_age;
+      
+    var state = this.FlattenWorld(data.world);
+    var deltaHealth = data.vitals.health - this.lastHealth;
+    var reward = (data.vitals.delta_ore * 2 + deltaHealth * 1) / 3;
+    console.log(data.vitals);
+    /*
+    if (data.vitals.row == this.lastVitals.row && data.vitals.col == this.lastVitals.col){
+
+    } else {
+      reward += 0.2;
+    }
+
+  */
+    this.lastVitals = data.vitals;
+
+    this.lastHealth = data.vitals.health;
+
+    if(this.lastHealth < 10) {
+      reward = -5;
+    }
+
+    if(this.lastAction != null){  
+      this.agent.learn(reward);
+    } else {
+      this.agent.act(state);
+    }
+    var action = this.agent.act(state);
+    if(this.lastAction != action){
+      this.newAction = true;
+    } else {
+      this.newAction = false;
+    }
+    this.lastAction = action;
+    callback();    
+  },  
   FlattenWorld: function(world){
     var state = [];
     for (var i in world){
@@ -184,4 +181,80 @@ BaseAi.prototype = {
     return state;
   }
 }
+
+SimpleAi = function(app) {
+  this.app = app;
+}
+SimpleAi.prototype = $.extend(BaseAi.prototype, {
+  tickCount: 0,
+  actions: [
+      "a",  // Direction Key
+      "w",  // Direction Key
+      "s",  // Direction Key
+      "d",  // Direction Key
+
+      "l",  // Primary Modifier Key
+      "k",  // Primary Modifier Key
+      "m",
+      "b",  // Primary Modifier Key
+  ], 
+  NewEnv: function() {
+    var self = this;
+    return {
+      getNumStates: function() { return self.dataSize; },
+      getMaxNumActions: function() { return self.actions.length; },
+      allowedActions: function() { 
+        var allowed = [];
+          for (var i = 0; i < self.actions.length; i++) {
+            if(self.tickCount %2 == 0 ) {
+              if( i < 4){
+                allowed.push(i);              
+              }
+            } else {
+              if( i >= 4){
+                allowed.push(i);              
+              }
+            }
+          }
+          return allowed;
+        },
+    }
+  },
+  Update: function(data, callback) {
+    var env = this.env;
+    this.tickCount++;
+    if(this.lastVitals == null){
+      this.lastVitals = data.vitals;
+    }
+
+    this.lastAge = data.vitals.world_age;
+      
+    var state = this.FlattenWorld(data.world);
+    var deltaHealth = data.vitals.health - this.lastHealth;
+    var oreReward = Math.abs(data.vitals.delta_ore);
+    var healthReward = deltaHealth - (deltaHealth < 10? 30 : 0);
+    var reward = oreReward + healthReward;
+    console.log(data.vitals);
+
+
+    this.lastVitals = data.vitals;
+
+    this.lastHealth = data.vitals.health;
+    if(this.lastAction != null){  
+      this.agent.learn(reward);   
+    } else {
+      this.agent.act(state);
+    }
+    var action = this.agent.act(state);
+    if(this.lastAction != action){
+      this.newAction = true;
+    } else {
+      this.newAction = false;
+    }
+    this.lastAction = action;
+    callback();    
+  },
+});
+
+SimpleAi.prototype.prototype = BaseAi.prototype
 
