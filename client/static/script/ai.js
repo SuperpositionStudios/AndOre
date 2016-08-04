@@ -15,6 +15,7 @@ BaseAi.prototype = {
       "s",  // Direction Key
       "d",  // Direction Key
       "l",  // Primary Modifier Key
+      "K",  // Primary Modifier Key
       "m",  // Primary Modifier Key
   ],
   dataSize: 1024,
@@ -29,7 +30,7 @@ BaseAi.prototype = {
         'mid': prompt("What is the AI's Name?")
     };
     ai_name = data['mid'];
-    if(use_ai_storage){
+    if(use_ai_storage_server){
       $.ajax({
           type: "POST",
           contentType: "application/json; charset=utf-8",
@@ -40,7 +41,7 @@ BaseAi.prototype = {
               console.log(_data);
               self.oldBrain = JSON.parse(_data['model']);
               console.log("Retrieved and saved AI Model into memory");
-              self.StartAi();
+              self.Start();
           },
       });
     } else {
@@ -110,6 +111,7 @@ BaseAi.prototype = {
     var deltaHealth = data.vitals.health - this.lastHealth;
     var reward = (data.vitals.delta_ore * 2 + deltaHealth * 1) / 3;
 
+
     if (data.vitals.row == this.lastVitals.row && data.vitals.col == this.lastVitals.col){
       reward -= 0.5;
     } else {
@@ -170,7 +172,7 @@ BaseAi.prototype = {
     for (var i in world){
       var line = world[i];
       for (var key in line){
-        state.push(line[key].charCodeAt(0));
+        state.push(line[key][0].charCodeAt(0));
       }    
     }
     while( state.length < this.dataSize){
@@ -182,6 +184,4 @@ BaseAi.prototype = {
     return state;
   }
 }
-
-
 
