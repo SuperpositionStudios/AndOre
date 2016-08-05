@@ -166,15 +166,9 @@ BaseAi.prototype = {
       this.newAction = false;
     }
     this.lastAction = action;
-<<<<<<< HEAD
-    callback();    
-  },  
-  GetState: function(world){
-=======
     callback();
   },
   FlattenWorld: function(world){
->>>>>>> master
     var state = [];
     var playerX = 0;
     var playerY = 0;
@@ -183,7 +177,6 @@ BaseAi.prototype = {
       var line = world[i];
       x = 0;
       for (var key in line){
-<<<<<<< HEAD
         var c = line[key][0].charCodeAt(0);
         state.push(c);
         if(c == '@') {
@@ -193,17 +186,7 @@ BaseAi.prototype = {
         x++;
       };
       y++;
-=======
-        state.push(line[key][0].charCodeAt(0));
-      }
->>>>>>> master
     }
-
-
-
-
-
-
     while( state.length < this.dataSize){
       state.push(" ");
     }
