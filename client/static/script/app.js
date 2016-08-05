@@ -48,28 +48,28 @@ App.prototype = {
   tick: 0,
   newAction: false,
   actions: [
-      "a",  // Direction Key
-      "w",  // Direction Key
-      "s",  // Direction Key
-      "d",  // Direction Key
-      "k",  // Primary Modifier Key
-      "l",  // Primary Modifier Key
-      "m",  // Primary Modifier Key
-      "i",  // Primary Modifier Key
-      "-",  // Primary Modifier Key
-      "+",  // Primary Modifier Key
-      "b",  // Primary Modifier Key
-      "u",  // Primary Modifier Key
-      "0",  // Secondary Modifier Key
-      "1",  // Secondary Modifier Key
-      "2",  // Secondary Modifier Key
-      "3",  // Secondary Modifier Key
-      "4",  // Secondary Modifier Key
-      "5",  // Secondary Modifier Key
-      "6",  // Secondary Modifier Key
-      "7",  // Secondary Modifier Key
-      "8",  // Secondary Modifier Key
-      "9"   // Secondary Modifier Key
+    "a", // Direction Key
+    "w", // Direction Key
+    "s", // Direction Key
+    "d", // Direction Key
+    "k", // Primary Modifier Key
+    "l", // Primary Modifier Key
+    "m", // Primary Modifier Key
+    "i", // Primary Modifier Key
+    "-", // Primary Modifier Key
+    "+", // Primary Modifier Key
+    "b", // Primary Modifier Key
+    "u", // Primary Modifier Key
+    "0", // Secondary Modifier Key
+    "1", // Secondary Modifier Key
+    "2", // Secondary Modifier Key
+    "3", // Secondary Modifier Key
+    "4", // Secondary Modifier Key
+    "5", // Secondary Modifier Key
+    "6", // Secondary Modifier Key
+    "7", // Secondary Modifier Key
+    "8", // Secondary Modifier Key
+    "9"  // Secondary Modifier Key
   ],
   lastAction: "a",
   lastHealth: 100,

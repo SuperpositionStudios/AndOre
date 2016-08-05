@@ -19,8 +19,9 @@ def create_user(username, password):
     session.add(User(uid=uid,
                      game_id='',
                      username=username,
-                     password=hashed_password
+                     hashed_password=hashed_password
                      ))
+    session.commit()
     return True, uid
 
 
@@ -33,6 +34,11 @@ def login(username, password):
         return True, stored_user.uid
     else:
         return False, "wrong password"
+
+
+def valid_uid(uid):
+    stored_user = session.query(User).filter(User.uid == uid).first()
+    return stored_user is not None
 
 
 def update_game_id(uid, new_game_id):

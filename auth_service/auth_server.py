@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify, url_for, render_template, make_response, redirect, current_app
-import database_functions_
+import database_functions_, requests, config_, json
 
 app = Flask(__name__)
 
@@ -30,6 +30,9 @@ def account_create():
         else:
             response['status'] = 'Error'
             response['error_message'] = 'Username or Password are None'
+    else:
+        response['status'] = 'Error'
+        response['error_message'] = 'No JSON Sent'
     return home_cor(jsonify(**response))
 
 
@@ -54,13 +57,42 @@ def account_login():
     return home_cor(jsonify(**response))
 
 
-@app.route('/game/join', methods=['POST'])
+@app.route('/game/join', methods=['POST', 'OPTIONS'])
 def game_join():
-    pass
+    data = request.json
+    response = dict()
+    if data is not None:
+        uid = data.get('uid', None)
+        if uid is not None and database_functions_.valid_uid(uid):
+            req = requests.get(config_.game_server_url() + '/join')
+            game_server_response = req.json()
+            response['status'] = 'Success'
+            response['game-id'] = game_server_response['id']
+            database_functions_.update_game_id(uid, game_server_response['id'])
+        else:
+            response['status'] = 'Error'
+            response['error_message'] = 'no uid was send in the request or invalid uid'
+    else:
+        response['status'] = 'Error'
+        response['error_message'] = 'no json sent'
+    return home_cor(jsonify(**response))
 
 
-@app.route('/game/rejoin', methods=['POST'])
+@app.route('/game/rejoin', methods=['POST', 'OPTIONS'])
 def game_rejoin():
-    pass
+    data = request.json
+    response = dict()
+    if data is not None:
+        uid = data.get('uid', None)
+        if uid is not None and database_functions_.valid_uid(uid):
+            response['status'] = 'Success'
+            response['game-id'] = database_functions_.get_game_id(uid)[1]
+        else:
+            response['status'] = 'Error'
+            response['error_message'] = 'no uid was send in the request or invalid uid'
+    else:
+        response['status'] = 'Error'
+        response['error_message'] = 'no json sent'
+    return home_cor(jsonify(**response))
 
 app.run(debug=True, host='0.0.0.0', port=7004)
