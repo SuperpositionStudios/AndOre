@@ -145,7 +145,7 @@ BaseAi.prototype = {
       reward += 0.2;
     }
 
-  */
+    */
     this.lastVitals = data.vitals;
 
     this.lastHealth = data.vitals.health;
@@ -202,16 +202,13 @@ SimpleAi = function(app) {
 }
 SimpleAi.prototype = $.extend(BaseAi.prototype, {
   tickCount: 0,
-  actions: [
-      "a",  // Direction Key
-      "w",  // Direction Key
-      "s",  // Direction Key
-      "d",  // Direction Key
-
-      "l",  // Primary Modifier Key
-      "k",  // Primary Modifier Key
-      "m",
-      "b",  // Primary Modifier Key
+  directionActions: ["a","w","s","d"],
+  modeActions: [
+  [
+    "l", "k", "m", "b",
+  ],
+  numberActions: [
+    "0","1","2","3","4","5"
   ],
   NewEnv: function() {
     var self = this;
@@ -221,7 +218,7 @@ SimpleAi.prototype = $.extend(BaseAi.prototype, {
       allowedActions: function() {
         var allowed = [];
           for (var i = 0; i < self.actions.length; i++) {
-            if(self.tickCount %2 == 0 ) {
+            if(self.tickCount % 4 == 0 ) {
               if( i < 4){
                 allowed.push(i);
               }

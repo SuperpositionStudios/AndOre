@@ -111,7 +111,6 @@ App.prototype = {
   },
   SendCommand: function(command){
     var view = this.view;
-<<<<<<< HEAD
     if(this.AiStarted) {
       self.ai.SendCommand(command);
     }
@@ -120,11 +119,6 @@ App.prototype = {
         view.Draw(data.world);
       });
     }
-=======
-    AjaxCall("/action", {id: userId, action: command, sendState:true}, function(data){
-      view.Draw(data);
-    });
->>>>>>> master
   },
 };
 
