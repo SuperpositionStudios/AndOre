@@ -77,7 +77,7 @@ BaseAi.prototype = {
   SendCommand(command){
     //does nothing right now, going to put in some AI specific commands
     
-  }
+  },
   StartTicks: function(){
     var self = this;
     var repeat;
