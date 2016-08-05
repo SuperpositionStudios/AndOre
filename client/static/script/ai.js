@@ -243,13 +243,7 @@ SimpleAi.prototype = $.extend(BaseAi.prototype, {
     }
 
     this.lastAge = data.vitals.world_age;
-<<<<<<< HEAD
-      
-    var state = this.GetState(data.world);
-=======
-
     var state = this.FlattenWorld(data.world);
->>>>>>> master
     var deltaHealth = data.vitals.health - this.lastHealth;
     var oreReward = Math.abs(data.vitals.delta_ore);
     var healthReward = deltaHealth - (deltaHealth < 10? 30 : 0);
