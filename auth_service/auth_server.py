@@ -36,7 +36,7 @@ def account_create():
     return home_cor(jsonify(**response))
 
 
-@app.route('/account/login', methods=['POST'])
+@app.route('/account/login', methods=['POST', 'OPTIONS'])
 def account_login():
     data = request.json
     response = dict()

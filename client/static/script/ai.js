@@ -84,7 +84,7 @@ BaseAi.prototype = {
       } else {
         command = self.actions[self.lastAction];
       }
-      AjaxCall("/action", {id: userId, action: command, sendState:true}, function(data){
+      AjaxCall('game server', "/action", {id: userId, action: command, sendState:true}, function(data){
         var worldAge = data.vitals.world_age;
         if (worldAge > self.lastAge) {
           console.log(worldAge);
