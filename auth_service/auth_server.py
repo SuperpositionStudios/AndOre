@@ -12,14 +12,46 @@ def home_cor(obj):
     return return_response
 
 
-@app.route('/account/create', methods=['POST'])
+@app.route('/account/create', methods=['POST', 'OPTIONS'])
 def account_create():
-    pass
+    data = request.json
+    response = dict()
+    if data is not None:
+        username = data.get('username', None)
+        password = data.get('password', None)
+        if username is not None and password is not None:
+            db_response = database_functions_.create_user(username, password)
+            if db_response[0]:
+                response['status'] = 'Success'
+                response['uid'] = db_response[1]
+            else:
+                response['status'] = 'Error'
+                response['error_message'] = db_response[1]
+        else:
+            response['status'] = 'Error'
+            response['error_message'] = 'Username or Password are None'
+    return home_cor(jsonify(**response))
 
 
 @app.route('/account/login', methods=['POST'])
 def account_login():
-    pass
+    data = request.json
+    response = dict()
+    if data is not None:
+        username = data.get('username', None)
+        password = data.get('password', None)
+        if username is not None and password is not None:
+            db_response = database_functions_.login(username, password)
+            if db_response[0]:
+                response['status'] = 'Success'
+                response['uid'] = db_response[1]
+            else:
+                response['status'] = 'Error'
+                response['error_message'] = db_response[1]
+        else:
+            response['status'] = 'Error'
+            response['error_message'] = 'Username or Password are None'
+    return home_cor(jsonify(**response))
 
 
 @app.route('/game/join', methods=['POST'])
