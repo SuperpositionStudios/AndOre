@@ -4,23 +4,31 @@
 var productionServerUrl = "http://ao.iwanttorule.space";
 var production_game_server_endpoint = "/game-server";
 var production_ai_storage_endpoint = "/ai-storage-server";
+var production_auth_server_endpoint = "/auth";
 
 var devServerUrl = "http://localhost";
 var dev_game_server_endpoint = ":7001";
 var dev_ai_storage_endpoint = ":7003";
+var dev_auth_server_endpoint = ":7004";
 
-var use_dev_server = false;  // Used for development
+var use_dev_server = true;  // Used for development
 var use_ai_storage_server = true;
 var internetOff = false;  // Used for testing view.js with testData.js
 
 var ai_name = '';
 
+var game_server_endpoint = null;
+var ai_storage_endpoint = null;
+var auth_server_endpoint = null;
+
 if (use_dev_server) {
-    var game_server_endpoint = devServerUrl + dev_game_server_endpoint;
-    var ai_storage_endpoint = devServerUrl + dev_ai_storage_endpoint;
+  game_server_endpoint = devServerUrl + dev_game_server_endpoint;
+  ai_storage_endpoint = devServerUrl + dev_ai_storage_endpoint;
+  auth_server_endpoint = devServerUrl + dev_auth_server_endpoint;
 } else {
-    var game_server_endpoint = productionServerUrl + production_game_server_endpoint;
-    var ai_storage_endpoint = productionServerUrl + production_ai_storage_endpoint;
+  game_server_endpoint = productionServerUrl + production_game_server_endpoint;
+  ai_storage_endpoint = productionServerUrl + production_ai_storage_endpoint;
+  auth_server_endpoint = productionServerUrl + production_auth_server_endpoint;
 }
 
 function ArrayToKeys(inArray) {
@@ -148,6 +156,9 @@ function AjaxCall(endpoint, data, callback, failCallback){
 
 
 $(function(){
+  $('#modal1').openModal({
+    dismissible: false
+  });
   app = new App();
   var ai = new BaseAi(app);
   app.Init();
