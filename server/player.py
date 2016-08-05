@@ -21,6 +21,8 @@ class Player(gameObject.GameObject):
         self.health_loss_per_turn = 0.1
         self.health = int(self.starting_health)
 
+        self.health_loss_on_sprint = 2
+
         self.starting_attack_power = 10
         self.attack_power = int(self.starting_attack_power)
 
@@ -38,6 +40,7 @@ class Player(gameObject.GameObject):
         self.icon = '!'
         self.row = self.cell.row
         self.col = self.cell.col
+        self.shiftKeyActive = False
         self.dir_key = ''
         self.primary_modifier_key = 'm'
         self.secondary_modifier_key = '1'
@@ -76,18 +79,24 @@ class Player(gameObject.GameObject):
         }
 
         self.dir_key = ''
-        if key_pressed in direction_keys:
+
+        if key_pressed == 'shiftDown':
+            self.shiftKeyActive = True
+        elif key_pressed == 'shiftUp':
+            self.shiftKeyActive = False
+        elif key_pressed in direction_keys:
             self.dir_key = key_pressed
+            self.tick_if_allowed()
         elif key_pressed in primary_modifier_keys:
             self.primary_modifier_key = key_pressed
+            self.tick_if_allowed()
         elif key_pressed in secondary_modifier_keys:
             self.secondary_modifier_key = key_pressed
+            self.tick_if_allowed()
 
+    def tick_if_allowed(self):
         if self.world.world_age > self.last_action_at_world_age:
             self.tick()
-            return True
-        else:
-            return False
 
     def line_of_stats(self):
         los = '[hp {health}/{health_cap} ap {ap}] [ore {ore} om {mm}] [{pri_mod_key} {sec_mod_key}] [{world_age}] '.format(
@@ -143,7 +152,15 @@ class Player(gameObject.GameObject):
         if affected_cell is not None and affected_cell is not False:
             # TODO: Turn this into a dict
             if self.primary_modifier_key == 'm':  # Player is trying to move
-                return self.try_move(affected_cell)
+                if self.shiftKeyActive:
+                    if self.try_move(affected_cell):
+                        affected_cell = self.try_get_cell_by_offset(row_offset, col_offset)
+                        if affected_cell is not None and affected_cell is not False:
+                            if self.try_move(affected_cell):
+                                self.take_damage(self.health_loss_on_sprint)
+                    return False
+                else:
+                    return self.try_move(affected_cell)
             elif self.primary_modifier_key == 'k':  # Player is trying to attack something
                 return self.try_attacking(affected_cell)
             elif self.primary_modifier_key == 'l':  # Player is trying to collect/loot something

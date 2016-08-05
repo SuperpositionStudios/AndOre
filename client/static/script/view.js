@@ -191,8 +191,26 @@ View.prototype = {
     }, this.pollDelay);
   },
   SetupInput: function() {
+    // For handling shift modifier
+    var shiftCode = 16;
+    $(document).on("keyup keydown", function(e) {
+      switch(e.type) {
+        case "keydown" :
+          if (e.keyCode == shiftCode) {
+            app.SendCommand("shiftDown");
+          }
+          break;
+        case "keyup" :
+          if (e.keyCode == shiftCode) {
+            app.SendCommand("shiftUp");
+          }
+          break;
+      }
+    });
+    // For handling dir & mod keys
     $("body").keypress(function(e){
       command = String.fromCharCode(e.which).toLowerCase();
+
       //console.log(app.actionsLut);
       if(app.actionsLut[command]) {
         app.SendCommand(command);
