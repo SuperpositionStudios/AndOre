@@ -1,8 +1,5 @@
 //This lets us make different kinds of ais
 
-
-
-
 var BaseAi = function(app) {
   this.app = app;
 }
@@ -268,4 +265,14 @@ SimpleAi.prototype = $.extend(BaseAi.prototype, {
 });
 
 SimpleAi.prototype.prototype = BaseAi.prototype
+
+
+
+Nanny = function(){
+
+}
+
+Nanny.prototype = {
+
+}
 
