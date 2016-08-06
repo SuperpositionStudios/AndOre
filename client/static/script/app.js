@@ -48,7 +48,6 @@ App.prototype = {
   hasActed: false,
   authId: null,
   gameId: null,
-  userId: null,
   startAiKey: '~',
   AiStarted: false,
   oldBrain: '',
@@ -178,7 +177,6 @@ App.prototype = {
         success: function(data) {
           if (data['status'] == 'Success') {
             self.gameId = data['game-id'];
-            self.userId = data['game-id'];
             $('#modal2').closeModal();
             CallCallback(callback);
           } else {
@@ -201,7 +199,6 @@ App.prototype = {
         success: function(data) {
           if (data['status'] == 'Success') {
             self.gameId = data['game-id'];
-            self.userId = data['game-id'];
             $('#modal2').closeModal();
             CallCallback(callback);
           } else {
@@ -231,7 +228,7 @@ App.prototype = {
   GetDisplay: function(callback) {
     var self = this;
     var view = this.view;
-  	AjaxCall('game server', "/sendState", {id: self.userId}, function(data){
+  	AjaxCall("/sendState", {id: self.gameId}, function(data){
       view.Draw(data);
       CallCallback(callback);
   	});
@@ -239,7 +236,7 @@ App.prototype = {
   SendCommand: function(command){
     var self = this;
     var view = this.view;
-    AjaxCall('game server', "/action", {id: self.userId, action: command, sendState:true}, function(data){
+    AjaxCall("/action", {id: self.gameId, action: command, sendState:true}, function(data){
       view.Draw(data);
     });
   }
@@ -251,12 +248,8 @@ function CallCallback (callback){
   }
 }
 
-function AjaxCall(server, endpoint, data, callback, failCallback){
-  if (server == 'game server') {
-    server = game_server_endpoint;
-  } else if (server == 'auth server') {
-    server = auth_server_endpoint;
-  }
+function AjaxCall(endpoint, data, callback, failCallback){
+  var server = game_server_endpoint;
 
   if(internetOff){
     callback(testData);
