@@ -72,12 +72,12 @@ def join():
 @app.route('/valid_id', methods=['POST', 'OPTIONS'])
 def valid_id():
     response = dict()
-
-    _id = request.args.get('id', '')
-    if world.valid_player_id(_id) is False:
-        response['status'] = 'invalid'
-    else:
+    data = request.json
+    _id = data.get('id', '')
+    if world.valid_player_id(_id):
         response['status'] = 'valid'
+    else:
+        response['status'] = 'invalid'
     return home_cor(jsonify(**response))
 
 
