@@ -112,7 +112,7 @@ class Player(gameObject.GameObject):
 
     def get_vitals(self):
         response = {
-            'ore_quantity': self.corp.amount_of_ore(),
+            'ore_quantity': int(self.corp.amount_of_ore()),
             'ore_multiplier': round(self.ore_multiplier, 1),
             'delta_ore': self.delta_ore,
             'health': round(self.health, 1),

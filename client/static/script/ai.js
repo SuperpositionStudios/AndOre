@@ -5,7 +5,7 @@
 
 var BaseAi = function(app) {
   this.app = app;
-}
+};
 
 BaseAi.prototype = {
   app: null,
@@ -16,7 +16,7 @@ BaseAi.prototype = {
       "d",  // Direction Key
       "l",  // Primary Modifier Key
       "k",  // Primary Modifier Key
-      "m",  // Primary Modifier Key
+      "m"  // Primary Modifier Key
   ],
   dataSize: 1024,
   lastHealth: 0,
@@ -26,7 +26,7 @@ BaseAi.prototype = {
   lastVitals: null,
   GetModel: function() {
     var self = this;
-    data = {
+    var data = {
         'mid': prompt("What is the AI's Name?")
     };
     ai_name = data['mid'];
@@ -42,7 +42,7 @@ BaseAi.prototype = {
               self.oldBrain = JSON.parse(_data['model']);
               console.log("Retrieved and saved AI Model into memory");
               self.Start();
-          },
+          }
       });
     } else {
       self.StartAi();
@@ -59,13 +59,12 @@ BaseAi.prototype = {
             allowed.push(i);
           }
           return allowed;
-        },
+        }
     }
   },
   Start: function() {
     this.actions = this.actions.length > 0? this.actions : this.app.actions;
     this.env = this.NewEnv();
-    //var oldBrain = localStorage.getItem("aiModel");
     var spec = { alpha: 0.01 };
     this.agent = new RL.DQNAgent(this.env, spec);
     if(this.oldBrain != null){
@@ -84,10 +83,11 @@ BaseAi.prototype = {
       } else {
         command = self.actions[self.lastAction];
       }
-      AjaxCall("/action", {id: userId, action: command, sendState:true}, function(data){
+      AjaxCall("/action", {id: self.app.gameId, action: command, sendState:true}, function(data){
+        //console.log(data);
         var worldAge = data.vitals.world_age;
         if (worldAge > self.lastAge) {
-          console.log(worldAge);
+          //console.log(worldAge);
           app.view.Draw(data);
           self.Update(data, repeat);
         } else {
@@ -95,7 +95,7 @@ BaseAi.prototype = {
           setTimeout(repeat, self.delay);
         }
       }, repeat);
-    }
+    };
     repeat();
   },
 
@@ -104,7 +104,7 @@ BaseAi.prototype = {
     data = {
         'mid': ai_name,
         'model': ai_model
-    }
+    };
     if(!internetOff){
       $.ajax({
         url: ai_storage_endpoint + "/upload",
@@ -180,11 +180,11 @@ BaseAi.prototype = {
     }
     return state;
   }
-}
+};
 
 SimpleAi = function(app) {
   this.app = app;
-}
+};
 SimpleAi.prototype = $.extend(BaseAi.prototype, {
   tickCount: 0,
   actions: [
@@ -196,7 +196,7 @@ SimpleAi.prototype = $.extend(BaseAi.prototype, {
       "l",  // Primary Modifier Key
       "k",  // Primary Modifier Key
       "m",
-      "b",  // Primary Modifier Key
+      "b"  // Primary Modifier Key
   ],
   NewEnv: function() {
     var self = this;
@@ -217,7 +217,7 @@ SimpleAi.prototype = $.extend(BaseAi.prototype, {
             }
           }
           return allowed;
-        },
+        }
     }
   },
   Update: function(data, callback) {
@@ -234,7 +234,7 @@ SimpleAi.prototype = $.extend(BaseAi.prototype, {
     var oreReward = Math.abs(data.vitals.delta_ore);
     var healthReward = deltaHealth - (deltaHealth < 10? 30 : 0);
     var reward = oreReward + healthReward;
-    console.log(data.vitals);
+    //console.log(data.vitals);
 
 
     this.lastVitals = data.vitals;
@@ -253,8 +253,7 @@ SimpleAi.prototype = $.extend(BaseAi.prototype, {
     }
     this.lastAction = action;
     callback();
-  },
+  }
 });
 
-SimpleAi.prototype.prototype = BaseAi.prototype
-
+SimpleAi.prototype.prototype = BaseAi.prototype;
