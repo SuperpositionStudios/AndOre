@@ -92,11 +92,13 @@ def game_rejoin():
             }
             req = requests.post(config_.game_server_url() + '/valid_id', json=data)
             server_response = req.json()
-            if server_response['status'] == 'Success':
+            if server_response['status'] == 'valid':
                 response['game-id'] = stored_game_id
             else:
                 req = requests.get(config_.game_server_url() + '/join')
                 game_server_response = req.json()
+                new_game_id = game_server_response['id']
+                database_functions_.update_game_id(uid, new_game_id)
                 response['game-id'] = game_server_response['id']
         else:
             response['status'] = 'Error'
