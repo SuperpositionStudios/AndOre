@@ -240,13 +240,14 @@ class Pharmacy(CorpOwnedStore):
             'N': 100,
             'E': 500
         })
-
+        """  Disabled until https://github.com/baxter-oop/AndOre/issues/154 is resolved
         self.add_product(MinerMultiplierPotion, {
             'M': 0,
             'A': 30,
             'N': 50,
             'E': 200
         })
+        """
 
         self.health = 180
 
