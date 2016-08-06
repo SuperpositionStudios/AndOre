@@ -61,9 +61,13 @@ class Cell:
 
     def add_building(self, owner_corp, building_type):
         assert(owner_corp.__class__.__name__ == 'Corporation')
+        a = None
         if building_type == 'SentryTurret':
             a = gameObject.SentryTurret(self, owner_corp)
-            self.add_game_object(a)
+        elif building_type == 'SpikeTrap':
+            a = gameObject.SpikeTrap(self, owner_corp)
+        self.add_game_object(a)
+
 
     def add_door(self, owner_corp):
         assert(owner_corp.__class__.__name__ == 'Corporation')
@@ -132,7 +136,7 @@ class Cell:
 
     def render(self, **keyword_parameters):
 
-        priority = ['Player', 'SentryTurret', 'OreDeposit', 'Hospital', 'Pharmacy', 'OreGenerator', 'Loot', 'Fence', 'Door', 'RespawnBeacon']
+        priority = ['Player', 'SentryTurret', 'SpikeTrap', 'OreDeposit', 'Hospital', 'Pharmacy', 'OreGenerator', 'Loot', 'Fence', 'Door', 'RespawnBeacon']
 
         if 'player_id' in keyword_parameters:
             player_id = keyword_parameters['player_id']
@@ -142,17 +146,32 @@ class Cell:
                 if self.contains_object_type(i)[0]:
                     for obj in self.contents:
                         if obj.__class__.__name__ == i:
-                            if obj.__class__.__name__ == 'Player':
+                            obj_class_name = obj.__class__.__name__
+
+                            types_of_rendering = {
+                                'Player': 'a',
+                                'SentryTurret': 'b',
+                                'SpikeTrap': 'b',
+                                'Pharmacy': 'b',
+                                'Hospital': 'b',
+                                'Door': 'b',
+                                'RespawnBeacon': 'b',
+                                'OreGenerator': 'c',
+                                'OreDeposit': 'd',
+                                'Loot': 'd'
+                            }
+
+                            if types_of_rendering[obj_class_name] == 'a':
                                 if player_obj.obj_id == obj.obj_id:
                                     return obj.inner_icon
                                 else:
                                     standings_towards_player = player_obj.corp.fetch_standing_for_player(obj.obj_id)
                                     return obj.icons[standings_towards_player]
-                            elif obj.__class__.__name__ == 'SentryTurret' or obj.__class__.__name__ == 'Pharmacy' or obj.__class__.__name__ == 'Hospital' or obj.__class__.__name__ == 'Door' or obj.__class__.__name__ == 'RespawnBeacon':
+                            elif types_of_rendering[obj_class_name] == 'b':
                                 owners = obj.owner_corp
                                 owner_standings_towards_us = owners.fetch_standing_for_player(player_id)
                                 return obj.icons[owner_standings_towards_us]
-                            elif obj.__class__.__name__ == 'OreGenerator':
+                            elif types_of_rendering[obj_class_name] == 'c':
                                 generator_owners = obj.owner_corp
                                 corp_standing_to_generator_owner_corp = player_obj.corp.fetch_standing(generator_owners.corp_id)
                                 return obj.icons[corp_standing_to_generator_owner_corp]

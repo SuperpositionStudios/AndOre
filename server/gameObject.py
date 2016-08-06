@@ -429,6 +429,39 @@ class SentryTurret(CorpOwnedBuilding):
                 return True
 
 
+class SpikeTrap(CorpOwnedBuilding):
+
+    construction_cost = 150
+
+    def __init__(self, _cell, _corp):
+        assert (_cell.__class__.__name__ == 'Cell')
+        assert (_corp.__class__.__name__ == 'Corporation')
+
+        super().__init__(_cell, _corp)
+
+        self.health = 40
+
+        self.icons = {
+            'M': ['S', standing_colors.mane['M']],
+            'A': ['S', standing_colors.mane['A']],
+            'N': ['S', standing_colors.mane['N']],
+            'E': ['S', standing_colors.mane['E']]
+        }
+
+        self.passable = {
+            'M': True,
+            'A': True,
+            'N': True,
+            'E': True
+        }
+
+        self.attack_power = 5
+
+    def tick(self):
+        # Attacks 1 non-friendly player in the cell the Spiketrap is residing in
+        self.cell.damage_first_player(self.owner_corp, self.attack_power)
+
+
 class Hospital(CorpOwnedBuilding):
 
     construction_cost = 200
