@@ -69,6 +69,18 @@ def join():
         return home_cor(jsonify(**response))
 
 
+@app.route('/valid_id', methods=['POST', 'OPTIONS'])
+def valid_id():
+    response = dict()
+    data = request.json
+    _id = data.get('id', '')
+    if world.valid_player_id(_id):
+        response['status'] = 'valid'
+    else:
+        response['status'] = 'invalid'
+    return home_cor(jsonify(**response))
+
+
 @app.route('/action')
 def action():
     #start_of_request = datetime.datetime.now()

@@ -13,6 +13,35 @@ See https://github.com/baxter-oop/AndOre/wiki/Setup-(Developers)
     
 ##Versions/Releases
 
+
+###Exodus: Cold War - Version 1.3 (Found in Exodus: Cold War Branch)
+
+Expansion Details:
+We had a problem with our play testers playing the game instead of doing work, because they'd loose their progress if they closed the window. We fixed that with the addition of an Auth server that saves your game-id for you, so you can take control of your old character after closing the game, in another tab or computer. Going along with the theme of being offline/afk, we added Sentry Turrets & Spiketraps to help guard your base when you're offline. We also had some major issues in play tests where without that much work, players would obtain a massive amounts of ore, so we nerfed ore generators, and also nerfed potions so players could take on extremely upgraded players if they worked together.
+
+We also gained a contributor, who is helping us with our art assets. Eventually, we plan to phase our our unicode symbols with icons drawn by him in the client. He created our favicon on the client as a simpler version of the logo.
+
+Expansion Highlights:
+
+- Corp Owned Sentry Turrets to protect your land when you're not there to fend off attackers
+    - [x] https://github.com/baxter-oop/AndOre/issues/67
+- User Accounts, allows players to retake control of their old character if they refresh the page / moved to another computer
+    - [x] https://github.com/baxter-oop/AndOre/issues/73 
+- Added Sprinting, hold down shift and press a dir key to move two cells at a time in exchange for 2 hp
+    - [x] https://github.com/baxter-oop/AndOre/issues/72 
+- New & Improved Client framework
+    - [x] https://github.com/baxter-oop/AndOre/issues/136
+- Nerfed Potions
+    - [x] https://github.com/baxter-oop/AndOre/issues/124
+- Nerfed Ore Generators
+    - [x] https://github.com/baxter-oop/AndOre/issues/110
+- Secondary Modifier Key now carries over when switching Primary Modifier Keys
+    - [x] https://github.com/baxter-oop/AndOre/issues/131
+- Fixed View Polling (Was broken in Exodus)
+    - [x] https://github.com/baxter-oop/AndOre/issues/128
+- Added Spiketraps
+    - [x] https://github.com/baxter-oop/AndOre/issues/84
+
 ###Exodus - Version 1.2 (Found in Exodus Branch)
 
 Focus of the Expansion:

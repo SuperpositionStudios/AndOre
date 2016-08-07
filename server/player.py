@@ -112,7 +112,7 @@ class Player(gameObject.GameObject):
 
     def get_vitals(self):
         response = {
-            'ore_quantity': self.corp.amount_of_ore(),
+            'ore_quantity': int(self.corp.amount_of_ore()),
             'ore_multiplier': round(self.ore_multiplier, 1),
             'delta_ore': self.delta_ore,
             'health': round(self.health, 1),
@@ -201,6 +201,10 @@ class Player(gameObject.GameObject):
                     return self.try_building_door(affected_cell)
                 elif self.secondary_modifier_key == '6':
                     return self.try_building_respawn_beacon(affected_cell)
+                elif self.secondary_modifier_key == '7':
+                    return self.try_building_sentry_turret(affected_cell)
+                elif self.secondary_modifier_key == '8':
+                    return self.try_building_spike_trap(affected_cell)
                 else:
                     return False
             elif self.primary_modifier_key == '-':  # Player is trying to worsen their standings towards the target player's corp
@@ -261,6 +265,24 @@ class Player(gameObject.GameObject):
 
     def gain_health(self, amount):
         self.health = min(self.health_cap, self.health + amount)
+
+    def try_building_sentry_turret(self, _cell):
+        if _cell is not None and _cell.can_enter(player_obj=self):
+            ore_cost = gameObject.SentryTurret.construction_cost
+            if self.corp.amount_of_ore() >= ore_cost:
+                _cell.add_building(self.corp, 'SentryTurret')
+                self.lose_ore(ore_cost)
+                return True
+        return False
+
+    def try_building_spike_trap(self, _cell):
+        if _cell is not None and _cell.can_enter(player_obj=self):
+            ore_cost = gameObject.SpikeTrap.construction_cost
+            if self.corp.amount_of_ore() >= ore_cost:
+                _cell.add_building(self.corp, 'SpikeTrap')
+                self.lose_ore(ore_cost)
+                return True
+        return False
 
     def try_building_pharmacy(self, _cell):
         if _cell is not None and _cell.can_enter(player_obj=self):
@@ -450,6 +472,28 @@ class Player(gameObject.GameObject):
                         return False
                     else:
                         door_obj.take_damage(self.attack_power, self.corp)
+                        return True
+            elif _cell.contains_object_type('SentryTurret')[0]:
+                struct = _cell.contains_object_type('SentryTurret')
+                a = _cell.get_game_object_by_obj_id(struct[1])
+                if a[0]:
+                    a_obj = a[1]
+                    corp_standings_to_obj_owner_corp = self.corp.fetch_standing(a_obj.owner_corp.corp_id)
+                    if corp_standings_to_obj_owner_corp == 'M' or corp_standings_to_obj_owner_corp == 'A':
+                        return False
+                    else:
+                        a_obj.take_damage(self.attack_power, self.corp)
+                        return True
+            elif _cell.contains_object_type('SpikeTrap')[0]:
+                struct = _cell.contains_object_type('SpikeTrap')
+                a = _cell.get_game_object_by_obj_id(struct[1])
+                if a[0]:
+                    a_obj = a[1]
+                    corp_standings_to_obj_owner_corp = self.corp.fetch_standing(a_obj.owner_corp.corp_id)
+                    if corp_standings_to_obj_owner_corp == 'M' or corp_standings_to_obj_owner_corp == 'A':
+                        return False
+                    else:
+                        a_obj.take_damage(self.attack_power, self.corp)
                         return True
             elif _cell.contains_object_type('RespawnBeacon')[0]:
                 struct = _cell.contains_object_type('RespawnBeacon')
