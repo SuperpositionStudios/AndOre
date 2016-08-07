@@ -2,25 +2,12 @@
 # This server stores players (not the playercharacter), corporations, and links node servers.
 # If this server goes down, players will still be able to do everything not related to corporations.
 
-from flask import Flask, request, jsonify, url_for, render_template, make_response, redirect, current_app, g
+from flask import Flask, request, jsonify, url_for, render_template, make_response, redirect, current_app
 import master_server_config as config
 import requests
 
 app = Flask(__name__)
 
-
-def after_this_request(func):
-    if not hasattr(g, 'call_after_request'):
-        g.call_after_request = []
-    g.call_after_request.append(func)
-    return func
-
-
-@app.after_request
-def per_request_callbacks(response):
-    for func in getattr(g, 'call_after_request', ()):
-        response = func(response)
-    return response
 
 web_server_domain = "*"
 nodes = {

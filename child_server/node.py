@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify, url_for, render_template, make_response, redirect, current_app
+import game.world
 
 
 class Node:
@@ -8,6 +9,7 @@ class Node:
         self.address = address
         self.name = name
         self.nodes = nodes
+        self.world = game.world.World()
         app = Flask(__name__)
 
         # Should only be called by master server to update the listing of nodes.
