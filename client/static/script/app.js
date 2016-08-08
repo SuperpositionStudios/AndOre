@@ -44,7 +44,7 @@ function App() {
 
 }
 App.prototype = {
-  delay: 10,
+  delay: 300,
   hasActed: false,
   authId: null,
   gameId: null,
