@@ -65,7 +65,7 @@ BaseAi.prototype = {
     }
   },
   Start: function() {
-    this.actions = this.actions.length > 0? this.actions : this.app.actions;
+    //this.actions = this.actions.length > 0? this.actions : this.app.actions;
     this.env = this.NewEnv();
     var spec = { alpha: 0.01 };
     this.agent = new RL.DQNAgent(this.env, spec);
@@ -185,7 +185,7 @@ BaseAi.prototype = {
       }
       currentArray.push({x: x, y: y});
     }
-
+    var y = 0;
     for (var i in world) {
       var line = world[i];
       x = 0;
@@ -213,8 +213,8 @@ BaseAi.prototype = {
 
 SimpleAi = function(app) {
   this.app = app;
-  this.actions = [];
-  this.actions.concat(this.directionActions);
+  //this.actions = [];
+  //this.actions.concat(this.directionActions);
   //this.actions.concat(this.modeActions);
 };
 SimpleAi.prototype = $.extend(BaseAi.prototype, {

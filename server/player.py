@@ -86,17 +86,19 @@ class Player(gameObject.GameObject):
             self.shiftKeyActive = False
         elif key_pressed in direction_keys:
             self.dir_key = key_pressed
-            self.tick_if_allowed()
+            return self.tick_if_allowed()
         elif key_pressed in primary_modifier_keys:
             self.primary_modifier_key = key_pressed
-            self.tick_if_allowed()
+            return self.tick_if_allowed()
         elif key_pressed in secondary_modifier_keys:
             self.secondary_modifier_key = key_pressed
-            self.tick_if_allowed()
+            return self.tick_if_allowed()
 
     def tick_if_allowed(self):
         if self.world.world_age > self.last_action_at_world_age:
             self.tick()
+            return True
+        return False
 
     def line_of_stats(self):
         los = '[hp {health}/{health_cap} ap {ap}] [ore {ore} om {mm}] [{pri_mod_key} {sec_mod_key}] [{world_age}] '.format(
