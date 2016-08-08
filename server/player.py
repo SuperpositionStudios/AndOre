@@ -17,6 +17,7 @@ class Player(gameObject.GameObject):
         self.starting_health_cap = 100
         self.health_cap = int(100)
 
+        self.starting_ore = 500
         self.starting_health = 100
         self.health_loss_per_turn = 0.1
         self.health = int(self.starting_health)
@@ -52,6 +53,7 @@ class Player(gameObject.GameObject):
         }
         self.last_action_at_world_age = 0
         self.corp = self.world.new_corporation(self)
+        self.corp.ore_quantity = self.starting_ore
 
     def action(self, key_pressed):
         direction_keys = ['w', 'a', 's', 'd']
@@ -86,17 +88,19 @@ class Player(gameObject.GameObject):
             self.shiftKeyActive = False
         elif key_pressed in direction_keys:
             self.dir_key = key_pressed
-            self.tick_if_allowed()
+            return self.tick_if_allowed()
         elif key_pressed in primary_modifier_keys:
             self.primary_modifier_key = key_pressed
-            self.tick_if_allowed()
+            return self.tick_if_allowed()
         elif key_pressed in secondary_modifier_keys:
             self.secondary_modifier_key = key_pressed
-            self.tick_if_allowed()
+            return self.tick_if_allowed()
 
     def tick_if_allowed(self):
         if self.world.world_age > self.last_action_at_world_age:
             self.tick()
+            return True
+        return False
 
     def line_of_stats(self):
         los = '[hp {health}/{health_cap} ap {ap}] [ore {ore} om {mm}] [{pri_mod_key} {sec_mod_key}] [{world_age}] '.format(
@@ -523,6 +527,8 @@ class Player(gameObject.GameObject):
         self.lose_ore(ore_loss)
 
         self.cell.add_game_object(loot_object)
+        if self.corp.ore_quantity < 100:
+            self.gain_ore(100 - self.corp.ore_quantity)
 
     def take_damage(self, damage):
         self.health -= damage

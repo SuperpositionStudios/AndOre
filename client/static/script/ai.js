@@ -11,6 +11,7 @@ BaseAi.prototype = {
       "w",  // Direction Key
       "s",  // Direction Key
       "d",  // Direction Key
+      "b",
       "l",  // Primary Modifier Key
       "k",  // Primary Modifier Key
       "m"  // Primary Modifier Key
@@ -65,7 +66,7 @@ BaseAi.prototype = {
     }
   },
   Start: function() {
-    this.actions = this.actions.length > 0? this.actions : this.app.actions;
+    //this.actions = this.actions.length > 0? this.actions : this.app.actions;
     this.env = this.NewEnv();
     var spec = { alpha: 0.01 };
     this.agent = new RL.DQNAgent(this.env, spec);
@@ -93,12 +94,12 @@ BaseAi.prototype = {
         //console.log(data);
         var worldAge = data.vitals.world_age;
         if (worldAge > self.lastAge) {
-          //console.log(worldAge);
+          console.log(data.world);
           self.Update(data, repeat);
-          app.view.Draw(data);
+          //app.view.Draw(data);
         } else {
-          app.view.Draw(data);
-          setTimeout(repeat, self.delay);
+          //app.view.Draw(data);
+          setTimeout(repeat, self.app.delay);
         }
       }, repeat);
     };
@@ -185,7 +186,7 @@ BaseAi.prototype = {
       }
       currentArray.push({x: x, y: y});
     }
-
+    var y = 0;
     for (var i in world) {
       var line = world[i];
       x = 0;
@@ -213,9 +214,9 @@ BaseAi.prototype = {
 
 SimpleAi = function(app) {
   this.app = app;
-  this.actions = [];
-  this.actions.concat(this.directionActions);
-  this.actions.concat(this.modeActions);
+  //this.actions = [];
+  //this.actions.concat(this.directionActions);
+  //this.actions.concat(this.modeActions);
 };
 SimpleAi.prototype = $.extend(BaseAi.prototype, {
   tickCount: 0,
@@ -231,17 +232,9 @@ SimpleAi.prototype = $.extend(BaseAi.prototype, {
       allowedActions: function() {
         var allowed = [];
         for(var i = 0; i < self.actions.length; i++) {
-          if(self.tickCount % 4 == 0 ) {
-            if( i >= 4){
-              allowed.push(i);
-            }
-          } else {
-            if( i < 4){
-              allowed.push(i);
-            }
-          }
-        }
+          allowed.push(i);    
           return allowed;
+        }
       }
     }
   },

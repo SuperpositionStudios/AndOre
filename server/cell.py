@@ -152,6 +152,7 @@ class Cell:
                                 'Player': 'a',
                                 'SentryTurret': 'b',
                                 'SpikeTrap': 'b',
+                                'Fence': 'e',
                                 'Pharmacy': 'b',
                                 'Hospital': 'b',
                                 'Door': 'b',
