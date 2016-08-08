@@ -15,12 +15,17 @@ BaseAi.prototype = {
       "k",  // Primary Modifier Key
       "m"  // Primary Modifier Key
   ],
-  dataSize: 1024,
+  charLookup: {},
   lastHealth: 0,
   lastAge: 0,
+  lookRadius: 10,
   hasActed: false,
   lastAction: null,
   lastVitals: null,
+  GetDataSize: function() {
+    return this.lookRadius * this.lookRadius;
+
+  },
   GetModel: function() {
     var self = this;
     var data = {
@@ -48,7 +53,7 @@ BaseAi.prototype = {
   NewEnv: function() {
     var self = this;
     return {
-      getNumStates: function() { return self.dataSize; },
+      getNumStates: function() { return self.lookRadius * self.lookRadius; },
       getMaxNumActions: function() { return self.actions.length; },
       allowedActions: function() {
         var allowed = [];
@@ -131,7 +136,7 @@ BaseAi.prototype = {
 
     this.lastAge = data.vitals.world_age;
 
-    var state = this.FlattenWorld(data.world);
+    var state = this.FlattenWorld(data.world, data.vitals);
     var deltaHealth = data.vitals.health - this.lastHealth;
     var reward = (data.vitals.delta_ore * 2 + deltaHealth * 1) / 3;
     console.log(data.vitals);
@@ -165,31 +170,43 @@ BaseAi.prototype = {
     this.lastAction = action;
     callback();
   },
-  FlattenWorld: function(world){
+  FlattenWorld: function(world, lastVitals){
+    var charLookup = {};
+
     var state = [];
-    var playerX = 0;
-    var playerY = 0;
-    var y = 0;
-    for (var i in world){
+    var playerX = lastVitals.col;
+    var playerY = lastVitals.row;
+    var lookRadius = this.lookRadius;
+
+    function checkAddChar(character, x, y){
+      var currentArray = charLookup[character];
+      if(currentArray == null){
+        currentArray = [];
+      }
+      currentArray.push({x: x, y: y});
+    }
+
+    for (var i in world) {
       var line = world[i];
       x = 0;
       for (var key in line){
         var c = line[key][0].charCodeAt(0);
-        state.push(c);
-        if(c == '@') {
-          playerX = x;
-          playerY = y;
+        checkAddChar(c);
+        if(Math.abs(x - playerX) <= lookRadius && Math.abs(y - playerY <= lookRadius)) {
+          state.push(c);
         }
         x++;
       };
       y++;
     }
-    while( state.length < this.dataSize){
+
+    while( state.length < this.GetDataSize()){
       state.push(" ");
     }
-    while( state.length > this.dataSize){
+    while( state.length > this.GetDataSize()){
       state.pop();
     }
+    this.charLookup = charLookup;
     return state;
   }
 };
@@ -199,39 +216,33 @@ SimpleAi = function(app) {
   this.actions = [];
   this.actions.concat(this.directionActions);
   this.actions.concat(this.modeActions);
-  this.actions.concat(this.numberActions);
 };
 SimpleAi.prototype = $.extend(BaseAi.prototype, {
   tickCount: 0,
+  lookRadius:2,
   directionActions: ["a","w","s","d"],
-  modeActions: [
-  [
-    "l", "k", "m", "b",
-  ],
-  numberActions: [
-    "0","1","2","3","4","5"
-
-  ],
+  modeActions: ["l", "k", "m", "b",],
+  numberActions: ["0","1","2","3","4","5"],
   NewEnv: function() {
     var self = this;
     return {
-      getNumStates: function() { return self.dataSize; },
+      getNumStates: function() { return self.GetDataSize(); },
       getMaxNumActions: function() { return self.actions.length; },
       allowedActions: function() {
         var allowed = [];
-          for (var i = 0; i < self.actions.length; i++) {
-            if(self.tickCount % 4 == 0 ) {
-              if( i < 4){
-                allowed.push(i);
-              }
-            } else {
-              if( i >= 4){
-                allowed.push(i);
-              }
+        for(var i = 0; i < self.actions.length; i++) {
+          if(self.tickCount % 4 == 0 ) {
+            if( i >= 4){
+              allowed.push(i);
+            }
+          } else {
+            if( i < 4){
+              allowed.push(i);
             }
           }
-          return allowed;
         }
+          return allowed;
+      }
     }
   },
   Update: function(data, callback) {
@@ -242,7 +253,7 @@ SimpleAi.prototype = $.extend(BaseAi.prototype, {
     }
 
     this.lastAge = data.vitals.world_age;
-    var state = this.FlattenWorld(data.world);
+    var state = this.FlattenWorld(data.world, data.vitals);
     var deltaHealth = data.vitals.health - this.lastHealth;
     var oreReward = Math.abs(data.vitals.delta_ore);
     var healthReward = deltaHealth - (deltaHealth < 10? 30 : 0);
