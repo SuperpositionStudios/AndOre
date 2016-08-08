@@ -11,7 +11,7 @@ paths_to_game_server = {
 # It's localhost for now, but in the future they may be hosted on seperate servers
 }
 
-user = 'hal'  # change this
+user = 'production'  # change this
 
 
 def path_to_db():

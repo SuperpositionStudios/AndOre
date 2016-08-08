@@ -4,7 +4,7 @@ paths_to_databases = {
     'production': 'sqlite:////home/andore/AndOre/ai_storage/database.db'
 }
 
-user = 'hal'  # change this
+user = 'production'  # change this
 
 
 def path_to_db():
