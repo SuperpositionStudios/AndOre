@@ -85,7 +85,7 @@ View.prototype = {
       '-': 'Decrease Corp Standing'
     }
   },
-  pollDelay: 350,
+  pollDelay: 333,
   SetupView : function(app, callback) {
     this.app = app;
     this.worldView = $(worldViewSelector);
@@ -185,10 +185,13 @@ View.prototype = {
     this.DrawPlayerStats(data.vitals);
   },
   Poll: function(){
+    var self = this;
     setTimeout(function() {
       //console.log(typeof(View.prototype.Poll));
-      app.GetDisplay(View.prototype.Poll, this.pollDelay);
-    }, this.pollDelay);
+      app.GetDisplay(function() {
+        self.Poll();
+      });
+    }, self.pollDelay);
   },
   SetupInput: function() {
     // For handling shift modifier

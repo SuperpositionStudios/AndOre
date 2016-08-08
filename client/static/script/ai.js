@@ -94,8 +94,8 @@ BaseAi.prototype = {
         var worldAge = data.vitals.world_age;
         if (worldAge > self.lastAge) {
           //console.log(worldAge);
-          app.view.Draw(data);
           self.Update(data, repeat);
+          app.view.Draw(data);
         } else {
           app.view.Draw(data);
           setTimeout(repeat, self.delay);
@@ -251,9 +251,12 @@ SimpleAi.prototype = $.extend(BaseAi.prototype, {
     if(this.lastVitals == null){
       this.lastVitals = data.vitals;
     }
-
+    var world = data.world;
+    if(data.world == "") {
+      world = this.lastWorld;
+    }
     this.lastAge = data.vitals.world_age;
-    var state = this.FlattenWorld(data.world, data.vitals);
+    var state = this.FlattenWorld(world, data.vitals);
     var deltaHealth = data.vitals.health - this.lastHealth;
     var oreReward = Math.abs(data.vitals.delta_ore);
     var healthReward = deltaHealth - (deltaHealth < 10? 30 : 0);
@@ -275,6 +278,7 @@ SimpleAi.prototype = $.extend(BaseAi.prototype, {
     } else {
       this.newAction = false;
     }
+    this.lastWorld = world;
     this.lastAction = action;
     callback();
   }
