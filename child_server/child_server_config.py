@@ -12,3 +12,4 @@ keys = {
 
 address = 'http://localhost:7101'
 master_address = 'http://localhost:7100'
+developing = True

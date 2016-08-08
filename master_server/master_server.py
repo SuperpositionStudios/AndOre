@@ -18,6 +18,17 @@ nodes = {
     'nodes': dict()
 }
 
+corporations = {
+    'aoDevAlliance': {
+
+    }
+}
+
+players = {
+    'testPlayerId': {
+        'corp_id': 'aoDevAlliance'
+    }
+}
 
 def home_cor(obj):
     return_response = make_response(obj)
