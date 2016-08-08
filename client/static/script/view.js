@@ -212,9 +212,7 @@ View.prototype = {
       command = String.fromCharCode(e.which).toLowerCase();
 
       //console.log(app.actionsLut);
-      if(app.actionsLut[command]) {
-        app.SendCommand(command);
-      }
+      app.SendCommand(command);
     });
 
   }

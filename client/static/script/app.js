@@ -236,10 +236,15 @@ App.prototype = {
   SendCommand: function(command){
     var self = this;
     var view = this.view;
-    AjaxCall("/action", {id: self.gameId, action: command, sendState:true}, function(data){
-      view.Draw(data);
-    });
-  }
+    if(this.AiStarted) {
+      self.ai.SendCommand(command);
+    }
+    if(app.actionsLut[command]) {
+      AjaxCall("/action", {id: self.gameId, action: command, sendState:true}, function(data){
+        view.Draw(data.world);
+      });
+    }
+  },
 };
 
 function CallCallback (callback){
@@ -276,6 +281,5 @@ function AjaxCall(endpoint, data, callback, failCallback){
 
 $(function(){
   app = new App();
-  var ai = new BaseAi(app);
   app.Init();
 });
