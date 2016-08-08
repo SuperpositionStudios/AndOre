@@ -11,6 +11,7 @@ BaseAi.prototype = {
       "w",  // Direction Key
       "s",  // Direction Key
       "d",  // Direction Key
+      "b",
       "l",  // Primary Modifier Key
       "k",  // Primary Modifier Key
       "m"  // Primary Modifier Key
@@ -95,9 +96,9 @@ BaseAi.prototype = {
         if (worldAge > self.lastAge) {
           console.log(data.world);
           self.Update(data, repeat);
-          app.view.Draw(data);
+          //app.view.Draw(data);
         } else {
-          app.view.Draw(data);
+          //app.view.Draw(data);
           setTimeout(repeat, self.app.delay);
         }
       }, repeat);
