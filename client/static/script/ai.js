@@ -93,12 +93,12 @@ BaseAi.prototype = {
         //console.log(data);
         var worldAge = data.vitals.world_age;
         if (worldAge > self.lastAge) {
-          //console.log(worldAge);
+          console.log(data.world);
           self.Update(data, repeat);
           app.view.Draw(data);
         } else {
           app.view.Draw(data);
-          setTimeout(repeat, self.delay);
+          setTimeout(repeat, self.app.delay);
         }
       }, repeat);
     };
@@ -215,7 +215,7 @@ SimpleAi = function(app) {
   this.app = app;
   this.actions = [];
   this.actions.concat(this.directionActions);
-  this.actions.concat(this.modeActions);
+  //this.actions.concat(this.modeActions);
 };
 SimpleAi.prototype = $.extend(BaseAi.prototype, {
   tickCount: 0,
@@ -231,17 +231,9 @@ SimpleAi.prototype = $.extend(BaseAi.prototype, {
       allowedActions: function() {
         var allowed = [];
         for(var i = 0; i < self.actions.length; i++) {
-          if(self.tickCount % 4 == 0 ) {
-            if( i >= 4){
-              allowed.push(i);
-            }
-          } else {
-            if( i < 4){
-              allowed.push(i);
-            }
-          }
-        }
+          allowed.push(i);    
           return allowed;
+        }
       }
     }
   },
