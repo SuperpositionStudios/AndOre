@@ -1,7 +1,7 @@
 //load view.js before running this
 //also uses rl.js -- http://cs.stanford.edu/people/karpathy/reinforcejs/
 
-var productionServerUrl = "http://ao.iwanttorule.space";
+var productionServerUrl = "http://iwanttorule.space";
 var production_game_server_endpoint = "/game-server";
 var production_ai_storage_endpoint = "/ai-storage-server";
 var production_auth_server_endpoint = "/auth";
