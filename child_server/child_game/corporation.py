@@ -1,13 +1,15 @@
 import uuid
 import child_server_config as config
-from game import gameObject
+from child_game import gameObject
+
 
 class Corporation:
 
-    def __init__(self, initial_member, _world):
-        assert(initial_member.__class__.__name__ == 'Player')
-
-        self.corp_id = str(uuid.uuid4())
+    def __init__(self, _world, corp_id=None):
+        if corp_id is None:
+            self.corp_id = str(uuid.uuid4())
+        else:
+            self.corp_id = corp_id
         self.world = _world
         self.members = []  # Members of the corporation, the actual Player objects are stored here, not just their ids.
         self.buildings = []  # Buildings owned by the corporation, building objects are stored here, not just their ids.
@@ -30,8 +32,6 @@ class Corporation:
         self.sent_merge_invites = []  # A list containing ids of corps that have been sent merge invites
         self.received_merge_invites = []  # A list containing ids of corps that have sent use merge invites
         self.standings = dict()
-
-        self.add_member(initial_member)
 
     def render_inventory(self):
         rendered_inventory = ''

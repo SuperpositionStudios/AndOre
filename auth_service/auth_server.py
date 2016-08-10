@@ -66,6 +66,7 @@ def game_join():
         if uid is not None and database_functions_.valid_uid(uid):
             req = requests.get(config_.game_server_url() + '/join')
             game_server_response = req.json()
+            print(game_server_response)
             response['status'] = 'Success'
             response['game-id'] = game_server_response['id']
             database_functions_.update_game_id(uid, game_server_response['id'])

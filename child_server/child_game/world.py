@@ -1,9 +1,9 @@
 import uuid, random, datetime
-from game.cell import Cell
-from game.player import Player
-from game.corporation import Corporation
+from child_game.cell import Cell
+from child_game.player import Player
+from child_game.corporation import Corporation
 import warnings
-from game import helper_functions
+from child_game import helper_functions
 
 
 class World:  # World is not really world, it's more Level
@@ -62,16 +62,38 @@ class World:  # World is not really world, it's more Level
         assert(len(rendered_world) == 31, "Age: {} Len: {} Full: {}".format(self.world_age, len(rendered_world), rendered_world))
         return rendered_world
 
-    def new_player(self):
+    def corp_exists(self, corp_id):
+        return corp_id in self.corporations
+
+    def new_player(self, player_id=None, corp_id=None, corp_ore_quantity=0):
         spawn_location = self.random_can_enter_cell()
         assert(spawn_location.__class__.__name__ == 'Cell')
 
-        player_id = str(uuid.uuid4())
+        # Player ID
+        if player_id is None:
+            player_id = str(uuid.uuid4())
 
-        new_player = Player(player_id, self, spawn_location)
+        # Corporation
+        if corp_id is None:
+            # If we weren't passed a corp_id, we generate one here
+            corp_id = self.new_corporation().corp_id
+        else:
+            # If the corp does not exist in our node we create it here
+            if self.corp_exists(corp_id) is False:
+                self.new_corporation(corp_id=corp_id)
+        # at this point, we know there is a corp in our node with the corp_id that was either passed in or generated.
+        _corp = self.corporations[corp_id]
+        # We update our ore quantity for the corp here
+        _corp.ore_quantity = corp_ore_quantity
+
+        new_player = Player(player_id, self, spawn_location, _corp)
         spawn_location.add_game_object(new_player)
+        helper_functions.drint("Old players list")
+        helper_functions.drint(self.players)
         self.players[player_id] = new_player
-
+        helper_functions.drint("New player list")
+        helper_functions.drint(self.players)
+        helper_functions.drint("Successfully had a player transfer in")
         return player_id
 
     def random_can_enter_cell(self):
@@ -85,8 +107,8 @@ class World:  # World is not really world, it's more Level
                 return 'too many players'
         return random_cell
 
-    def new_corporation(self, initial_player_object):
-        new_corp = Corporation(initial_player_object, self)
+    def new_corporation(self, corp_id=None):
+        new_corp = Corporation(self, corp_id=corp_id)
         self.corporations[new_corp.corp_id] = new_corp
         return new_corp
 
@@ -127,10 +149,8 @@ class World:  # World is not really world, it's more Level
             return self.render_world()
 
     def valid_player_id(self, _id):
-        if _id in self.players:
-            return True
-        else:
-            return False
+        helper_functions.drint("Trying to find player with id {}".format(_id))
+        return _id in self.players
 
     def get_cell(self, row, col):
         if row < 0 or row >= self.rows or col < 0 or col >= self.cols:

@@ -5,8 +5,8 @@ paths_to_databases = {
 }
 
 paths_to_game_server = {
-    'john': 'http://localhost:7101',
-    'production': 'http://localhost:7001'
+    'john': 'http://localhost:7100',
+    'production': 'http://localhost:7100'
 # It's localhost for now, but in the future they may be hosted on seperate servers
 }
 

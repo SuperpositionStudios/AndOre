@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify, url_for, render_template, make_response, redirect, current_app
-import game.world
+from child_game import world
 import datetime
 
 
@@ -10,7 +10,7 @@ class Node:
         self.address = address
         self.name = name
         self.nodes = nodes
-        self.world = game.world.World()
+        self.world = world.World()
         self.world.spawn_ore_deposits(5)
         app = Flask(__name__)
 
@@ -42,6 +42,7 @@ class Node:
             _id = request.args.get('id', '')
             if self.world.valid_player_id(_id) is False:
                 response["error"] = "Invalid ID"
+                response["world"] = ''
                 return self.home_cor(jsonify(**response))
 
             _act = request.args.get('action', '')
@@ -73,6 +74,7 @@ class Node:
 
             if self.world.valid_player_id(_id) is False:
                 response['error'] = "Invalid ID"
+                response['world'] = ''
                 return self.home_cor(jsonify(**response))
 
             response = dict()
@@ -105,17 +107,14 @@ class Node:
         @app.route('/player/enter', methods=['POST', 'OPTIONS'])
         def player_enter():
             self.tick_server_if_needed()
+            data = request.json
             response = dict()
-            new_player_id = self.world.new_player()
-
-            response['id'] = new_player_id
-
-            _sendState = request.args.get('sendState', 'false')
-
-            if _sendState == 'true':
-                response['world'] = self.world.players[new_player_id].world_state()
-                return send_state(_id=new_player_id)
-            else:
+            if data is not None and data.get('player', None) is not None:
+                # Creating the player object on this node
+                response['Successful_Request'] = True
+                new_player_obj = self.world.new_player(player_id=data['player']['uid'],
+                                                       corp_id=data['player']['corporation']['corp_id'],
+                                                       corp_ore_quantity=data['player']['corporation']['ore_quantity'])
                 return self.home_cor(jsonify(**response))
 
         app.run(debug=True, host='0.0.0.0', port=7101)

@@ -6,3 +6,5 @@ keys = {
 }
 
 address = "http://localhost:7100"
+
+developing = True

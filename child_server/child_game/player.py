@@ -1,12 +1,13 @@
 import uuid, random
-from game.cell import Cell
-from game import gameObject, standing_colors, corporation
+from child_game.cell import Cell
+from child_game import gameObject, standing_colors, corporation
 
 
 class Player(gameObject.GameObject):
-    def __init__(self, _id, _world, _cell):
+    def __init__(self, _id, _world, _cell, _corp):
         super().__init__(_cell)
         assert (_world is not None)
+        assert (_corp is not None)
 
         self.id = _id
         self.obj_id = _id
@@ -50,7 +51,7 @@ class Player(gameObject.GameObject):
             'E': False
         }
         self.last_action_at_world_age = 0
-        self.corp = self.world.new_corporation(self)
+        self.corp = _corp
 
     def action(self, key_pressed):
         direction_keys = ['w', 'a', 's', 'd']
@@ -85,17 +86,19 @@ class Player(gameObject.GameObject):
             self.shiftKeyActive = False
         elif key_pressed in direction_keys:
             self.dir_key = key_pressed
-            self.tick_if_allowed()
+            return self.tick_if_allowed()
         elif key_pressed in primary_modifier_keys:
             self.primary_modifier_key = key_pressed
-            self.tick_if_allowed()
+            return self.tick_if_allowed()
         elif key_pressed in secondary_modifier_keys:
             self.secondary_modifier_key = key_pressed
-            self.tick_if_allowed()
+            return self.tick_if_allowed()
 
     def tick_if_allowed(self):
         if self.world.world_age > self.last_action_at_world_age:
             self.tick()
+            return True
+        return False
 
     def line_of_stats(self):
         los = '[hp {health}/{health_cap} ap {ap}] [ore {ore} om {mm}] [{pri_mod_key} {sec_mod_key}] [{world_age}] '.format(

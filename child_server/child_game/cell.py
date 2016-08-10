@@ -1,5 +1,5 @@
 import uuid
-from game import standing_colors, gameObject
+from child_game import standing_colors, gameObject
 
 
 class Cell:
