@@ -28,11 +28,10 @@ BaseAi.prototype = {
   getNumStates: function() { return this.GetDataSize(); },
   getMaxNumActions: function() { return this.actions.length; },
   allowedActions: function() {
-      var allowed = [];
-      for(var i = 0; i < this.actions.length; i++) {
-        allowed.push(i);    
-        return allowed;
-      }
+    var allowed = [];
+    for(var i = 0; i < this.actions.length; i++) {
+      allowed.push(i);    
+      return allowed;
     }
   },
   /* needed for ai lib */
@@ -67,9 +66,8 @@ BaseAi.prototype = {
   },
   Start: function() {
     //this.actions = this.actions.length > 0? this.actions : this.app.actions;
-    this.env = this.NewEnv();
     var spec = { alpha: 0.01 };
-    this.agent = new RL.DQNAgent(this.env, spec);
+    this.agent = new RL.DQNAgent(this, spec);
     if(this.oldBrain != null){
       this.agent.fromJSON(this.oldBrain);
       console.log("Parsed stored model into Agent.");
@@ -91,14 +89,11 @@ BaseAi.prototype = {
         command = self.actions[self.lastAction];
       }
       AjaxCall("/action", {id: self.app.gameId, action: command, sendState:true}, function(data){
-        //console.log(data);
         var worldAge = data.vitals.world_age;
         if (worldAge > self.lastAge) {
           console.log(data.world);
           self.Update(data, repeat);
-          //app.view.Draw(data);
         } else {
-          //app.view.Draw(data);
           setTimeout(repeat, self.app.delay);
         }
       }, repeat);
@@ -143,7 +138,6 @@ BaseAi.prototype = {
     }
   },
   Update: function(data, callback) {
-    var env = this.env;
     this.tickCount++;
     var worldView = this.worldView;
     if(this.lastVitals == null){
@@ -153,9 +147,10 @@ BaseAi.prototype = {
     if(data.world == "") {
       world = this.lastWorld;
     }
+    this.world = world;
     
-    worldView.Update(world, this.lastVitals);
-    var state = worldView.GetFlatView();
+    worldView.Update(world, data.vitals);
+    var state = worldView.GetFlatView(this.lookRadius);
     this.lastAge = data.vitals.world_age;
     this.lastVitals = data.vitals;
     this.lastHealth = data.vitals.health;
@@ -191,18 +186,16 @@ SimpleAi.prototype = $.extend(BaseAi.prototype, {
 });
 
 function AiWorldView(dataSize) {
-  this.world = world;
   this.dataSize = dataSize;
-  this.lastVitals = lastVitals;
-  this.Update(world, lastVitals, dataSize);
 }
 AiWorldView.prototype = {
   charLookup: {},
-  Update: function(world, lastVitals){
+  Update: function(world, vitals){
     this.world = world;
-    this.lastVitals = lastVitals;
+    this.vitals = vitals;
     this.charLookup = {};
     var state = [];
+    var y = 0;
     for (var i in world) {
       var line = world[i];
       x = 0;
@@ -215,20 +208,19 @@ AiWorldView.prototype = {
     }
   },
   CheckAddChar: function(character, x, y){
-      var currentArray = this.charLookup[character];
-      if(currentArray == null){
-        currentArray = [];
-        this.charLookup[character] = currentArray;
-      }
-      currentArray.push({x: x, y: y});
+    var currentArray = this.charLookup[character];
+    if(currentArray == null){
+      currentArray = [];
+      this.charLookup[character] = currentArray;
     }
+    currentArray.push({x: x, y: y});
   },
-  GetFlatView: function() {
+  GetFlatView: function(lookRadius) {
     var world = this.world;
     var y = 0;
     var state = [];
-    console.log(this.vitals);
-    var playerX = this.vitals.playerX;
+    var playerY = this.vitals.row;
+    var playerX = this.vitals.col;
     var top = playerY - lookRadius;
     var bottom = playerY + lookRadius;
     var left = playerX - lookRadius;
@@ -237,9 +229,9 @@ AiWorldView.prototype = {
 
     for (var y = top; y < bottom; y++) {
       for (var x = left; x < right; x ++){
-        var c = world[y][x][0];
-        if (c != null) {
-          state.push[charCodeAt(0)];
+        if(world != null && world[y] != null && world[y][x] != null) {
+          var c = world[y][x][0];
+          
         } else {
           state.push[0];
         }
@@ -247,10 +239,10 @@ AiWorldView.prototype = {
       };
       y++;
     }
-    while( state.length < this.GetDataSize()){
+    while( state.length < this.dataSize) {
       state.push(" ");
     }
-    while( state.length > this.GetDataSize()){
+    while( state.length > this.dataSize) {
       state.pop();
     }
     return state;
