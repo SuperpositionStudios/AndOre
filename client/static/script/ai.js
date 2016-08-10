@@ -23,6 +23,16 @@ BaseAi.prototype = {
   hasActed: false,
   lastAction: null,
   lastVitals: null,
+  getNumStates: function() { return this.lookRadius * this.lookRadius; },
+  getMaxNumActions: function() { return this.actions.length; },
+  allowedActions: function() {
+    var allowed = [];
+      for (var i = 0; i < this.actions.length; i++) {
+        allowed.push(i);
+      }
+      return allowed;
+    }
+
   GetDataSize: function() {
     return this.lookRadius * this.lookRadius;
 
@@ -49,20 +59,6 @@ BaseAi.prototype = {
       });
     } else {
       self.StartAi();
-    }
-  },
-  NewEnv: function() {
-    var self = this;
-    return {
-      getNumStates: function() { return self.lookRadius * self.lookRadius; },
-      getMaxNumActions: function() { return self.actions.length; },
-      allowedActions: function() {
-        var allowed = [];
-          for (var i = 0; i < self.actions.length; i++) {
-            allowed.push(i);
-          }
-          return allowed;
-        }
     }
   },
   Start: function() {
@@ -221,20 +217,13 @@ SimpleAi = function(app) {
 SimpleAi.prototype = $.extend(BaseAi.prototype, {
   tickCount: 0,
   lookRadius:2,
-  directionActions: ["a","w","s","d"],
-  modeActions: ["l", "k", "m", "b",],
-  numberActions: ["0","1","2","3","4","5"],
-  NewEnv: function() {
-    var self = this;
-    return {
-      getNumStates: function() { return self.GetDataSize(); },
-      getMaxNumActions: function() { return self.actions.length; },
-      allowedActions: function() {
-        var allowed = [];
-        for(var i = 0; i < self.actions.length; i++) {
-          allowed.push(i);    
-          return allowed;
-        }
+  getNumStates: function() { return this.GetDataSize(); },
+  getMaxNumActions: function() { return this.actions.length; },
+  allowedActions: function() {
+      var allowed = [];
+      for(var i = 0; i < this.actions.length; i++) {
+        allowed.push(i);    
+        return allowed;
       }
     }
   },
