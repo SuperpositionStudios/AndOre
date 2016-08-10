@@ -4,11 +4,13 @@ from child_game.player import Player
 from child_game.corporation import Corporation
 import warnings
 from child_game import helper_functions
+import requests
 
 
 class World:  # World is not really world, it's more Level
 
-    def __init__(self):
+    def __init__(self, master_node_address):
+        self.master_node_address = master_node_address
         self.rows = 20  # (9 * 3 - 2) - 5
         self.cols = 55  # (16 * 3) + 7
         self.world = []
@@ -36,6 +38,25 @@ class World:  # World is not really world, it's more Level
         self.last_tick = datetime.datetime.now()
         self.world_age += 1
         self.tick_corp_buildings()
+        self.update_values()
+
+    def update_values(self):
+        data = {
+            'corporations': dict()
+        }
+        for corp_id in self.corporations:
+            corp_obj = self.corporations[corp_id]
+            data['corporations'][corp_id] = {
+                'ore_delta': corp_obj.pending_requests['ore_delta']
+            }
+        req = requests.post(self.master_node_address + '/update_values', json=data)
+        response = req.json()
+        if response['Successful_Request']:
+            for corp_id in response['corporations']:
+                if corp_id in self.corporations:
+                    corp_obj = self.corporations[corp_id]
+                    corp_obj.pending_requests['ore_delta'] = 0
+                    corp_obj.set_ore_quantity(response['corporations'][corp_id]['ore_quantity'])
 
     def tick_corp_buildings(self):
         for corp_id, corp in self.corporations.items():

@@ -89,7 +89,7 @@ def game_rejoin():
             response['status'] = 'Success'
             stored_game_id = database_functions_.get_game_id(uid)[1]
             data = {
-                'id': stored_game_id
+                'game_id': stored_game_id
             }
             req = requests.post(config_.game_server_url() + '/valid_id', json=data)
             server_response = req.json()

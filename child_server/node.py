@@ -10,7 +10,7 @@ class Node:
         self.address = address
         self.name = name
         self.nodes = nodes
-        self.world = world.World()
+        self.world = world.World(self.nodes['master']['address'])
         self.world.spawn_ore_deposits(5)
         app = Flask(__name__)
 

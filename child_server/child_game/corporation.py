@@ -32,6 +32,9 @@ class Corporation:
         self.sent_merge_invites = []  # A list containing ids of corps that have been sent merge invites
         self.received_merge_invites = []  # A list containing ids of corps that have sent use merge invites
         self.standings = dict()
+        self.pending_requests = {
+            'ore_delta': 0
+        }
 
     def render_inventory(self):
         rendered_inventory = ''
@@ -160,10 +163,15 @@ class Corporation:
         self.members.append(member)
 
     def gain_ore(self, amount):
-        self.ore_quantity += amount
+        self.pending_requests['ore_delta'] += amount
+        #self.ore_quantity += amount
 
     def lose_ore(self, amount):
-        self.ore_quantity -= amount
+        self.pending_requests['ore_delta'] -= amount
+        #self.ore_quantity -= amount
+
+    def set_ore_quantity(self, amount):
+        self.ore_quantity = amount
 
     def amount_of_ore(self):
         return self.ore_quantity

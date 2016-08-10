@@ -22,6 +22,9 @@ class Corporation:
             response['members'].append(member.uid)
         return response
 
+    def set_ore_quantity(self, amount):
+        self.assets['ore'] = amount
+
     def amount_of_ore(self):
         return self.assets['ore']
 

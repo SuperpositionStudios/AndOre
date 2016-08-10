@@ -19,8 +19,9 @@ nodes = {
     'nodes': dict()
 }
 
-corporations = []
+corporations = dict()
 players = dict()
+
 
 def drint(text):
     if config.developing:
@@ -34,8 +35,22 @@ def home_cor(obj):
     return return_response
 
 
-def is_valid_id(id):
-    return id in players
+def is_valid_id(uid, verbose=False):
+    if verbose:
+        print("Trying to find {} in".format(uid))
+        print(players)
+    if uid in players:
+        if verbose:
+            print("valid id")
+        return True
+    else:
+        if verbose:
+            print("invalid id")
+        return False
+
+
+def is_valid_node(node_name):
+    return node_name in nodes['nodes']
 
 
 def update_nodes_on_new_nodes(skip=None):
@@ -54,6 +69,10 @@ def update_nodes_on_new_nodes(skip=None):
 def spawn_player(uid):
     player_obj = players[uid]
     player_node = players[uid].node
+    # Checking that the player's node is valid
+    if is_valid_node(player_node) is False:
+        drint("Couldn't transfer new player to node {}".format(player_node))
+        return
     req = requests.post(nodes['nodes'][player_node]['address'] + '/player/enter', json={
         'player': {
             'uid': player_obj.uid,
@@ -104,15 +123,44 @@ def register_server():
     return home_cor(jsonify(**response))
 
 
+@app.route('/update_values', methods=['POST', 'OPTIONS'])
+def update_values():
+    # Route used for updating values stored here.
+    # For now we'll use this to update corp ore quantities
+    # and this will return the new quantities.
+    data = request.json
+    response = dict()
+    response['Successful_Request'] = False
+    response['corporations'] = dict()
+    if data is not None:
+        response['Successful_Request'] = True
+        # TODO: Check if this request comes from a verified node
+        for corp_id in data['corporations']:
+            if corp_id in corporations:
+                ore_delta = data['corporations'][corp_id]['ore_delta']
+                corp_obj = corporations[corp_id]
+                corp_obj.gain_ore(ore_delta)
+    for corp_id in corporations:
+        corp_obj = corporations[corp_id]
+        response['corporations'][corp_id] = {
+            'ore_quantity': corp_obj.amount_of_ore()
+        }
+    #drint(response)
+    return home_cor(jsonify(**response))
+
+
 @app.route('/valid_id', methods=['POST', 'OPTIONS'])
 def valid_id():
     data = request.json
     response = dict()
     response['status'] = 'invalid'
     if data is not None:
+        drint("/valid_id data is not none")
         game_id = data.get('game_id', None)
         if game_id is not None:
-            if is_valid_id(game_id):
+            drint("/valid_id game id is not none")
+            if is_valid_id(game_id, verbose=True):
+                drint("/valid_id id is valid")
                 response['status'] = 'valid'
     return home_cor(jsonify(**response))
 
@@ -122,6 +170,7 @@ def new_player():
     response = dict()
 
     new_corp = corporation.Corporation()
+    corporations[new_corp.corp_id] = new_corp
     new_player_obj = player.Player(new_corp)
     players[new_player_obj.uid] = new_player_obj
     spawn_player(new_player_obj.uid)
@@ -138,11 +187,12 @@ def get_player_info():
     }
     if is_valid_id(player_id):
         player_node = players[player_id].node
-        response['world'] = {
-            'name': player_node,
-            'server': nodes['nodes'][player_node]['address']
-        }
-        response['status'] = 'Success'
+        if is_valid_node(player_node):
+            response['world'] = {
+                'name': player_node,
+                'server': nodes['nodes'][player_node]['address']
+            }
+            response['status'] = 'Success'
     return home_cor(jsonify(**response))
 
-app.run(debug=True, host='0.0.0.0', port=7100)
+app.run(debug=True, host='0.0.0.0', port=7100, threaded=True)
