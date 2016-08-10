@@ -16,6 +16,7 @@ BaseAi.prototype = {
       "k",  // Primary Modifier Key
       "m"  // Primary Modifier Key
   ],
+  charCount: 256,
   charLookup: {},
   lastHealth: 0,
   lastAge: 0,
@@ -23,18 +24,21 @@ BaseAi.prototype = {
   hasActed: false,
   lastAction: null,
   lastVitals: null,
-  getNumStates: function() { return this.lookRadius * this.lookRadius; },
+  /* needed for ai lib */
+  getNumStates: function() { return this.GetDataSize(); },
   getMaxNumActions: function() { return this.actions.length; },
   allowedActions: function() {
-    var allowed = [];
-      for (var i = 0; i < this.actions.length; i++) {
-        allowed.push(i);
+      var allowed = [];
+      for(var i = 0; i < this.actions.length; i++) {
+        allowed.push(i);    
+        return allowed;
       }
-      return allowed;
     }
+  },
+  /* needed for ai lib */
 
   GetDataSize: function() {
-    return this.lookRadius * this.lookRadius;
+    return this.lookRadius * this.lookRadius * this.charCount;
 
   },
   GetModel: function() {
@@ -124,112 +128,24 @@ BaseAi.prototype = {
       });
     }
   },
-  Update: function(data, callback) {
-    var env = this.env;
+  GetReward: function(data) {
 
-    if(this.lastVitals == null){
-      this.lastVitals = data.vitals;
-    }
-
-    this.lastAge = data.vitals.world_age;
-
-    var state = this.FlattenWorld(data.world, data.vitals);
-    var deltaHealth = data.vitals.health - this.lastHealth;
-    var reward = (data.vitals.delta_ore * 2 + deltaHealth * 1) / 3;
-    console.log(data.vitals);
-    /*
-    if (data.vitals.row == this.lastVitals.row && data.vitals.col == this.lastVitals.col){
-
-    } else {
-      reward += 0.2;
-    }
-
-    */
     this.lastVitals = data.vitals;
-
     this.lastHealth = data.vitals.health;
+    var deltaHealth = data.vitals.health - this.lastHealth;
+    var oreReward = Math.abs(data.vitals.delta_ore);
+    var healthReward = deltaHealth - (deltaHealth < 10? 30 : 0);
+    var reward = oreReward + healthReward;
+
 
     if(this.lastHealth < 10) {
       reward = -5;
-    }
-
-    if(this.lastAction != null){
-      this.agent.learn(reward);
-    } else {
-      this.agent.act(state);
-    }
-    var action = this.agent.act(state);
-    if(this.lastAction != action){
-      this.newAction = true;
-    } else {
-      this.newAction = false;
-    }
-    this.lastAction = action;
-    callback();
-  },
-  FlattenWorld: function(world, lastVitals){
-    var charLookup = {};
-
-    var state = [];
-    var playerX = lastVitals.col;
-    var playerY = lastVitals.row;
-    var lookRadius = this.lookRadius;
-
-    function checkAddChar(character, x, y){
-      var currentArray = charLookup[character];
-      if(currentArray == null){
-        currentArray = [];
-      }
-      currentArray.push({x: x, y: y});
-    }
-    var y = 0;
-    for (var i in world) {
-      var line = world[i];
-      x = 0;
-      for (var key in line){
-        var c = line[key][0].charCodeAt(0);
-        checkAddChar(c);
-        if(Math.abs(x - playerX) <= lookRadius && Math.abs(y - playerY <= lookRadius)) {
-          state.push(c);
-        }
-        x++;
-      };
-      y++;
-    }
-
-    while( state.length < this.GetDataSize()){
-      state.push(" ");
-    }
-    while( state.length > this.GetDataSize()){
-      state.pop();
-    }
-    this.charLookup = charLookup;
-    return state;
-  }
-};
-
-SimpleAi = function(app) {
-  this.app = app;
-  //this.actions = [];
-  //this.actions.concat(this.directionActions);
-  //this.actions.concat(this.modeActions);
-};
-SimpleAi.prototype = $.extend(BaseAi.prototype, {
-  tickCount: 0,
-  lookRadius:2,
-  getNumStates: function() { return this.GetDataSize(); },
-  getMaxNumActions: function() { return this.actions.length; },
-  allowedActions: function() {
-      var allowed = [];
-      for(var i = 0; i < this.actions.length; i++) {
-        allowed.push(i);    
-        return allowed;
-      }
     }
   },
   Update: function(data, callback) {
     var env = this.env;
     this.tickCount++;
+    var worldView = this.worldView;
     if(this.lastVitals == null){
       this.lastVitals = data.vitals;
     }
@@ -237,23 +153,21 @@ SimpleAi.prototype = $.extend(BaseAi.prototype, {
     if(data.world == "") {
       world = this.lastWorld;
     }
+    
+    worldView.Update(world, this.lastVitals);
+    var state = worldView.GetFlatView();
     this.lastAge = data.vitals.world_age;
-    var state = this.FlattenWorld(world, data.vitals);
-    var deltaHealth = data.vitals.health - this.lastHealth;
-    var oreReward = Math.abs(data.vitals.delta_ore);
-    var healthReward = deltaHealth - (deltaHealth < 10? 30 : 0);
-    var reward = oreReward + healthReward;
-    //console.log(data.vitals);
-
-
     this.lastVitals = data.vitals;
-
     this.lastHealth = data.vitals.health;
+
+    var reward = this.GetReward(data);
+
     if(this.lastAction != null){
       this.agent.learn(reward);
     } else {
       this.agent.act(state);
     }
+
     var action = this.agent.act(state);
     if(this.lastAction != action){
       this.newAction = true;
@@ -264,15 +178,81 @@ SimpleAi.prototype = $.extend(BaseAi.prototype, {
     this.lastAction = action;
     callback();
   }
+
+};
+
+SimpleAi = function(app) {
+  this.app = app;
+  this.worldView = new AiWorldView(this.GetDataSize());
+};
+SimpleAi.prototype = $.extend(BaseAi.prototype, {
+  tickCount: 0,
+  lookRadius:2,
 });
 
-
-Nanny = function(){
-
+function AiWorldView(dataSize) {
+  this.world = world;
+  this.dataSize = dataSize;
+  this.lastVitals = lastVitals;
+  this.Update(world, lastVitals, dataSize);
 }
+AiWorldView.prototype = {
+  charLookup: {},
+  Update: function(world, lastVitals){
+    this.world = world;
+    this.lastVitals = lastVitals;
+    this.charLookup = {};
+    var state = [];
+    for (var i in world) {
+      var line = world[i];
+      x = 0;
+      for (var key in line){
+        var c = line[key][0].charCodeAt(0);
+        this.CheckAddChar(c, x, y);
+        x++;
+      };
+      y++;
+    }
+  },
+  CheckAddChar: function(character, x, y){
+      var currentArray = this.charLookup[character];
+      if(currentArray == null){
+        currentArray = [];
+        this.charLookup[character] = currentArray;
+      }
+      currentArray.push({x: x, y: y});
+    }
+  },
+  GetFlatView: function() {
+    var world = this.world;
+    var y = 0;
+    var state = [];
+    console.log(this.vitals);
+    var playerX = this.vitals.playerX;
+    var top = playerY - lookRadius;
+    var bottom = playerY + lookRadius;
+    var left = playerX - lookRadius;
+    var right = playerY + lookRadius;
 
-Nanny.prototype = {
 
+    for (var y = top; y < bottom; y++) {
+      for (var x = left; x < right; x ++){
+        var c = world[y][x][0];
+        if (c != null) {
+          state.push[charCodeAt(0)];
+        } else {
+          state.push[0];
+        }
+        x++;
+      };
+      y++;
+    }
+    while( state.length < this.GetDataSize()){
+      state.push(" ");
+    }
+    while( state.length > this.GetDataSize()){
+      state.pop();
+    }
+    return state;
+  }
 }
-
-SimpleAi.prototype.prototype = BaseAi.prototype;
