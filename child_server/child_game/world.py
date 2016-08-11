@@ -9,15 +9,15 @@ import requests
 
 class World:  # World is not really world, it's more Level
 
-    def __init__(self, master_node_address):
+    def __init__(self, master_node_address, message_master_node):
         self.master_node_address = master_node_address
+        self.message_master_node = message_master_node
         self.rows = 20  # (9 * 3 - 2) - 5
         self.cols = 55  # (16 * 3) + 7
         self.world = []
         self.world_age = 1
         self.last_tick = datetime.datetime.now()
         self.microseconds_per_tick = 350000
-        #self.microseconds_per_tick = 35000
         self.players = dict()
         self.corporations = dict()
         self.buildings = dict()
@@ -108,6 +108,7 @@ class World:  # World is not really world, it's more Level
         _corp.ore_quantity = corp_ore_quantity
 
         new_player = Player(player_id, self, spawn_location, _corp)
+        _corp.add_member(new_player)
         spawn_location.add_game_object(new_player)
         helper_functions.drint("Old players list")
         helper_functions.drint(self.players)
@@ -116,6 +117,10 @@ class World:  # World is not really world, it's more Level
         helper_functions.drint(self.players)
         helper_functions.drint("Successfully had a player transfer in")
         return player_id
+
+    def despawn_player(self, player_id):
+        player_obj = self.players[player_id]
+        player_obj.despawn()
 
     def random_can_enter_cell(self):
         random_cell = self.get_random_cell()
@@ -131,6 +136,7 @@ class World:  # World is not really world, it's more Level
     def new_corporation(self, corp_id=None):
         new_corp = Corporation(self, corp_id=corp_id)
         self.corporations[new_corp.corp_id] = new_corp
+        print(self.corporations)
         return new_corp
 
     def spawn_ore_deposits(self, num=1):
@@ -169,8 +175,23 @@ class World:  # World is not really world, it's more Level
         else:
             return self.render_world()
 
+    def transfer_corp_assets(self, acquirer_id, acquiree_id):
+        print("Transferring assets of {} to {}".format(acquiree_id, acquirer_id))
+        acquirer = self.corporations[acquirer_id]
+        acquiree = self.corporations[acquiree_id]
+        acquiree_member_count = len(acquiree.members)
+        for player in acquiree.members:
+            player.corp = acquirer
+            acquirer.add_member(player)
+        acquiree.members = []
+        print("Acquiree going from {} to {} members".format(acquiree_member_count, len(acquiree.members)))
+        for building in acquiree.buildings:
+            building.owner_corp = acquirer
+        acquiree.buildings = []
+        self.corporations.pop(acquiree_id, None)
+
     def valid_player_id(self, _id):
-        helper_functions.drint("Trying to find player with id {}".format(_id))
+        #helper_functions.drint("Trying to find player with id {}".format(_id))
         return _id in self.players
 
     def get_cell(self, row, col):

@@ -162,6 +162,14 @@ class Corporation:
         assert(member.__class__.__name__ == 'Player')
         self.members.append(member)
 
+    def remove_member(self, member):
+        assert(member.__class__.__name__ == 'Player')
+        member_id = member.obj_id
+        for i in range(0, len(self.members)):
+            if self.members[i].obj_id == member_id:
+                del self.members[i]
+                return
+
     def gain_ore(self, amount):
         self.pending_requests['ore_delta'] += amount
         #self.ore_quantity += amount
@@ -198,10 +206,20 @@ class Corporation:
         for received in self.received_merge_invites:
             if received in self.sent_merge_invites:
                 corp_id_to_merge_with = received
-                self.world.corporations[corp_id_to_merge_with].merge_me(self.corp_id)
+                #print(corp_id_to_merge_with)
+                #print(self.world.corporations[corp_id_to_merge_with])
+                #print(corp_id_to_merge_with in self.world.corporations)
+                if corp_id_to_merge_with in self.world.corporations:
+                    self.world.corporations[corp_id_to_merge_with].merge_me(self.corp_id)
 
     # Another corp will call this with their corp id to indicate that they want to be merged into our corp
     def merge_me(self, other_corp_id):
+        self.world.message_master_node('/merge_corporations', {
+            'key': config.keys['node'],
+            'acquirer_id': self.corp_id,
+            'acquiree_id': other_corp_id
+        })
+        """
         _other_corp = self.world.corporations[other_corp_id]
 
         #print("Old corp size: {}".format(len(self.members)))
@@ -235,3 +253,4 @@ class Corporation:
         # Deletes the other corp to save memory
         self.world.corporations.pop(other_corp_id)
         #print("New corp size: {}".format(len(self.members)))
+        """

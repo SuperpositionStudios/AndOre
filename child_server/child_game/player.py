@@ -53,6 +53,12 @@ class Player(gameObject.GameObject):
         self.last_action_at_world_age = 0
         self.corp = _corp
 
+    # Called when being removed from the node
+    def despawn(self):
+        # Removes self from the node's copy of the corp
+        self.corp.remove_member(self)
+        self.delete()
+
     def action(self, key_pressed):
         direction_keys = ['w', 'a', 's', 'd']
         primary_modifier_keys = {

@@ -66,6 +66,16 @@ def update_nodes_on_new_nodes(skip=None):
             print('Failed to update {node_name} on new nodes'.format(node_name=node_name))
 
 
+def message_all_nodes(endpoint, data, skip=None):
+    for node_name in nodes['nodes']:
+        if node_name == skip:
+            continue
+        req = requests.post(nodes['nodes'][node_name]['address'] + endpoint, json=data)
+        node_response = req.json()
+        if node_response['Successful_Request'] is False:
+            print('Failed to update {node_name} with {data}'.format(node_name=node_name, data=str(data)))
+
+
 def spawn_player(uid):
     player_obj = players[uid]
     player_node = players[uid].node
@@ -123,6 +133,34 @@ def register_server():
     return home_cor(jsonify(**response))
 
 
+@app.route('/merge_corporations', methods=['POST', 'OPTIONS'])
+def merge_corporations():
+    response = {
+        'Successful_Request': False
+    }
+    data = request.json
+    if data is not None:
+        node_key = data.get('key', None)
+        acquirer = data.get('acquirer_id', None)
+        acquiree = data.get('acquiree_id', None)
+        if node_key is not None and acquirer is not None and acquiree is not None:
+            if node_key == config.keys['node']:
+                response['Successful_Request'] = True
+                # Changing acquiree's player's corp
+                for member in corporations[acquiree].members:
+                    member.corp = corporations[acquirer]
+                corporations[acquirer].gain_ore(corporations[acquiree].amount_of_ore())
+                corporations[acquiree].members = []
+                corporations.pop(acquiree, None)
+                # Server telling all child nodes to transfer corp belongings including players
+                message_all_nodes('/transfer_assets', {
+                    'master_key': config.keys['master'],
+                    'acquirer_id': acquirer,
+                    'acquiree_id': acquiree
+                })
+    return jsonify(**response)
+
+
 @app.route('/update_values', methods=['POST', 'OPTIONS'])
 def update_values():
     # Route used for updating values stored here.
@@ -170,6 +208,7 @@ def new_player():
     response = dict()
 
     new_corp = corporation.Corporation()
+    new_corp.gain_ore(5000)
     corporations[new_corp.corp_id] = new_corp
     new_player_obj = player.Player(new_corp)
     players[new_player_obj.uid] = new_player_obj

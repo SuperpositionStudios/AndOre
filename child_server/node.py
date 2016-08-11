@@ -1,6 +1,8 @@
 from flask import Flask, request, jsonify, url_for, render_template, make_response, redirect, current_app
 from child_game import world
+import child_server_config as config
 import datetime
+import requests
 
 
 class Node:
@@ -10,7 +12,7 @@ class Node:
         self.address = address
         self.name = name
         self.nodes = nodes
-        self.world = world.World(self.nodes['master']['address'])
+        self.world = world.World(self.nodes['master']['address'], self.message_master_node)
         self.world.spawn_ore_deposits(5)
         app = Flask(__name__)
 
@@ -117,7 +119,35 @@ class Node:
                                                        corp_ore_quantity=data['player']['corporation']['ore_quantity'])
                 return self.home_cor(jsonify(**response))
 
-        app.run(debug=True, host='0.0.0.0', port=7101)
+        @app.route('/player/leave', methods=['POST', 'OPTIONS'])
+        def player_leave():
+            self.tick_server_if_needed()
+            data = request.json
+            response = dict()
+            if data is not None and data.get('player', None) is not None:
+                response['Successful_Request'] = True
+                player_id = data.get('player', None).get('uid', None)
+                if player_id is not None:
+                    self.world.despawn_player(player_id)
+            return self.home_cor(jsonify(**response))
+
+        @app.route('/transfer_assets', methods=['POST', 'OPTIONS'])
+        def transfer_assets():
+            self.tick_server_if_needed()
+            data = request.json
+            response = {
+                'Successful_Request': False
+            }
+            if data is not None:
+                acquiree_id = data.get('acquiree_id', None)
+                acquirer_id = data.get('acquirer_id', None)
+                master_key = data.get('master_key', None)
+                if acquiree_id is not None and acquirer_id is not None and master_key == config.keys['master']:
+                    self.world.transfer_corp_assets(acquirer_id, acquiree_id)
+                    response['Successful_Request'] = True
+            return jsonify(**response)
+
+        app.run(debug=True, host='0.0.0.0', port=7101, threaded=True)
 
     def home_cor(self, obj):
         return_response = make_response(obj)
@@ -129,3 +159,9 @@ class Node:
         now = datetime.datetime.now()
         if (now - self.world.last_tick).microseconds >= self.world.microseconds_per_tick:
             self.world.tick()
+
+    def message_master_node(self, endpoint, data):
+        req = requests.post(self.nodes['master']['address'] + endpoint, json=data)
+        node_response = req.json()
+        if node_response['Successful_Request'] is False:
+            print('Failed to message master node with {data}'.format(data=str(data)))
