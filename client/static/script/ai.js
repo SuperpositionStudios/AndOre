@@ -107,8 +107,9 @@ BaseAi.prototype = {
     repeat();
   },
 
-  UploadModel: function(ai_model) {
+  UploadModel: function(model) {
     console.log("Uploading Model...");
+    var ai_model = model;
     data = {
         'mid': ai_name,
         'model': ai_model
@@ -130,22 +131,27 @@ BaseAi.prototype = {
     }
   },
   GetReward: function(data) {
+    var maxReward = 1;
     this.lastVitals = data.vitals;
     this.lastHealth = data.vitals.health;
     var deltaHealth = data.vitals.health - this.lastHealth;
     var oreReward = Math.abs(data.vitals.delta_ore);
-    var healthReward = deltaHealth - (deltaHealth < 10? 30 : 0);
+    var healthReward = deltaHealth - (deltaHealth < 10? 0.5 : 0);
     var reward = oreReward + healthReward;
 
 
-    if(this.lastHealth < 10) {
-      reward -= 1;
+    if(this.health >= 99) {
+      reward = 0;
     }
 
     if(this.sugar > 0){
       reward += this.sugar;
       this.sugar = 0;
     }
+    if(reward > maxReward){
+      maxReward = reward;
+    }
+    reward /= maxReward;
     return reward;
 
   },
@@ -183,6 +189,7 @@ BaseAi.prototype = {
     }
     this.lastWorld = world;
     this.lastAction = action;
+    this.UploadModel(this.agent.toJSON());
     callback();
   }
 
