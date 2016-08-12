@@ -37,7 +37,7 @@ BaseAi.prototype = {
   /* needed for ai lib */
 
   GetDataSize: function() {
-    return this.lookRadius * this.lookRadius * this.charCount;
+    return this.charCount * 4;
 
   },
   GetModel: function() {
@@ -150,7 +150,7 @@ BaseAi.prototype = {
     this.world = world;
     
     worldView.Update(world, data.vitals);
-    var state = worldView.GetFlatView(this.lookRadius);
+    var state = worldView.GetEyesView(data.vitals.col, data.vitals.row);
     this.lastAge = data.vitals.world_age;
     this.lastVitals = data.vitals;
     this.lastHealth = data.vitals.health;
@@ -185,10 +185,16 @@ SimpleAi.prototype = $.extend(BaseAi.prototype, {
   lookRadius:2,
 });
 
-function AiWorldView(dataSize) {
-  this.dataSize = dataSize;
+function AiWorldView(maxWidth, maxHeight) {
+  this.maxWidth = maxWidth;
+  this.maxHeight = maxHeight;
+  this.dataSize = maxWidth * maxHeight;
+  this.charCount = 256;
 }
+
 AiWorldView.prototype = {
+  maxWidth: 0,
+  maxHeight: 0,
   charLookup: {},
   Update: function(world, vitals){
     this.world = world;
@@ -206,6 +212,8 @@ AiWorldView.prototype = {
       };
       y++;
     }
+    //this.maxHeight = y - 1;
+    //this.maxWidth = x - 1;
   },
   CheckAddChar: function(character, x, y){
     var currentArray = this.charLookup[character];
@@ -246,5 +254,40 @@ AiWorldView.prototype = {
       state.pop();
     }
     return state;
-  }
+  },
+  GetEyesView: function(playerX, playerY) {
+    var wasd = {
+      w: this.MakeInputArray(this.GetCharAt(playerX, playerY - 1)),
+      a: this.MakeInputArray(this.GetCharAt(playerX - 1, playerY)),
+      s: this.MakeInputArray(this.GetCharAt(playerX, playerY + 1)),
+      d: this.MakeInputArray(this.GetCharAt(playerX + 1, playerY)),
+    };
+    return [].concat(wasd.w)
+      .concat(wasd.a)
+      .concat(wasd.s)
+      .concat(wasd.d);
+  },
+  GetCharAt: function(x, y){
+    if(x < 0 || x > this.maxWidth) {
+      return "";
+    }
+    if(y < 0 || y > this.maxHeight) {
+      return "";
+    }
+    return this.world[y][x][0];
+  },
+  MakeInputArray: function(character) {
+    var out = [];
+    var asciiVal = character.charCodeAt(0);
+    for(var i = 0; i < this.charCount; i++){
+      out[i] = (i == asciiVal?  1 : 0);
+    }
+    return out;
+  } 
+}
+
+Clamp = function(x, xmax, xmin){
+  var out =  Math.max(x, xmin);
+  out = Math.min(out, this.xmax);
+  return out;
 }
