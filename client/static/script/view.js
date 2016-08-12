@@ -213,10 +213,18 @@ View.prototype = {
     // For handling dir & mod keys
     $("body").keypress(function(e){
       command = String.fromCharCode(e.which).toLowerCase();
-
-      //console.log(app.actionsLut);
       app.SendCommand(command);
     });
 
+  },
+  SetupRewardListener: function(ai){
+    var handler = function(e){
+
+      if(command == " "){
+        ai.GiveSugar();
+      }
+    };
+    $("body").keypress(handler);
+    return handler; //if we want to support cleanup
   }
 }

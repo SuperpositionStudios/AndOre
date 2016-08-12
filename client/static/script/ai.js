@@ -14,7 +14,8 @@ BaseAi.prototype = {
       "b",
       "l",  // Primary Modifier Key
       "k",  // Primary Modifier Key
-      "m"  // Primary Modifier Key
+      "m", // Primary Modifier Key
+      "1","2","3","4","5","6","7",
   ],
   charCount: 256,
   charLookup: {},
@@ -72,11 +73,16 @@ BaseAi.prototype = {
       this.agent.fromJSON(this.oldBrain);
       console.log("Parsed stored model into Agent.");
     }
+    this.app.view.SetupRewardListener(this);
     this.StartTicks();
   },
   SendCommand(command){
     //does nothing right now, going to put in some AI specific commands
     
+  },
+  GiveSugar: function() {
+    this.sugar = 5;
+
   },
   StartTicks: function(){
     var self = this;
@@ -124,7 +130,6 @@ BaseAi.prototype = {
     }
   },
   GetReward: function(data) {
-
     this.lastVitals = data.vitals;
     this.lastHealth = data.vitals.health;
     var deltaHealth = data.vitals.health - this.lastHealth;
@@ -134,8 +139,15 @@ BaseAi.prototype = {
 
 
     if(this.lastHealth < 10) {
-      reward = -5;
+      reward -= 1;
     }
+
+    if(this.sugar > 0){
+      reward += this.sugar;
+      this.sugar = 0;
+    }
+    return reward;
+
   },
   Update: function(data, callback) {
     this.tickCount++;
