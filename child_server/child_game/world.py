@@ -10,6 +10,7 @@ import requests
 class World:  # World is not really world, it's more Level
 
     def __init__(self, master_node_address, message_master_node):
+        print("Initializing World...")
         self.master_node_address = master_node_address
         self.message_master_node = message_master_node
         self.rows = 20  # (9 * 3 - 2) - 5
@@ -17,7 +18,7 @@ class World:  # World is not really world, it's more Level
         self.world = []
         self.world_age = 1
         self.last_tick = datetime.datetime.now()
-        self.microseconds_per_tick = 350000
+        self.microseconds_per_tick = 300000
         self.players = dict()
         self.corporations = dict()
         self.buildings = dict()
@@ -34,6 +35,8 @@ class World:  # World is not really world, it's more Level
         assert(len(self.world) == self.rows)
         assert(len(self.world[0]) == self.cols)
 
+        print("Created world with dimensions {}x{}".format(self.cols, self.rows))
+
     def tick(self):
         self.last_tick = datetime.datetime.now()
         self.world_age += 1
@@ -47,7 +50,8 @@ class World:  # World is not really world, it's more Level
         for corp_id in self.corporations:
             corp_obj = self.corporations[corp_id]
             data['corporations'][corp_id] = {
-                'ore_delta': corp_obj.pending_requests['ore_delta']
+                'ore_delta': corp_obj.pending_requests['ore_delta'],
+                'inventory_deltas': corp_obj.pending_requests['inventory_deltas']
             }
         req = requests.post(self.master_node_address + '/update_values', json=data)
         response = req.json()
@@ -55,7 +59,7 @@ class World:  # World is not really world, it's more Level
             for corp_id in response['corporations']:
                 if corp_id in self.corporations:
                     corp_obj = self.corporations[corp_id]
-                    corp_obj.pending_requests['ore_delta'] = 0
+                    corp_obj.reset_pending_requests()
                     corp_obj.set_ore_quantity(response['corporations'][corp_id]['ore_quantity'])
 
     def tick_corp_buildings(self):

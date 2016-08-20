@@ -1,6 +1,7 @@
 import uuid
 import child_server_config as config
 from child_game import gameObject
+import warnings
 
 
 class Corporation:
@@ -13,18 +14,26 @@ class Corporation:
         self.world = _world
         self.members = []  # Members of the corporation, the actual Player objects are stored here, not just their ids.
         self.buildings = []  # Buildings owned by the corporation, building objects are stored here, not just their ids.
-        self.inventory = dict()  # Items owned are stored here
-        """
-        Example:
-        self.inventory = {
-            'Consumables': {
-                'HealthPotion': [HealthPotion(), HealthPotion()],
-            },
-            'Deployables': {
-                'Fence': [Fence(), Fence()]
+        self.assets = {
+            "inventory": {
+                "HealthPotion": {
+                    "quantity": 6,
+                    "item": gameObject.HealthPotion
+                },
+                "HealthCapPotion": {
+                    "quantity": 0,
+                    "item": gameObject.HealthCapPotion
+                },
+                "AttackPowerPotion": {
+                    "quantity": 0,
+                    "item": gameObject.AttackPowerPotion
+                },
+                "MinerMultiplierPotion": {
+                    "quantity": 0,
+                    "item": gameObject.MinerMultiplierPotion
+                }
             }
         }
-        """
         self.usage_inventory = []
         self.ore_quantity = 0
         if config.developing:
@@ -33,43 +42,46 @@ class Corporation:
         self.received_merge_invites = []  # A list containing ids of corps that have sent use merge invites
         self.standings = dict()
         self.pending_requests = {
-            'ore_delta': 0
+            'ore_delta': 0,
+            'inventory_deltas': {
+                'HealthPotion': 0,
+                'HealthCapPotion': 0,
+                'AttackPowerPotion': 0,
+                'MinerMultiplierPotion': 0
+            }
         }
+
+    def reset_pending_requests(self):
+        self.pending_requests['ore_delta'] = 0
+        self.pending_requests['inventory_deltas']['HealthPotion'] = 0
+        self.pending_requests['inventory_deltas']['HealthCapPotion'] = 0
+        self.pending_requests['inventory_deltas']['AttackPowerPotion'] = 0
+        self.pending_requests['inventory_deltas']['MinerMultiplierPotion'] = 0
+
+    def queue_inventory_delta(self, item, delta):
+        self.pending_requests["inventory_deltas"][item] = self.pending_requests["inventory_deltas"].get(item, 0) + delta
 
     def render_inventory(self):
         rendered_inventory = ''
         self.usage_inventory = []
-        # Loop through item type names
-        for item_type in self.inventory:
-            # Loop through item's arrays
-            for item_name in self.inventory[item_type]:
-                quantity = len(self.inventory[item_type][item_name])
-                if quantity > 0:
-                    icon = self.inventory[item_type][item_name][0].icon
-                    rendered_inventory += '{icon}: {quantity} '.format(icon=icon, quantity=quantity)
-                    self.usage_inventory.append(self.inventory[item_type][item_name][0])
+        for itemName in self.assets["inventory"]:
+            itemDict = self.assets["inventory"][itemName]
+            if itemDict.get("quantity", 0) > 0:
+                icon = itemDict["item"].icon
+                rendered_inventory += '{icon}: {quantity} '.format(icon=icon, quantity=itemDict.get("quantity", 0))
+                self.usage_inventory.append(itemDict["item"])
         return rendered_inventory.ljust(self.world.cols)
 
     def return_obj_selected_in_rendered_inventory(self, selected):
-        # Selected are the Secondary Modifier Keys for the Usage Inventory Modifier key, so 1, 2, 3, 4, 5, 6, 7, 8, 9, 0
-        # 1 refers to self.usage_inventory[0]
-        # 0 refers to self.usage_inventory[9]
-        # 1 -> 0
-        # 2 -> 1
-        # 3 -> 2
-        # 4 -> 3
-        # 5 -> 4
-        # 6 -> 5
-        # 7 -> 6
-        # 8 -> 7
-        # 9 -> 8
-        # 0 -> 9
-        if selected == 0:
-            return self.usage_inventory[9]
-        else:
-            return self.usage_inventory[selected - 1]
+        selected = int(selected)
+        ops = [9, 0, 1, 2, 3, 4, 5, 6, 7, 8]
+        return self.usage_inventory[ops[selected]]
+
+    def apply_inventory_change(self, item, delta):
+        self.assets["inventory"][item] = self.assets["inventory"].get(item, 0) + delta
 
     def remove_from_inventory(self, item_obj):
+        warnings.warn("Use queue_inventory_delta instead", DeprecationWarning)
         item_type_storage = self.inventory.get(item_obj.item_type, None)
         if item_type_storage is not None:
             item_storage = item_type_storage.get(item_obj.__class__.__name__, None)
@@ -85,6 +97,7 @@ class Corporation:
             self.remove_from_inventory(item_obj)
 
     def add_to_inventory(self, item_obj):
+        warnings.warn("Use queue_inventory_delta instead", DeprecationWarning)
         item_type_storage = self.inventory.get(item_obj.item_type, None)
         if item_type_storage is not None:
             item_storage = item_type_storage.get(item_obj.__class__.__name__, None)

@@ -227,13 +227,14 @@ class Player(gameObject.GameObject):
             return False
 
     def try_using_inventory(self):
+        #print("tried to use inventory")
         #  Consumables
-        chosen = self.corp.return_obj_selected_in_rendered_inventory(int(self.secondary_modifier_key))
+        chosen = self.corp.return_obj_selected_in_rendered_inventory(int(self.secondary_modifier_key))()
         #print(chosen)
         if chosen.item_type == 'Consumable':
-            #print(True)
             effects = chosen.consume()
             self.take_effects(effects)
+            self.corp.queue_inventory_delta(chosen.__class__.__name__, -1)
             return True
         else:
             #print("Else")

@@ -12,8 +12,8 @@ req = requests.post(config.master_address + '/register/node', json={
 })
 master_response = req.json()
 if master_response['Successful_Request']:
-    print('Op Success')
-    print(master_response['nodes'])
+    print('Successfully Communicated with Master Server')
+    print('Nodes: ', master_response['nodes'])
     node = _node.Node(config.address, master_response['nodes'], 'Cistuvaert', config.keys)
 else:
     print('Failed to establish connection to Master Server')

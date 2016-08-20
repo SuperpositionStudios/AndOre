@@ -175,9 +175,9 @@ def update_values():
         # TODO: Check if this request comes from a verified node
         for corp_id in data['corporations']:
             if corp_id in corporations:
-                ore_delta = data['corporations'][corp_id]['ore_delta']
                 corp_obj = corporations[corp_id]
-                corp_obj.gain_ore(ore_delta)
+                corp_obj.apply_child_server_deltas(data['corporations'][corp_id])
+                print(corp_obj.assets['inventory'])
     for corp_id in corporations:
         corp_obj = corporations[corp_id]
         response['corporations'][corp_id] = {

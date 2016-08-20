@@ -270,12 +270,11 @@ class Pharmacy(CorpOwnedStore):
 class Consumable:
     item_type = 'Consumable'
     construction_cost = 0
+    icon = '?'  # Icon to represent item in inventory
 
-    def __init__(self, _corp):
-        self.owner_corp = _corp
+    def __init__(self):
         self.item_type = 'Consumable'
         self.obj_id = str(uuid.uuid4())
-        self.icon = '?'  # Icon Displayed in Inventory
         self.effects = {
             'Health Delta': 0,  # Modifies the Health of the Player
             'Ore Delta': 0,  # Modifies the ore amount of the Player
@@ -284,51 +283,49 @@ class Consumable:
             'Ore Multiplier Delta': 0,  # Adds this to the player's ore multiplier
             'Ore Multiplier Multiplier Delta': 0  # Multiplies the player's ore multiplier by this + 1.
         }
-        self.owner_corp.add_to_inventory(self)
 
     def consume(self):
-        self.owner_corp.remove_from_inventory(self)
         return self.effects
 
 
 class HealthCapPotion(Consumable):
 
     construction_cost = 500
+    icon = 'HC'
 
-    def __init__(self, _corp):
-        super().__init__(_corp)
+    def __init__(self):
+        super().__init__()
         self.effects['Health Cap Delta'] = 10
-        self.icon = 'HC'
 
 
 class MinerMultiplierPotion(Consumable):
 
     construction_cost = 300
+    icon = 'MM'
 
-    def __init__(self, _corp):
-        super().__init__(_corp)
+    def __init__(self):
+        super().__init__()
         self.effects['Ore Multiplier Multiplier Delta'] = .15
-        self.icon = 'MM'
 
 
 class AttackPowerPotion(Consumable):
 
     construction_cost = 200
+    icon = '⚒'
 
-    def __init__(self, _corp):
-        super().__init__(_corp)
+    def __init__(self):
+        super().__init__()
         self.effects['Attack Power Delta'] = 4
-        self.icon = '⚒'
 
 
 class HealthPotion(Consumable):
 
     construction_cost = 50
+    icon = '♥'
 
-    def __init__(self, _corp):
-        super().__init__(_corp)
+    def __init__(self):
+        super().__init__()
         self.effects['Health Delta'] = 15
-        self.icon = '♥'
 
 
 class RespawnBeacon(CorpOwnedBuilding):
