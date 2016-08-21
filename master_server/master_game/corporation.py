@@ -7,7 +7,7 @@ class Corporation:
         self.assets = {
             'ore': 0,
             'inventory': {
-                'HealthPotion': 0,
+                'HealthPotion': 6,
                 'HealthCapPotion': 0,
                 'AttackPowerPotion': 0,
                 'MinerMultiplierPotion': 0

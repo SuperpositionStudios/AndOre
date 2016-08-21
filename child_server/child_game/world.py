@@ -61,6 +61,7 @@ class World:  # World is not really world, it's more Level
                     corp_obj = self.corporations[corp_id]
                     corp_obj.reset_pending_requests()
                     corp_obj.set_ore_quantity(response['corporations'][corp_id]['ore_quantity'])
+                    corp_obj.update_inventory_quantities(response['corporations'][corp_id]['inventory'])
 
     def tick_corp_buildings(self):
         for corp_id, corp in self.corporations.items():

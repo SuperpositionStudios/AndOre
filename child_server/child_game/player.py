@@ -539,6 +539,7 @@ class Player(gameObject.GameObject):
             self.died()
 
     def try_buying_from_pharmacy(self, _cell):
+        #print(1)
         if _cell is not None:
             struct = _cell.contains_object_type('Pharmacy')
             if struct[0]:
@@ -550,6 +551,7 @@ class Player(gameObject.GameObject):
                         item_num = 9
                     else:
                         item_num = int(self.secondary_modifier_key) - 1
+                    #print("joiwjoiejoiwe")
                     return pharmacy_obj.buy_item(self.corp, item_num)
 
     def try_going_to_hospital(self, _cell):

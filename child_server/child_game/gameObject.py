@@ -190,6 +190,7 @@ class CorpOwnedStore(CorpOwnedBuilding):
         return self.products[item_num]['item'].construction_cost
 
     def buy_item(self, _corp, item_num):
+        #print("Buying item in index ", item_num)
         # Item num out of range
         if item_num >= len(self.products):
             return False
@@ -201,13 +202,12 @@ class CorpOwnedStore(CorpOwnedBuilding):
         if (_corp.amount_of_ore() >= self.get_price(_corp, item_num) and self.owner_corp.amount_of_ore() >= self.asd(item_num)) is False:
             return False
 
-        # Payment
-        _corp.lose_ore(self.get_price(_corp, item_num))
-        self.owner_corp.gain_ore(self.get_price(_corp, item_num))
-
-        # Manufacturing & delivery
-        self.owner_corp.lose_ore(self.asd(item_num))
-        manufactured_item = self.products[item_num]['item'](_corp)
+        # Financial Transfers
+        _corp.lose_ore(self.get_price(_corp, item_num))  # Buyer Pays
+        self.owner_corp.gain_ore(self.get_price(_corp, item_num))  # Owner gets Profit
+        self.owner_corp.lose_ore(self.asd(item_num))  # Owner pays for goods that were sold to the Buyer
+        print(self.products[item_num]['item'].__name__)
+        _corp.queue_inventory_delta(self.products[item_num]['item'].__name__, 1)  # Buyer gets their goods
 
         return True
 

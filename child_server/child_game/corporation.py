@@ -17,7 +17,7 @@ class Corporation:
         self.assets = {
             "inventory": {
                 "HealthPotion": {
-                    "quantity": 6,
+                    "quantity": 0,
                     "item": gameObject.HealthPotion
                 },
                 "HealthCapPotion": {
@@ -51,6 +51,10 @@ class Corporation:
             }
         }
 
+    def update_inventory_quantities(self, data):
+        for itemName in data:
+            self.set_inventory_value(itemName, data.get(itemName))
+
     def reset_pending_requests(self):
         self.pending_requests['ore_delta'] = 0
         self.pending_requests['inventory_deltas']['HealthPotion'] = 0
@@ -58,8 +62,14 @@ class Corporation:
         self.pending_requests['inventory_deltas']['AttackPowerPotion'] = 0
         self.pending_requests['inventory_deltas']['MinerMultiplierPotion'] = 0
 
-    def queue_inventory_delta(self, item, delta):
-        self.pending_requests["inventory_deltas"][item] = self.pending_requests["inventory_deltas"].get(item, 0) + delta
+    def queue_inventory_delta(self, item_name, delta):
+        self.pending_requests["inventory_deltas"][item_name] = self.pending_requests["inventory_deltas"].get(item_name, 0) + delta
+
+    def set_inventory_value(self, item_name, value):
+        self.assets['inventory'][item_name] = {
+            "quantity": value,
+            "item": self.assets['inventory'].get(item_name, {}).get('item', None)
+        }
 
     def render_inventory(self):
         rendered_inventory = ''
@@ -79,35 +89,6 @@ class Corporation:
 
     def apply_inventory_change(self, item, delta):
         self.assets["inventory"][item] = self.assets["inventory"].get(item, 0) + delta
-
-    def remove_from_inventory(self, item_obj):
-        warnings.warn("Use queue_inventory_delta instead", DeprecationWarning)
-        item_type_storage = self.inventory.get(item_obj.item_type, None)
-        if item_type_storage is not None:
-            item_storage = item_type_storage.get(item_obj.__class__.__name__, None)
-            if item_storage is not None:
-                for i in range(0, len(item_storage)):
-                    if item_storage[i].obj_id == item_obj.obj_id:
-                        del item_storage[i]
-                        return
-            else:
-                self.inventory[item_obj.item_type][item_obj.__class__.__name__] = []
-        else:
-            self.inventory[item_obj.item_type] = dict()
-            self.remove_from_inventory(item_obj)
-
-    def add_to_inventory(self, item_obj):
-        warnings.warn("Use queue_inventory_delta instead", DeprecationWarning)
-        item_type_storage = self.inventory.get(item_obj.item_type, None)
-        if item_type_storage is not None:
-            item_storage = item_type_storage.get(item_obj.__class__.__name__, None)
-            if item_storage is not None:
-                item_storage.append(item_obj)
-            else:
-                self.inventory[item_obj.item_type][item_obj.__class__.__name__] = [item_obj]
-        else:
-            self.inventory[item_obj.item_type] = dict()
-            self.add_to_inventory(item_obj)
 
     def tick_buildings(self):
         for building in self.buildings:

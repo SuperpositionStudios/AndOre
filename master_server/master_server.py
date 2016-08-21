@@ -181,7 +181,8 @@ def update_values():
     for corp_id in corporations:
         corp_obj = corporations[corp_id]
         response['corporations'][corp_id] = {
-            'ore_quantity': corp_obj.amount_of_ore()
+            'ore_quantity': corp_obj.amount_of_ore(),
+            'inventory': corp_obj.assets['inventory']
         }
     #drint(response)
     return home_cor(jsonify(**response))
