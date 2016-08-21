@@ -146,6 +146,8 @@ def merge_corporations():
         if node_key is not None and acquirer is not None and acquiree is not None:
             if node_key == config.keys['node']:
                 response['Successful_Request'] = True
+                # Transferring Inventories
+                corporations[acquirer].apply_inventory_delta_multiple(corporations[acquiree].assets['inventory'])
                 # Changing acquiree's player's corp
                 for member in corporations[acquiree].members:
                     member.corp = corporations[acquirer]
@@ -153,6 +155,7 @@ def merge_corporations():
                 corporations[acquiree].members = []
                 corporations.pop(acquiree, None)
                 # Server telling all child nodes to transfer corp belongings including players
+                # Transferring ownership of buildings is handled by the message
                 message_all_nodes('/transfer_assets', {
                     'master_key': config.keys['master'],
                     'acquirer_id': acquirer,
