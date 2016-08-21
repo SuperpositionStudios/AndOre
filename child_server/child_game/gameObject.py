@@ -186,11 +186,10 @@ class CorpOwnedStore(CorpOwnedBuilding):
     def get_profit(self, _corp, item_num):
         return self.products[item_num]['profits'][self.owner_corp.fetch_standing(_corp.corp_id)]
 
-    def asd(self, item_num):
+    def product_price_from_product_num(self, item_num):
         return self.products[item_num]['item'].construction_cost
 
     def buy_item(self, _corp, item_num):
-        #print("Buying item in index ", item_num)
         # Item num out of range
         if item_num >= len(self.products):
             return False
@@ -199,14 +198,13 @@ class CorpOwnedStore(CorpOwnedBuilding):
         assert(_corp.__class__.__name__ == 'Corporation')
 
         # Checking if both parties are able to pay
-        if (_corp.amount_of_ore() >= self.get_price(_corp, item_num) and self.owner_corp.amount_of_ore() >= self.asd(item_num)) is False:
+        if (_corp.amount_of_ore() >= self.get_price(_corp, item_num) and self.owner_corp.amount_of_ore() >= self.product_price_from_product_num(item_num)) is False:
             return False
 
         # Financial Transfers
         _corp.lose_ore(self.get_price(_corp, item_num))  # Buyer Pays
         self.owner_corp.gain_ore(self.get_price(_corp, item_num))  # Owner gets Profit
-        self.owner_corp.lose_ore(self.asd(item_num))  # Owner pays for goods that were sold to the Buyer
-        print(self.products[item_num]['item'].__name__)
+        self.owner_corp.lose_ore(self.product_price_from_product_num(item_num))  # Owner pays for goods that were sold to the Buyer
         _corp.queue_inventory_delta(self.products[item_num]['item'].__name__, 1)  # Buyer gets their goods
 
         return True
