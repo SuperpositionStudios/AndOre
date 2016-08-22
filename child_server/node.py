@@ -8,6 +8,7 @@ import requests
 class Node:
     def __init__(self, address, nodes, name, keys, port=7101):
         print('Starting node...')
+        self.port = port
         self.keys = keys
         self.address = "{domain}:{port}".format(domain=address, port=port)
         self.name = name
@@ -147,7 +148,7 @@ class Node:
                     response['Successful_Request'] = True
             return jsonify(**response)
 
-        app.run(debug=True, host='0.0.0.0', port=7101, threaded=True)
+        app.run(debug=True, host='0.0.0.0', port=self.port, threaded=True)
 
     def home_cor(self, obj):
         return_response = make_response(obj)

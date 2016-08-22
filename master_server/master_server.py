@@ -9,6 +9,8 @@ from master_game import player, corporation
 
 app = Flask(__name__)
 
+starter_system_name = 'Panagoul'
+
 
 web_server_domain = "*"
 nodes = {
@@ -94,9 +96,9 @@ def spawn_player(uid):
     })
     node_response = req.json()
     if node_response['Successful_Request']:
-        drint("Successfully transferred new player to Cistuvaert")
+        drint("Successfully transferred new player to {}".format(starter_system_name))
     else:
-        drint("Error while transferring new player to Cistuvaert")
+        drint("Error while transferring new player to {}".format(starter_system_name))
 
 
 # This is the route that a node server goes to in order to establish a link.
