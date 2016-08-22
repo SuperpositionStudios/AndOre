@@ -1,7 +1,3 @@
-paths_to_master_server = {
-    'john': 'http://localhost:7001',
-}
-
 # Change these values when going into production, these are to provide some very very (read: very) basic security
 # against fake child servers
 
@@ -10,6 +6,6 @@ keys = {
     'master': 'Prsbh%Ul0U6R4ckZEq&iIxGrNY0M#$Fi^TvJuhhZC!E6wt^Sq@whkXWJFS!5iH9f#iPMMp%BFtjP6Eqmz1bN2fi0qllC&^i2TWJ2'
 }
 
-address = 'http://localhost:7101'
+address = 'http://localhost'
 master_address = 'http://localhost:7100'
 developing = True

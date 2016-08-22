@@ -6,10 +6,10 @@ import requests
 
 
 class Node:
-    def __init__(self, address, nodes, name, keys):
+    def __init__(self, address, nodes, name, keys, port=7101):
         print('Starting node...')
         self.keys = keys
-        self.address = address
+        self.address = "{domain}:{port}".format(domain=address, port=port)
         self.name = name
         self.nodes = nodes
         self.world = world.World(self.nodes['master']['address'], self.message_master_node)
