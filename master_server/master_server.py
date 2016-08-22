@@ -6,6 +6,9 @@ from flask import Flask, request, jsonify, url_for, render_template, make_respon
 import master_server_config as config
 import requests
 from master_game import player, corporation
+from master_game.player import Player
+from master_game.corporation import Corporation
+from typing import Dict
 
 app = Flask(__name__)
 
@@ -21,8 +24,8 @@ nodes = {
     'nodes': dict()
 }
 
-corporations = dict()
-players = dict()
+corporations = dict()  # type: Dict[str, Corporation]
+players = dict()  # type: Dict[str, Player]
 
 
 def drint(text):
@@ -37,7 +40,7 @@ def home_cor(obj):
     return return_response
 
 
-def is_valid_id(uid, verbose=False):
+def is_valid_id(uid: str, verbose=False):
     if verbose:
         print("Trying to find {} in".format(uid))
         print(players)
@@ -78,7 +81,7 @@ def message_all_nodes(endpoint, data, skip=None):
             print('Failed to update {node_name} with {data}'.format(node_name=node_name, data=str(data)))
 
 
-def spawn_player(uid):
+def spawn_player(uid: str):
     player_obj = players[uid]
     player_node = players[uid].node
     # Checking that the player's node is valid
@@ -238,6 +241,39 @@ def get_player_info():
                 'server': nodes['nodes'][player_node]['address']
             }
             response['status'] = 'Success'
+    return home_cor(jsonify(**response))
+
+
+@app.route('/info')
+def info():
+    response = {
+        'corporations': []
+    }
+    for c_id, _corporation in corporations.items():
+        corp_info = {
+            'id': _corporation.corp_id,
+            'assets': _corporation.assets,
+            'members': []
+        }
+        for member in _corporation.members:
+            corp_info['members'].append({
+                'id': member.uid,
+                'node': member.node
+            })
+        response['corporations'].append(corp_info)
+    return home_cor(jsonify(**response))
+
+
+@app.route('/move_all_players_from/<system1>/to/<system2>')
+def move_all_players_from(system1, system2):
+    response = {
+        'status': 'Error'
+    }
+    if is_valid_node(system1) and is_valid_node(system2):
+        response['status'] = 'Success'
+        for playerName, player in players.items():
+            if player.node == system1:
+                player.node = system2
     return home_cor(jsonify(**response))
 
 app.run(debug=True, host='0.0.0.0', port=7100, threaded=True)

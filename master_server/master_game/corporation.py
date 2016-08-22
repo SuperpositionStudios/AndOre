@@ -1,4 +1,6 @@
 import uuid
+from master_game.player import Player
+from typing import Dict
 
 
 class Corporation:
@@ -16,18 +18,14 @@ class Corporation:
         self.members = []
         self.corp_id = str(uuid.uuid4())
 
-    def apply_inventory_delta_multiple(self, deltas):
+    def apply_inventory_delta_multiple(self, deltas: Dict[str, int]):
         for item_name in deltas:
             self.apply_inventory_delta(item_name, deltas.get(item_name, 0))
+        return None
 
-    def apply_child_server_deltas(self, data=None):
-        if data is not None:
-            self.apply_ore_delta(data.get('ore_delta', 0))
-            self.apply_inventory_delta_multiple(data.get('inventory_deltas', {}))
-            #self.apply_inventory_delta('HealthPotion', data.get('inventory_deltas', {}).get('HealthPotion', 0))
-            #self.apply_inventory_delta('HealthCapPotion', data.get('inventory_deltas', {}).get('HealthCapPotion', 0))
-            #self.apply_inventory_delta('AttackPowerPotion', data.get('inventory_deltas', {}).get('AttackPowerPotion', 0))
-            #self.apply_inventory_delta('MinerMultiplierPotion', data.get('inventory_deltas', {}).get('MinerMultiplierPotion', 0))
+    def apply_child_server_deltas(self, data: Dict):
+        self.apply_ore_delta(data.get('ore_delta', 0))
+        self.apply_inventory_delta_multiple(data.get('inventory_deltas', {}))
 
     def apply_inventory_delta(self, item, delta):
         self.assets['inventory'][item] = self.assets['inventory'].get(item, 0) + delta
@@ -35,9 +33,10 @@ class Corporation:
     def apply_ore_delta(self, delta):
         self.assets['ore'] = self.assets.get('ore', 0) + delta
 
-    def add_member(self, member):
+    def add_member(self, member: Player):
         member.corp = self
         self.members.append(member)
+        return None
 
     def members_to_json(self):
         response = {
@@ -47,13 +46,13 @@ class Corporation:
             response['members'].append(member.uid)
         return response
 
-    def set_ore_quantity(self, amount):
+    def set_ore_quantity(self, amount: float):
         self.assets['ore'] = amount
 
     def amount_of_ore(self):
         return self.assets['ore']
 
-    def gain_ore(self, amount):
+    def gain_ore(self, amount: float):
         self.assets['ore'] += amount
 
     def lose_ore(self, amount):
