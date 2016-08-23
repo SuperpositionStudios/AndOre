@@ -2,18 +2,15 @@
 # This server stores players (not the playercharacter), corporations, and links node servers.
 # If this server goes down, players will still be able to do everything not related to corporations.
 
-from flask import Flask, request, jsonify, url_for, render_template, make_response, redirect, current_app
+from flask import Flask, request, jsonify, make_response, redirect, current_app
 import master_server_config as config
 import requests
-from master_game import player, corporation
-from master_game.player import Player
-from master_game.corporation import Corporation
-from typing import Dict
+from typing import Dict, List
+import game_classes
 
 app = Flask(__name__)
 
 starter_system_name = 'Panagoul'
-
 
 web_server_domain = "*"
 nodes = {
@@ -24,8 +21,8 @@ nodes = {
     'nodes': dict()
 }
 
-corporations = dict()  # type: Dict[str, Corporation]
-players = dict()  # type: Dict[str, Player]
+corporations = dict()  # type: Dict[str, game_classes.Corporation]
+players = dict()  # type: Dict[str, game_classes.Player]
 
 
 def drint(text):
@@ -81,7 +78,7 @@ def message_all_nodes(endpoint, data, skip=None):
             print('Failed to update {node_name} with {data}'.format(node_name=node_name, data=str(data)))
 
 
-def spawn_player(uid: str):
+def spawn_player(uid):
     player_obj = players[uid]
     player_node = players[uid].node
     # Checking that the player's node is valid
@@ -192,7 +189,7 @@ def update_values():
             'ore_quantity': corp_obj.amount_of_ore(),
             'inventory': corp_obj.assets['inventory']
         }
-    #drint(response)
+    # drint(response)
     return home_cor(jsonify(**response))
 
 
@@ -216,10 +213,11 @@ def valid_id():
 def new_player():
     response = dict()
 
-    new_corp = corporation.Corporation()
+    new_corp = game_classes.Corporation()
     new_corp.gain_ore(5000)
     corporations[new_corp.corp_id] = new_corp
-    new_player_obj = player.Player(new_corp)
+    new_player_obj = game_classes.Player()
+    new_player_obj.assign_corp(new_corp)
     players[new_player_obj.uid] = new_player_obj
     spawn_player(new_player_obj.uid)
     response['id'] = new_player_obj.uid
@@ -275,5 +273,6 @@ def move_all_players_from(system1, system2):
             if player.node == system1:
                 player.node = system2
     return home_cor(jsonify(**response))
+
 
 app.run(debug=True, host='0.0.0.0', port=7100, threaded=True)

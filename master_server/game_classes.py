@@ -1,10 +1,30 @@
+from typing import Dict, List
 import uuid
-from master_game.player import Player
-from typing import Dict
+
+# Class Prototypes
+
+
+class Player: pass
+
+
+class Corporation: pass
+# Class Definition
+
+
+class Player:
+    def __init__(self):
+        self.node = 'Panagoul'
+        self.corp = None
+        self.uid = str(uuid.uuid4())
+
+    def assign_corp(self, new_corp: Corporation):
+        if self.corp is not None:
+            self.corp.remove_player(self)
+        new_corp.add_member(self)
+        self.corp = new_corp
 
 
 class Corporation:
-
     def __init__(self):
         self.assets = {
             'ore': 0,
@@ -15,7 +35,7 @@ class Corporation:
                 'MinerMultiplierPotion': 0
             }
         }
-        self.members = []
+        self.members = []  # type: List[Player]
         self.corp_id = str(uuid.uuid4())
 
     def apply_inventory_delta_multiple(self, deltas: Dict[str, int]):
@@ -27,15 +47,18 @@ class Corporation:
         self.apply_ore_delta(data.get('ore_delta', 0))
         self.apply_inventory_delta_multiple(data.get('inventory_deltas', {}))
 
-    def apply_inventory_delta(self, item, delta):
+    def apply_inventory_delta(self, item: str, delta: int):
         self.assets['inventory'][item] = self.assets['inventory'].get(item, 0) + delta
 
-    def apply_ore_delta(self, delta):
+    def apply_ore_delta(self, delta: float):
         self.assets['ore'] = self.assets.get('ore', 0) + delta
 
-    def add_member(self, member: Player):
-        member.corp = self
+    def add_member(self, member: Player) -> None:
         self.members.append(member)
+        return None
+
+    def remove_player(self, member: Player) -> None:
+        self.members.remove(member)
         return None
 
     def members_to_json(self):
