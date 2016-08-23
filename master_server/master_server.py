@@ -25,11 +25,6 @@ corporations = dict()  # type: Dict[str, game_classes.Corporation]
 players = dict()  # type: Dict[str, game_classes.Player]
 
 
-def drint(text):
-    if config.developing:
-        print(text)
-
-
 def home_cor(obj):
     return_response = make_response(obj)
     return_response.headers['Access-Control-Allow-Origin'] = web_server_domain
@@ -51,7 +46,7 @@ def is_valid_id(uid: str, verbose=False):
         return False
 
 
-def is_valid_node(node_name):
+def is_valid_node(node_name: str) -> bool:
     return node_name in nodes['nodes']
 
 
@@ -96,9 +91,9 @@ def spawn_player(uid):
     })
     node_response = req.json()
     if node_response['Successful_Request']:
-        drint("Successfully transferred new player to {}".format(starter_system_name))
+        print("Successfully transferred new player to ", starter_system_name)
     else:
-        drint("Error while transferring new player to {}".format(starter_system_name))
+        print("Error while transferring new player to ", starter_system_name)
 
 
 # This is the route that a node server goes to in order to establish a link.
@@ -182,14 +177,12 @@ def update_values():
             if corp_id in corporations:
                 corp_obj = corporations[corp_id]
                 corp_obj.apply_child_server_deltas(data['corporations'][corp_id])
-                print(corp_obj.assets['inventory'])
     for corp_id in corporations:
         corp_obj = corporations[corp_id]
         response['corporations'][corp_id] = {
             'ore_quantity': corp_obj.amount_of_ore(),
             'inventory': corp_obj.assets['inventory']
         }
-    # drint(response)
     return home_cor(jsonify(**response))
 
 
@@ -199,12 +192,9 @@ def valid_id():
     response = dict()
     response['status'] = 'invalid'
     if data is not None:
-        drint("/valid_id data is not none")
         game_id = data.get('game_id', None)
         if game_id is not None:
-            drint("/valid_id game id is not none")
             if is_valid_id(game_id, verbose=True):
-                drint("/valid_id id is valid")
                 response['status'] = 'valid'
     return home_cor(jsonify(**response))
 
@@ -245,8 +235,28 @@ def get_player_info():
 @app.route('/info')
 def info():
     response = {
+        'servers': {
+            'master': {
+                'address': nodes['master']['address'],
+                'name': 'master'
+            },
+            'nodes': []
+        },
         'corporations': []
     }
+
+    for node_name, node in nodes['nodes'].items():
+        evac_list = {}
+        for key, val in nodes['nodes'].items():
+            if key != node_name:
+                evac_list[key] = nodes['master']['address'] + '/move_all_players_from/' + node_name + '/to/' + key
+        response['servers']['nodes'].append({
+            'name': node_name,
+            'address': node['address'],
+            'dev': {
+                'evac': evac_list
+            }
+        })
     for c_id, _corporation in corporations.items():
         corp_info = {
             'id': _corporation.corp_id,
@@ -255,6 +265,9 @@ def info():
         }
         for member in _corporation.members:
             corp_info['members'].append({
+                'debug': {
+                    'sendState': nodes['nodes'][member.node]['address'] + '/sendState?id=' + member.uid,
+                },
                 'id': member.uid,
                 'node': member.node
             })
