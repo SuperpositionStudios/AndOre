@@ -1,15 +1,6 @@
 from typing import Dict, List
 import uuid
 
-# Class Prototypes needed since Player refers to Corporation and Corporation refers to Player
-
-
-class Player: pass
-
-
-class Corporation: pass
-# Class Definition
-
 
 class Player:
     def __init__(self):
@@ -17,7 +8,7 @@ class Player:
         self.corp = None
         self.uid = str(uuid.uuid4())
 
-    def assign_corp(self, new_corp: Corporation):
+    def assign_corp(self, new_corp: 'Corporation'):
         if self.corp is not None:
             self.corp.remove_player(self)
         new_corp.add_member(self)
