@@ -87,7 +87,7 @@ def spawn_player(uid: str) -> None:
     player_node = players[uid].node
     # Checking that the player's node is valid
     if is_valid_node(player_node) is False:
-        print("Couldn't transfer new player to node {}".format(player_node))
+        print("Couldn't transfer new player to node {} due to it not being valid.".format(player_node))
         return
     req = requests.post(nodes['nodes'][player_node]['address'] + '/player/enter', json={
         'player': {
@@ -303,7 +303,7 @@ def move_all_players_from(system1, system2):
 
 
 @app.route('/player/transfer_node', methods=['POST', 'OPTIONS'])
-def player_transfer_origin_to():
+def route_player_transfer_origin_to():
     data = request.json
     response = dict()
     response['Successful_Request'] = False
@@ -322,7 +322,7 @@ def player_transfer_origin_to():
             if players.get(gid, None) is not None:
                 players.get(gid).assign_node(destination_node)
             # Contacting the new node instructing it to spawn the player in it's world
-            pass
+            spawn_player(gid)
             response['Successful_Request'] = True
 
     return home_cor(jsonify(**response))
