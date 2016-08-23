@@ -152,7 +152,7 @@ def merge_corporations():
                 corporations[acquirer].apply_inventory_delta_multiple(corporations[acquiree].assets['inventory'])
                 # Changing acquiree's player's corp
                 for member in corporations[acquiree].members:
-                    member.corp = corporations[acquirer]
+                    member.assign_corp(corporations[acquirer])
                 corporations[acquirer].gain_ore(corporations[acquiree].amount_of_ore())
                 corporations[acquiree].members = []
                 corporations.pop(acquiree, None)
