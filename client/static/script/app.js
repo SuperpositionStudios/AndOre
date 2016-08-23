@@ -231,6 +231,7 @@ App.prototype = {
         success: function(data) {
           if (data['status'] == 'Success') {
             current_node_endpoint = data['world']['server'];
+            $('#currentNodeName').text(data['world']['name']);
             CallCallback(callback);
           } else {
             console.log(data);
