@@ -6,13 +6,16 @@ class Player:
     def __init__(self):
         self.node = 'Panagoul'
         self.corp = None
-        self.uid = str(uuid.uuid4())
+        self.uid = str(uuid.uuid4())  # TODO: Rename this to gid (game id) to differentiate between aid (auth id)
 
     def assign_corp(self, new_corp: 'Corporation'):
         if self.corp is not None:
             self.corp.remove_player(self)
         new_corp.add_member(self)
         self.corp = new_corp
+
+    def assign_node(self, new_node: str) -> None:
+        self.node = new_node
 
 
 class Corporation:

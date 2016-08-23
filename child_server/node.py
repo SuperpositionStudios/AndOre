@@ -78,6 +78,7 @@ class Node:
             if self.world.valid_player_id(_id) is False:
                 response['error'] = "Invalid ID"
                 response['world'] = ''
+                response['reconnect'] = True  # Lets the client know to reconnect to the master server
                 return self.home_cor(jsonify(**response))
 
             response = dict()
@@ -122,13 +123,14 @@ class Node:
 
         @app.route('/player/leave', methods=['POST', 'OPTIONS'])
         def player_leave():
+            # TODO: Verify this is a request from Sleipnir
             self.tick_server_if_needed()
             data = request.json
             response = dict()
-            if data is not None and data.get('player', None) is not None:
+            if data is not None and data.get('gid', None) is not None:
                 response['Successful_Request'] = True
-                player_id = data.get('player', None).get('uid', None)
-                if player_id is not None:
+                player_id = data.get('gid', '')
+                if self.world.valid_player_id(player_id) is True:
                     self.world.despawn_player(player_id)
             return self.home_cor(jsonify(**response))
 

@@ -1,6 +1,7 @@
 # This is the master server for the game.
-# This server stores players (not the playercharacter), corporations, and links node servers.
-# If this server goes down, players will still be able to do everything not related to corporations.
+# It's nickname is Sleipnir.
+# This server stores player data (but not player character), corporations, and links node servers.
+# If this server goes down, all nodes are useless.
 
 from flask import Flask, request, jsonify, make_response, redirect, current_app
 import master_server_config as config
@@ -63,22 +64,30 @@ def update_nodes_on_new_nodes(skip=None):
             print('Failed to update {node_name} on new nodes'.format(node_name=node_name))
 
 
-def message_all_nodes(endpoint, data, skip=None):
+def message_node(endpoint: str, node_name: str, data: dict) -> dict:
+    address = nodes['nodes'][node_name]['address'] + endpoint
+    req = requests.post(address, json=data)
+    response = req.json()
+    if response is None:
+        response = {}
+    return response
+
+
+def message_all_nodes(endpoint: str, data: dict, skip=None):
     for node_name in nodes['nodes']:
         if node_name == skip:
             continue
-        req = requests.post(nodes['nodes'][node_name]['address'] + endpoint, json=data)
-        node_response = req.json()
-        if node_response['Successful_Request'] is False:
+        node_response = message_node(endpoint, node_name, data)
+        if node_response.get('Successful_Request', False) is False:
             print('Failed to update {node_name} with {data}'.format(node_name=node_name, data=str(data)))
 
 
-def spawn_player(uid):
+def spawn_player(uid: str) -> None:
     player_obj = players[uid]
     player_node = players[uid].node
     # Checking that the player's node is valid
     if is_valid_node(player_node) is False:
-        drint("Couldn't transfer new player to node {}".format(player_node))
+        print("Couldn't transfer new player to node {}".format(player_node))
         return
     req = requests.post(nodes['nodes'][player_node]['address'] + '/player/enter', json={
         'player': {
@@ -96,16 +105,16 @@ def spawn_player(uid):
         print("Error while transferring new player to ", starter_system_name)
 
 
-# This is the route that a node server goes to in order to establish a link.
-# The process goes like this:
-# node Server goes to this route and reveals their key
-# Master Server checks if the key is valid, and if so it is added to the node server list.
-# Master Server sends the node server the contact info for other node servers and also sends it's key.
-# node Server will now send requests to view Corporation related details, and to modify them.
-# Master Server will handle non-world related things, like merging corporations.
-# The client of a route will always send their key.
 @app.route('/register/node', methods=['POST', 'OPTIONS'])
 def register_server():
+    # This is the route that a node server goes to in order to establish a link.
+    # The process goes like this:
+    # node Server goes to this route and reveals their key
+    # Master Server checks if the key is valid, and if so it is added to the node server list.
+    # Master Server sends the node server the contact info for other node servers and also sends it's key.
+    # node Server will now send requests to view Corporation related details, and to modify them.
+    # Master Server will handle non-world related things, like merging corporations.
+    # The client of a route will always send their key.
     response = dict()
     data = request.json
     node_key = data.get('key', None)
@@ -232,8 +241,10 @@ def get_player_info():
     return home_cor(jsonify(**response))
 
 
+# TODO: Only enable this route when developing
 @app.route('/info')
 def info():
+    # Creating the layout of the response
     response = {
         'servers': {
             'master': {
@@ -244,7 +255,7 @@ def info():
         },
         'corporations': []
     }
-
+    # Adding nodes & their options to the response
     for node_name, node in nodes['nodes'].items():
         evac_list = {}
         for key, val in nodes['nodes'].items():
@@ -257,12 +268,14 @@ def info():
                 'evac': evac_list
             }
         })
+    # Adding corporations to the response
     for c_id, _corporation in corporations.items():
         corp_info = {
             'id': _corporation.corp_id,
             'assets': _corporation.assets,
             'members': []
         }
+        # Adding corp members to the response
         for member in _corporation.members:
             corp_info['members'].append({
                 'debug': {
@@ -275,6 +288,7 @@ def info():
     return home_cor(jsonify(**response))
 
 
+# TODO: Only enable this route when developing
 @app.route('/move_all_players_from/<system1>/to/<system2>')
 def move_all_players_from(system1, system2):
     response = {
@@ -285,6 +299,32 @@ def move_all_players_from(system1, system2):
         for playerName, player in players.items():
             if player.node == system1:
                 player.node = system2
+    return home_cor(jsonify(**response))
+
+
+@app.route('/player/transfer_node', methods=['POST', 'OPTIONS'])
+def player_transfer_origin_to():
+    data = request.json
+    response = dict()
+    response['Successful_Request'] = False
+    if data is not None:
+        # TODO: Check if this request comes from a verified node
+        gid = data.get('gid', '')  # type: str
+        origin_node = data.get('origin', '')  # type: str
+        destination_node = data.get('destination', '')  # type: str
+        if is_valid_id(gid) and is_valid_node(origin_node) and is_valid_node(destination_node):
+            # Tell the player's current node to remove them from the world and reply to any future requests
+            # with a flag telling them to contact the master server for their new node
+            message_node('/player/leave', origin_node, {
+                'gid': gid
+            })
+            # Setting the player's new node
+            if players.get(gid, None) is not None:
+                players.get(gid).assign_node(destination_node)
+            # Contacting the new node instructing it to spawn the player in it's world
+            pass
+            response['Successful_Request'] = True
+
     return home_cor(jsonify(**response))
 
 

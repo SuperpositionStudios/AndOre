@@ -124,8 +124,12 @@ class World:  # World is not really world, it's more Level
         return player_id
 
     def despawn_player(self, player_id):
-        player_obj = self.players[player_id]
-        player_obj.despawn()
+        if self.valid_player_id(player_id):
+            # Removing player from world
+            player_obj = self.players[player_id]
+            player_obj.despawn()
+            # Removing player object from player list
+            self.players.pop(player_id)
 
     def random_can_enter_cell(self):
         random_cell = self.get_random_cell()
