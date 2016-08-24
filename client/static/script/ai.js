@@ -56,7 +56,9 @@ BaseAi.prototype = {
           data: JSON.stringify(data),
           success: function(_data) {
               console.log(_data);
-              self.oldBrain = JSON.parse(_data['model']);
+              if(_data != "" && data.model != "" && data.model != null){
+                self.oldBrain = JSON.parse(_data['model']);                
+              }
               console.log("Retrieved and saved AI Model into memory");
               self.Start();
           }
