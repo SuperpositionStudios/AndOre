@@ -23,7 +23,7 @@ BaseAi.prototype = {
   charLookup: {},
   lastHealth: 0,
   lastAge: 0,
-  lookRadius: 2,
+  lookRadius: 1,
   hasActed: false,
   lastAction: null,
   lastVitals: null,
@@ -40,7 +40,7 @@ BaseAi.prototype = {
   /* needed for ai lib */
 
   GetDataSize: function() {
-    return this.charCount * (this.lookRadius * 2 + 1)^2;
+    return this.charCount * (this.lookRadius * 2 + 1)^2 + this.charCount;
 
   },
   GetModel: function() {
@@ -306,13 +306,12 @@ AiWorldView.prototype = {
     }
     return state;
   },
-    GetDataSize: function() {
+  GetDataSize: function() {
     return this.charCount * (this.lookRadius * 2 + 1)^2;
   },
   GetPrimaryView: function(playerX, playerY){
-
-    return GetNoseView();
-  }
+    return this.GetNoseView().concat(this.GetEyesView(playerX, playerY));
+  },
   GetEyesView: function(playerX, playerY) {
     var radius = this.radius;
     var out = [];
