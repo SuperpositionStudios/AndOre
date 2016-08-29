@@ -115,7 +115,7 @@ class Corporation:
             if building.__class__.__name__ == 'RespawnBeacon' and building.obj_id != new_beacon.obj_id:
                 building.delete()
 
-    def fetch_standing(self, corp_id):
+    def fetch_standing(self, corp_id: str):
         if corp_id == self.corp_id:
             return 'M'
         elif corp_id in self.standings:

@@ -5,6 +5,7 @@ from child_game.corporation import Corporation
 import warnings
 from child_game import helper_functions
 import requests
+from typing import Dict, List
 
 
 class World:  # World is not really world, it's more Level
@@ -15,16 +16,16 @@ class World:  # World is not really world, it's more Level
         self.message_master_node = message_master_node
         self.rows = 20  # (9 * 3 - 2) - 5
         self.cols = 55  # (16 * 3) + 7
-        self.world = []
+        self.world = []  # type: List[List[Cell]]
         self.world_age = 1
         self.last_tick = datetime.datetime.now()
         self.microseconds_per_tick = 300000
-        self.players = dict()
-        self.corporations = dict()
+        self.players = dict()  # type: Dict[str, Player]
+        self.corporations = dict()  # type: Dict[str, Corporation]
         self.buildings = dict()
 
         for row in range(self.rows):
-            current_row = []
+            current_row = []  # type: List[Cell]
             for col in range(self.cols):
                 current_cell = Cell(self, row, col)
                 current_row.append(current_cell)
@@ -198,6 +199,9 @@ class World:  # World is not really world, it's more Level
             building.owner_corp = acquirer
         acquiree.buildings = []
         self.corporations.pop(acquiree_id, None)
+
+    def transfer_player_to_another_node(self, player: 'Player'):
+        pass
 
     def valid_player_id(self, _id):
         #helper_functions.drint("Trying to find player with id {}".format(_id))

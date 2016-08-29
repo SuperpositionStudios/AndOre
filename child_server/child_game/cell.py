@@ -1,17 +1,17 @@
 import uuid
-from child_game import standing_colors, gameObject
+from child_game import standing_colors, gameObject, world, corporation
 
 
 class Cell:
 
-    def __init__(self, _world, _row, _col):
+    def __init__(self, _world: 'world.World', _row: int, _col: int):
         self.world = _world
         self.obj_id = str(uuid.uuid4())
-        self.row = _row
-        self.col = _col
+        self.row = _row  # type: int
+        self.col = _col  # type: int
         self.contents = []
 
-    def try_get_cell_by_offset(self, row_offset, col_offset):
+    def try_get_cell_by_offset(self, row_offset: int, col_offset: int):
         fetched_cell = self.world.get_cell(self.row + row_offset, self.col + col_offset)
         if fetched_cell is False or fetched_cell is None:
             return False
@@ -32,7 +32,7 @@ class Cell:
                         return True
         return False
 
-    def damage_first_player(self, attacking_corp, damage):
+    def damage_first_player(self, attacking_corp: 'corporation.Corporation', damage):
         struct = self.contains_object_type('Player')
         if struct[0]:
             player = self.get_game_object_by_obj_id(struct[1])
@@ -56,7 +56,7 @@ class Cell:
         a = gameObject.OreDeposit(self)
         self.contents.append(a)
 
-    def add_building(self, owner_corp, building_type):
+    def add_building(self, owner_corp: 'corporation.Corporation', building_type: str):
         assert (owner_corp.__class__.__name__ == 'Corporation')
         a = None
         if building_type == 'SentryTurret':
@@ -75,13 +75,13 @@ class Cell:
             a = gameObject.OreGenerator(self, owner_corp)
         self.add_game_object(a)
 
-    def remove_object(self, object_id):
+    def remove_object(self, object_id: str):
         for i in range(0, len(self.contents)):
             if self.contents[i].obj_id == object_id:
                 del self.contents[i]
                 return
 
-    def contains_object_type(self, obj_type_name):
+    def contains_object_type(self, obj_type_name: str):
         # obj_type_name is the class name, example: 'Cell'
         # Returns a tuple, a boolean answering if the cell contains an object with the same class name as the input
         # and a string, if the boolean is true then it will return the object's obj_id
@@ -91,7 +91,7 @@ class Cell:
                 return True, obj.obj_id
         return False, ''
 
-    def get_game_object_by_obj_id(self, obj_id):
+    def get_game_object_by_obj_id(self, obj_id: str):
         for obj in self.contents:
             if obj.obj_id == obj_id:
                 return True, obj

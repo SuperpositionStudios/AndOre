@@ -1,10 +1,11 @@
 import uuid
-from child_game import standing_colors
+from child_game import standing_colors, cell, corporation
+import child_game
 
 
 class GameObject:
 
-    def __init__(self, _cell):
+    def __init__(self, _cell: 'cell.Cell'):
         assert(_cell.__class__.__name__ == 'Cell')
         self.cell = _cell
         self.col = self.cell.col
@@ -38,11 +39,31 @@ class GameObject:
         return
 
 
+class StarGate(GameObject):
+
+    def __init__(self, _cell: 'cell.Cell', target_node_name: str):
+        super().__init__(_cell)
+        self.icon = {
+            'Panagoul': 'Ⓟ',
+            'Ulysses': 'Ⓤ'
+        }.get(target_node_name, '⎊')
+        self.target_node = target_node_name
+        self.passable = {
+            'M': False,
+            'A': False,
+            'N': False,
+            'E': False
+        }
+
+    def use(self, user: 'child_game.player.Player'):
+        self.cell.world.transfer_corp_assets(user)
+
+
 class CorpOwnedBuilding(GameObject):
 
     construction_cost = 0
 
-    def __init__(self, _cell, _corp):
+    def __init__(self, _cell: 'cell.Cell', _corp: 'corporation.Corporation'):
         assert(_cell.__class__.__name__ == 'Cell')
         assert(_corp.__class__.__name__ == 'Corporation')
 
@@ -54,7 +75,7 @@ class CorpOwnedBuilding(GameObject):
 
         self.owner_corp.add_corp_building(self)
 
-    def take_damage(self, damage, attacking_corp):
+    def take_damage(self, damage, attacking_corp: 'corporation.Corporation'):
         assert(attacking_corp.__class__.__name__ == 'Corporation')
         # Standings related thing
         self.owner_corp.worsen_standing(attacking_corp.corp_id)
@@ -99,7 +120,7 @@ class CorpOwnedBuilding(GameObject):
 
 class OreDeposit(GameObject):
 
-    def __init__(self, _cell):
+    def __init__(self, _cell: 'cell.Cell'):
         super().__init__(_cell)
         self.icon = '$'
         self.cell = _cell
@@ -117,7 +138,7 @@ class OreGenerator(CorpOwnedBuilding):
 
     construction_cost = 100
 
-    def __init__(self, _cell, _corp):
+    def __init__(self, _cell: 'cell.Cell', _corp: 'corporation.Corporation'):
         assert(_cell.__class__.__name__ == 'Cell')
         assert(_corp.__class__.__name__ == 'Corporation')
 
@@ -142,7 +163,6 @@ class OreGenerator(CorpOwnedBuilding):
         self.price_to_construct = OreGenerator.construction_cost
         self.health = 225
 
-
     def tick(self):
         self.owner_corp.gain_ore(self.ore_generated_per_tick)
         self.health -= 1
@@ -150,7 +170,7 @@ class OreGenerator(CorpOwnedBuilding):
 
 
 class CorpOwnedStore(CorpOwnedBuilding):
-    def __init__(self, _cell, _corp):
+    def __init__(self, _cell: 'cell.Cell', _corp: 'corporation.Corporation'):
         assert(_cell.__class__.__name__ == 'Cell')
         assert(_corp.__class__.__name__ == 'Corporation')
 

@@ -24,6 +24,23 @@ nodes = {
 
 corporations = dict()  # type: Dict[str, game_classes.Corporation]
 players = dict()  # type: Dict[str, game_classes.Player]
+pending_requests = dict()  # type: Dict[str, List[Dict]]
+
+
+def queue_request(node_name: str, req: Dict) -> bool:
+    """
+    :param node_name: The name of the node that the request is going to be sent to
+    :param req: The dict object containing information about the request including it's request type
+    :return: A boolean with whether the request was successfully queued
+    """
+    if node_name in pending_requests:
+        pending_requests[node_name].append(req)
+        return True
+    return False
+
+
+def reset_pending_requests():
+    pending_requests = dict()
 
 
 def home_cor(obj):

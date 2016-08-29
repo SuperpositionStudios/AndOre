@@ -1,10 +1,10 @@
 import uuid, random
-from child_game.cell import Cell
-from child_game import gameObject, standing_colors, corporation
+from child_game import gameObject, standing_colors, corporation, cell
+import child_game
 
 
 class Player(gameObject.GameObject):
-    def __init__(self, _id, _world, _cell, _corp):
+    def __init__(self, _id: str, _world: 'child_game.world.World', _cell: 'cell.Cell', _corp: 'corporation.Corporation'):
         super().__init__(_cell)
         assert (_world is not None)
         assert (_corp is not None)
