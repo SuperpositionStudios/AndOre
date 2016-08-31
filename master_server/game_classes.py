@@ -1,5 +1,6 @@
 from typing import Dict, List
 import uuid
+import requests
 
 
 class Player:
@@ -82,3 +83,77 @@ class Corporation:
 
     def can_afford(self, price: float) -> bool:
         return self.amount_of_ore() >= price
+
+
+class Node:
+    def __init__(self, node_name: str, address: str, sleipnir_address: str, sleipnir_key: str, node_key: str):
+        self.name = node_name
+        self.address = address
+        self.sleipnir_key = sleipnir_key
+        self.node_key = node_key
+        self.sleipnir_address = sleipnir_address
+        self.queue = []  # type: List[Dict]
+
+    def get_queue(self) -> List[Dict]:
+        return self.queue
+
+    def empty_queue(self) -> None:
+        self.queue = [{
+            'type': 'verification_key',
+            'key': self.sleipnir_key
+        }]  # type: List[Dict]
+
+    def add_to_queue(self, x: Dict) -> None:
+        self.queue.append(x)
+
+    def send_message(self, endpoint: str, data) -> List[bool, Dict]:
+        try:
+            req = requests.post(self.address + endpoint, json=data)
+            response = req.json()
+            if response is None:
+                return [False, {}]
+            else:
+                return [True, response]
+        except:
+            return [False, {}]
+
+    def send_queue(self) -> bool:
+        response = self.send_message('/update/nodes', self.get_queue())
+        return response[0]
+
+
+class NodeList:
+    def __init__(self, sleipnir_address: str, sleipnir_key: str, node_key: str):
+        self.nodes = dict()  # type: Dict[str, Node]
+        self.sleipnir_key = sleipnir_key
+        self.node_key = node_key
+        self.sleipnir_address = sleipnir_address
+
+    def get_node(self, node_name: str):
+        if self.nodes.get(node_name, None) is not None:
+            return self.nodes.get(node_name)
+        else:
+            print("Couldn't find node: ", node_name)
+            return None
+
+    def node_exists(self, node_name: str):
+        return node_name in self.nodes
+
+    def add_node(self, node_name: str, address: str) -> None:
+        self.nodes[node_name] = Node(node_name, address, self.sleipnir_address, self.sleipnir_key, self.node_key)
+
+    def remove_node(self, node_name) -> None:
+        self.nodes.pop(node_name)
+
+
+class Sleipnir:
+    def __init__(self, sleipnir_key: str, node_key: str, address: str):
+        self.sleipnir_key = sleipnir_key
+        self.node_key = node_key
+        self.nodes = NodeList(address, self.sleipnir_key, self.node_key)
+        self.corporations = dict()  # type: Dict[str, Corporation]
+        self.players = dict()  # type: Dict[str, Player]
+
+    def valid_id(self, gid: str):
+        return gid in self.players
+
