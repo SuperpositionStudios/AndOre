@@ -147,6 +147,11 @@ class NodeList:
             if node_name in exclude_list is False:
                 node.add_to_queue(req)
 
+    def send_queues(self, exclude_list: List[str]):
+        for node_name, node in self.nodes.items():
+            if node_name in exclude_list is False:
+                node.send_queue()
+
     def update_node_lists(self):
         node_list = {}
         for node_name, node in self.nodes.items():
@@ -164,6 +169,7 @@ class NodeList:
             }
         }
         self.add_to_all_node_queues(req, [])
+        self.send_queues([])
 
     def add_node(self, node_name: str, address: str, overwrite: bool) -> None:
         if self.get_node(node_name) is not None:
@@ -190,3 +196,9 @@ class Sleipnir:
     def valid_id(self, gid: str):
         return gid in self.players
 
+    def valid_node_key(self, key):
+        return key == self.node_key
+
+    def new_node(self, key: str, node_name: str, node_address: str):
+        if self.valid_node_key(key):
+            self.nodes.add_node(node_name, node_address, False)
