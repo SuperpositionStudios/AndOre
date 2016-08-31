@@ -121,6 +121,9 @@ class Node:
         response = self.send_message('/update/nodes', self.get_queue())
         return response[0]
 
+    def update_address(self, new_address):
+        self.address = new_address
+
 
 class NodeList:
     def __init__(self, sleipnir_address: str, sleipnir_key: str, node_key: str):
@@ -139,8 +142,38 @@ class NodeList:
     def node_exists(self, node_name: str):
         return node_name in self.nodes
 
-    def add_node(self, node_name: str, address: str) -> None:
-        self.nodes[node_name] = Node(node_name, address, self.sleipnir_address, self.sleipnir_key, self.node_key)
+    def add_to_all_node_queues(self, req: Dict, exclude_list: List[str]):
+        for node_name, node in self.nodes.items():
+            if node_name in exclude_list is False:
+                node.add_to_queue(req)
+
+    def update_node_lists(self):
+        node_list = {}
+        for node_name, node in self.nodes.items():
+            node_list[node_name] = {
+                'name': node_name,
+                'address': node.address
+            }
+        req = {
+            'type': 'node_list_update',
+            'key': self.sleipnir_key,
+            'nodes': node_list,
+            'master': {
+                'name': 'Sleipnir',
+                'address': self.sleipnir_address
+            }
+        }
+        self.add_to_all_node_queues(req, [])
+
+    def add_node(self, node_name: str, address: str, overwrite: bool) -> None:
+        if self.get_node(node_name) is not None:
+            if overwrite:
+                self.nodes[node_name] = Node(node_name, address, self.sleipnir_address, self.sleipnir_key, self.node_key)
+            else:
+                self.get_node(node_name).update_address(address)
+        else:
+            self.nodes[node_name] = Node(node_name, address, self.sleipnir_address, self.sleipnir_key, self.node_key)
+        self.update_node_lists()
 
     def remove_node(self, node_name) -> None:
         self.nodes.pop(node_name)
