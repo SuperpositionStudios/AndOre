@@ -9,27 +9,27 @@ The Triple-Tap System involves pressing a "mode" key which determines which mode
     </tr>
     <tr>
         <td>Movement</td>
-        <td>m</td>
+        <td>M</td>
     </tr>
     <tr>
         <td>Build</td>
-        <td>b</td>
+        <td>B</td>
     </tr>
     <tr>
         <td>Loot</td>
-        <td>l</td>
+        <td>L</td>
     </tr>
     <tr>
         <td>Kill</td>
-        <td>k</td>
+        <td>K</td>
     </tr>
     <tr>
         <td>Corp Invite</td>
-        <td>i</td>
+        <td>I</td>
     </tr>
     <tr>
         <td>Use Item from Inventory</td>
-        <td>u</td>
+        <td>U</td>
     </tr>
     <tr>
         <td>Increase Corp Standing</td>
