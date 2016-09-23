@@ -64,14 +64,17 @@ def game_join():
     data = request.json
     response = dict()
     if data is not None:
-        uid = data.get('uid', None)
-        if uid is not None and database_functions_.valid_uid(uid):
-            req = requests.get(config_.game_server_url() + '/join')
-            game_server_response = req.json()
-            print(game_server_response)
+        aid = data.get('uid', None)
+        username = database_functions_.get_username_from_aid(aid)
+        if aid is not None and database_functions_.valid_aid(aid) and username[0]:
+            req = requests.post(config_.game_server_url() + '/join', json={
+                'aid': aid,
+                'username': username[1]
+            }).json()
             response['status'] = 'Success'
-            response['game-id'] = game_server_response['id']
-            database_functions_.update_game_id(uid, game_server_response['id'])
+            response['game-id'] = req['id']
+            gid = req['id']
+            database_functions_.update_game_id(aid, gid)
         else:
             response['status'] = 'Error'
             response['error_message'] = 'no uid was send in the request or invalid uid'
@@ -86,23 +89,27 @@ def game_rejoin():
     data = request.json
     response = dict()
     if data is not None:
-        uid = data.get('uid', None)
-        if uid is not None and database_functions_.valid_uid(uid):
+        aid = data.get('uid', None)
+        username = database_functions_.get_username_from_aid(aid)
+        if aid is not None and database_functions_.valid_aid(aid) and username[0]:
             response['status'] = 'Success'
-            stored_game_id = database_functions_.get_game_id(uid)[1]
-            data = {
+            stored_game_id = database_functions_.get_game_id(aid)[1]
+            req = requests.post(config_.game_server_url() + '/valid_id', json={
                 'game_id': stored_game_id
-            }
-            req = requests.post(config_.game_server_url() + '/valid_id', json=data)
-            server_response = req.json()
-            if server_response['status'] == 'valid':
+            }).json()
+            if req['status'] == 'valid':
                 response['game-id'] = stored_game_id
             else:
-                req = requests.get(config_.game_server_url() + '/join')
-                game_server_response = req.json()
-                new_game_id = game_server_response['id']
-                database_functions_.update_game_id(uid, new_game_id)
-                response['game-id'] = game_server_response['id']
+                #req = requests.get(config_.game_server_url() + '/join')
+                print(username)
+                req = requests.post(config_.game_server_url() + '/join', json={
+                    'aid': aid,
+                    'username': username[1]
+                }).json()
+                #game_server_response = req.json()
+                new_game_id = req['id']
+                database_functions_.update_game_id(aid, new_game_id)
+                response['game-id'] = req['id']
         else:
             response['status'] = 'Error'
             response['error_message'] = 'no uid was send in the request or invalid uid'

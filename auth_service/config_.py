@@ -1,6 +1,6 @@
 paths_to_databases = {
     'hal': 'sqlite:////Users/hlarsson/repos/AndOre/auth_service/database.db',
-    'john': 'sqlite:////home/jcharante/Projects/AndOre/AndOre/auth_service/database.db',
+    'john': 'sqlite:////home/jcharante/Projects/AndOre/auth_service/database.db',
     'production': 'sqlite:////home/andore/AndOre/auth_service/database.db'
 }
 

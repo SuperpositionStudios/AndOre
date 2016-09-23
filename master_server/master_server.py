@@ -225,18 +225,26 @@ def valid_id():
     return home_cor(jsonify(**response))
 
 
-@app.route('/join')
+@app.route('/join', methods=['POST', 'OPTIONS'])
 def new_player():
+    data = request.json
     response = dict()
-
-    new_corp = game_classes.Corporation()
-    new_corp.gain_ore(5000)
-    corporations[new_corp.corp_id] = new_corp
-    new_player_obj = game_classes.Player()
-    new_player_obj.assign_corp(new_corp)
-    players[new_player_obj.uid] = new_player_obj
-    spawn_player(new_player_obj.uid)
-    response['id'] = new_player_obj.uid
+    response['status'] = 'invalid'
+    if data is not None:
+        aid = data.get('aid', None)
+        username = data.get('username', None)
+        if aid is not None and username is not None:
+            new_corp = game_classes.Corporation()
+            new_corp.gain_ore(5000)
+            corporations[new_corp.corp_id] = new_corp
+            player = game_classes.Player()
+            player.assign_corp(new_corp)
+            player.assign_aid(aid)
+            player.assign_username(username)
+            players[player.uid] = player
+            spawn_player(player.uid)
+            response['id'] = player.uid
+            response['status'] = 'valid'
 
     return home_cor(jsonify(**response))
 
@@ -299,7 +307,9 @@ def info():
                     'sendState': nodes['nodes'][member.node]['address'] + '/sendState?id=' + member.uid,
                 },
                 'id': member.uid,
-                'node': member.node
+                'node': member.node,
+                'aid': member.aid,
+                'username': member.username
             })
         response['corporations'].append(corp_info)
     return home_cor(jsonify(**response))
@@ -316,6 +326,7 @@ def move_all_players_from(system1, system2):
         for playerName, player in players.items():
             if player.node == system1:
                 player.node = system2
+                spawn_player(player.uid)
     return home_cor(jsonify(**response))
 
 

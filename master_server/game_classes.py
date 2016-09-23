@@ -6,8 +6,16 @@ import requests
 class Player:
     def __init__(self):
         self.node = 'Panagoul'
+        self.aid = None
+        self.username = None
         self.corp = None
         self.uid = str(uuid.uuid4())  # TODO: Rename this to gid (game id) to differentiate between aid (auth id)
+
+    def assign_aid(self, new_aid: str) -> None:
+        self.aid = new_aid
+
+    def assign_username(self, new_username: str) -> None:
+        self.username = new_username
 
     def assign_corp(self, new_corp: 'Corporation'):
         if self.corp is not None:
