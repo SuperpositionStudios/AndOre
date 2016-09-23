@@ -2,7 +2,7 @@ Ubuntu 16.04 / (Probably will work on Debian & Debian Derivatives with very litt
 ===========================================================================================
 
 1. Download the requirements
-    `sudo apt install -y virtualenv python3.5 git python3-dev libffi-dev;`
+    `sudo apt install -y virtualenv python3.5 python3-pip git python3-dev libffi-dev;`
 2. Clone the repo
     `mkdir AndOre; cd AndOre; git clone https://github.com/baxter-oop/AndOre.git;`
 3. Create the virtual environments and install the python requirements
