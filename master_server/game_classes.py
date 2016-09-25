@@ -114,7 +114,7 @@ class Node:
     def add_to_queue(self, x: Dict) -> None:
         self.queue.append(x)
 
-    def send_message(self, endpoint: str, data) -> List[bool, Dict]:
+    def send_message(self, endpoint, data):
         try:
             req = requests.post(self.address + endpoint, json=data)
             response = req.json()
