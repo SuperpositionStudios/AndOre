@@ -1,8 +1,5 @@
 //This lets us make different kinds of ais
 
-
-
-
 var BaseAi = function(app) {
   this.app = app;
 };
@@ -14,16 +11,36 @@ BaseAi.prototype = {
       "w",  // Direction Key
       "s",  // Direction Key
       "d",  // Direction Key
+      "b",
       "l",  // Primary Modifier Key
       "k",  // Primary Modifier Key
-      "m"  // Primary Modifier Key
+      "m", // Primary Modifier Key
+      "1","2","3","4","5","6","7",
   ],
-  dataSize: 1024,
+  charCount: 256,
+  charLookup: {},
   lastHealth: 0,
   lastAge: 0,
+  lookRadius: 10,
   hasActed: false,
   lastAction: null,
   lastVitals: null,
+  /* needed for ai lib */
+  getNumStates: function() { return this.GetDataSize(); },
+  getMaxNumActions: function() { return this.actions.length; },
+  allowedActions: function() {
+    var allowed = [];
+    for(var i = 0; i < this.actions.length; i++) {
+      allowed.push(i);    
+      return allowed;
+    }
+  },
+  /* needed for ai lib */
+
+  GetDataSize: function() {
+    return this.charCount * 4;
+
+  },
   GetModel: function() {
     var self = this;
     var data = {
@@ -48,30 +65,24 @@ BaseAi.prototype = {
       self.StartAi();
     }
   },
-  NewEnv: function() {
-    var self = this;
-    return {
-      getNumStates: function() { return self.dataSize; },
-      getMaxNumActions: function() { return self.actions.length; },
-      allowedActions: function() {
-        var allowed = [];
-          for (var i = 0; i < self.actions.length; i++) {
-            allowed.push(i);
-          }
-          return allowed;
-        }
-    }
-  },
   Start: function() {
-    this.actions = this.actions.length > 0? this.actions : this.app.actions;
-    this.env = this.NewEnv();
+    //this.actions = this.actions.length > 0? this.actions : this.app.actions;
     var spec = { alpha: 0.01 };
-    this.agent = new RL.DQNAgent(this.env, spec);
+    this.agent = new RL.DQNAgent(this, spec);
     if(this.oldBrain != null){
       this.agent.fromJSON(this.oldBrain);
       console.log("Parsed stored model into Agent.");
     }
+    this.app.view.SetupRewardListener(this);
     this.StartTicks();
+  },
+  SendCommand(command){
+    //does nothing right now, going to put in some AI specific commands
+    
+  },
+  GiveSugar: function() {
+    this.sugar = 5;
+
   },
   StartTicks: function(){
     var self = this;
@@ -84,23 +95,21 @@ BaseAi.prototype = {
         command = self.actions[self.lastAction];
       }
       AjaxCall("/action", {id: self.app.gameId, action: command, sendState:true}, function(data){
-        //console.log(data);
         var worldAge = data.vitals.world_age;
         if (worldAge > self.lastAge) {
-          //console.log(worldAge);
-          app.view.Draw(data);
+          console.log(data.world);
           self.Update(data, repeat);
         } else {
-          app.view.Draw(data);
-          setTimeout(repeat, self.delay);
+          setTimeout(repeat, self.app.delay);
         }
       }, repeat);
     };
     repeat();
   },
 
-  UploadModel: function(ai_model) {
+  UploadModel: function(model) {
     console.log("Uploading Model...");
+    var ai_model = model;
     data = {
         'mid': ai_name,
         'model': ai_model
@@ -121,139 +130,183 @@ BaseAi.prototype = {
       });
     }
   },
-  Update: function(data, callback) {
-    var env = this.env;
+  GetReward: function(data) {
+    var maxReward = 1;
+    this.lastVitals = data.vitals;
+    this.lastHealth = data.vitals.health;
+    var deltaHealth = data.vitals.health - this.lastHealth;
+    var oreReward = Math.abs(data.vitals.delta_ore);
+    var healthReward = deltaHealth - (deltaHealth < 10? 0.5 : 0);
+    var reward = oreReward + healthReward;
 
+
+    if(this.health >= 99) {
+      reward = 0;
+    }
+
+    if(this.sugar > 0){
+      reward += this.sugar;
+      this.sugar = 0;
+    }
+    if(reward > maxReward){
+      maxReward = reward;
+    }
+    reward /= maxReward;
+    return reward;
+
+  },
+  Update: function(data, callback) {
+    this.tickCount++;
+    var worldView = this.worldView;
     if(this.lastVitals == null){
       this.lastVitals = data.vitals;
     }
-
-    this.lastAge = data.vitals.world_age;
-
-    var state = this.FlattenWorld(data.world);
-    var deltaHealth = data.vitals.health - this.lastHealth;
-    var reward = (data.vitals.delta_ore * 2 + deltaHealth * 1) / 3;
-    console.log(data.vitals);
-    /*
-    if (data.vitals.row == this.lastVitals.row && data.vitals.col == this.lastVitals.col){
-
-    } else {
-      reward += 0.2;
+    var world = data.world;
+    if(data.world == "") {
+      world = this.lastWorld;
     }
-
-  */
+    this.world = world;
+    
+    worldView.Update(world, data.vitals);
+    var state = worldView.GetEyesView(data.vitals.col, data.vitals.row);
+    this.lastAge = data.vitals.world_age;
     this.lastVitals = data.vitals;
-
     this.lastHealth = data.vitals.health;
 
-    if(this.lastHealth < 10) {
-      reward = -5;
-    }
+    var reward = this.GetReward(data);
 
     if(this.lastAction != null){
       this.agent.learn(reward);
     } else {
       this.agent.act(state);
     }
+
     var action = this.agent.act(state);
     if(this.lastAction != action){
       this.newAction = true;
     } else {
       this.newAction = false;
     }
+    this.lastWorld = world;
     this.lastAction = action;
+    this.UploadModel(this.agent.toJSON());
     callback();
-  },
-  FlattenWorld: function(world){
-    var state = [];
-    for (var i in world){
-      var line = world[i];
-      for (var key in line){
-        state.push(line[key][0].charCodeAt(0));
-      }
-    }
-    while( state.length < this.dataSize){
-      state.push(" ");
-    }
-    while( state.length > this.dataSize){
-      state.pop();
-    }
-    return state;
   }
+
 };
 
 SimpleAi = function(app) {
   this.app = app;
+  this.worldView = new AiWorldView(this.GetDataSize());
 };
 SimpleAi.prototype = $.extend(BaseAi.prototype, {
   tickCount: 0,
-  actions: [
-      "a",  // Direction Key
-      "w",  // Direction Key
-      "s",  // Direction Key
-      "d",  // Direction Key
-
-      "l",  // Primary Modifier Key
-      "k",  // Primary Modifier Key
-      "m",
-      "b"  // Primary Modifier Key
-  ],
-  NewEnv: function() {
-    var self = this;
-    return {
-      getNumStates: function() { return self.dataSize; },
-      getMaxNumActions: function() { return self.actions.length; },
-      allowedActions: function() {
-        var allowed = [];
-          for (var i = 0; i < self.actions.length; i++) {
-            if(self.tickCount %2 == 0 ) {
-              if( i < 4){
-                allowed.push(i);
-              }
-            } else {
-              if( i >= 4){
-                allowed.push(i);
-              }
-            }
-          }
-          return allowed;
-        }
-    }
-  },
-  Update: function(data, callback) {
-    var env = this.env;
-    this.tickCount++;
-    if(this.lastVitals == null){
-      this.lastVitals = data.vitals;
-    }
-
-    this.lastAge = data.vitals.world_age;
-
-    var state = this.FlattenWorld(data.world);
-    var deltaHealth = data.vitals.health - this.lastHealth;
-    var oreReward = Math.abs(data.vitals.delta_ore);
-    var healthReward = deltaHealth - (deltaHealth < 10? 30 : 0);
-    var reward = oreReward + healthReward;
-    //console.log(data.vitals);
-
-
-    this.lastVitals = data.vitals;
-
-    this.lastHealth = data.vitals.health;
-    if(this.lastAction != null){
-      this.agent.learn(reward);
-    } else {
-      this.agent.act(state);
-    }
-    var action = this.agent.act(state);
-    if(this.lastAction != action){
-      this.newAction = true;
-    } else {
-      this.newAction = false;
-    }
-    this.lastAction = action;
-    callback();
-  }
+  lookRadius:2,
 });
 
-SimpleAi.prototype.prototype = BaseAi.prototype;
+function AiWorldView(maxWidth, maxHeight) {
+  this.maxWidth = maxWidth;
+  this.maxHeight = maxHeight;
+  this.dataSize = maxWidth * maxHeight;
+  this.charCount = 256;
+}
+
+AiWorldView.prototype = {
+  maxWidth: 0,
+  maxHeight: 0,
+  charLookup: {},
+  Update: function(world, vitals){
+    this.world = world;
+    this.vitals = vitals;
+    this.charLookup = {};
+    var state = [];
+    var y = 0;
+    for (var i in world) {
+      var line = world[i];
+      x = 0;
+      for (var key in line){
+        var c = line[key][0].charCodeAt(0);
+        this.CheckAddChar(c, x, y);
+        x++;
+      };
+      y++;
+    }
+    //this.maxHeight = y - 1;
+    //this.maxWidth = x - 1;
+  },
+  CheckAddChar: function(character, x, y){
+    var currentArray = this.charLookup[character];
+    if(currentArray == null){
+      currentArray = [];
+      this.charLookup[character] = currentArray;
+    }
+    currentArray.push({x: x, y: y});
+  },
+  GetFlatView: function(lookRadius) {
+    var world = this.world;
+    var y = 0;
+    var state = [];
+    var playerY = this.vitals.row;
+    var playerX = this.vitals.col;
+    var top = playerY - lookRadius;
+    var bottom = playerY + lookRadius;
+    var left = playerX - lookRadius;
+    var right = playerY + lookRadius;
+
+
+    for (var y = top; y < bottom; y++) {
+      for (var x = left; x < right; x ++){
+        if(world != null && world[y] != null && world[y][x] != null) {
+          var c = world[y][x][0];
+          
+        } else {
+          state.push[0];
+        }
+        x++;
+      };
+      y++;
+    }
+    while( state.length < this.dataSize) {
+      state.push(" ");
+    }
+    while( state.length > this.dataSize) {
+      state.pop();
+    }
+    return state;
+  },
+  GetEyesView: function(playerX, playerY) {
+    var wasd = {
+      w: this.MakeInputArray(this.GetCharAt(playerX, playerY - 1)),
+      a: this.MakeInputArray(this.GetCharAt(playerX - 1, playerY)),
+      s: this.MakeInputArray(this.GetCharAt(playerX, playerY + 1)),
+      d: this.MakeInputArray(this.GetCharAt(playerX + 1, playerY)),
+    };
+    return [].concat(wasd.w)
+      .concat(wasd.a)
+      .concat(wasd.s)
+      .concat(wasd.d);
+  },
+  GetCharAt: function(x, y){
+    if(x < 0 || x > this.maxWidth) {
+      return "";
+    }
+    if(y < 0 || y > this.maxHeight) {
+      return "";
+    }
+    return this.world[y][x][0];
+  },
+  MakeInputArray: function(character) {
+    var out = [];
+    var asciiVal = character.charCodeAt(0);
+    for(var i = 0; i < this.charCount; i++){
+      out[i] = (i == asciiVal?  1 : 0);
+    }
+    return out;
+  } 
+}
+
+Clamp = function(x, xmax, xmin){
+  var out =  Math.max(x, xmin);
+  out = Math.min(out, this.xmax);
+  return out;
+}

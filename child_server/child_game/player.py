@@ -17,6 +17,7 @@ class Player(gameObject.GameObject):
         self.starting_health_cap = 100
         self.health_cap = int(100)
 
+        self.starting_ore = 500
         self.starting_health = 100
         self.health_loss_per_turn = 0.1
         self.health = int(self.starting_health)
@@ -532,6 +533,8 @@ class Player(gameObject.GameObject):
         self.lose_ore(ore_loss)
 
         self.cell.add_game_object(loot_object)
+        if self.corp.ore_quantity < 100:
+            self.gain_ore(100 - self.corp.ore_quantity)
 
     def take_damage(self, damage):
         self.health -= damage

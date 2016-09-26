@@ -4,7 +4,7 @@ paths_to_databases = {
     'production': 'sqlite:////home/andore/AndOre/ai_storage/database.db'
 }
 
-user = 'john'  # change this
+user = 'john'  # THIS HAS TO BE CHANGED TO PRODUCTION BEFORE CREATING A PULL REQUEST
 
 
 def path_to_db():

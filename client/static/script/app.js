@@ -1,7 +1,7 @@
 //load view.js before running this
 //also uses rl.js -- http://cs.stanford.edu/people/karpathy/reinforcejs/
 
-var productionServerUrl = "http://ao.iwanttorule.space";
+var productionServerUrl = "http://iwanttorule.space";
 var production_master_node_endpoint = "/nodes-master";
 var production_game_server_endpoint = "/game-server";
 var production_ai_storage_endpoint = "/ai-storage-server";
@@ -50,7 +50,7 @@ function App() {
 
 }
 App.prototype = {
-  delay: 10,
+  delay: 300,
   hasActed: false,
   authId: null,
   gameId: null,
@@ -248,7 +248,7 @@ App.prototype = {
         self.ai = new SimpleAi(self);
         if(use_ai_storage_server)  {
           self.ai.GetModel();
-        }else {
+        } else {
           self.ai.Start();
         }
         self.AiStarted = true;
@@ -267,10 +267,15 @@ App.prototype = {
   SendCommand: function(command){
     var self = this;
     var view = this.view;
-    AjaxCall("/action", {id: self.gameId, action: command, sendState:true}, function(data){
-      view.Draw(data);
-    });
-  }
+    if(this.AiStarted) {
+      self.ai.SendCommand(command);
+    }
+    if(app.actionsLut[command]) {
+      AjaxCall("/action", {id: self.gameId, action: command, sendState:true}, function(data){
+        view.Draw(data.world);
+      });
+    }
+  },
 };
 
 function CallCallback (callback){
@@ -307,6 +312,5 @@ function AjaxCall(endpoint, data, callback, failCallback){
 
 $(function(){
   app = new App();
-  var ai = new BaseAi(app);
   app.Init();
 });
