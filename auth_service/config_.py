@@ -10,7 +10,7 @@ paths_to_game_server = {
 # It's localhost for now, but in the future they may be hosted on seperate servers
 }
 
-user = 'john'  # THIS HAS TO BE SET BACK TO PRODUCTION BEFORE MAKING YOUR PULL REQUEST I SWEAR TO RNGESUS
+user = 'production'  # THIS HAS TO BE SET BACK TO PRODUCTION BEFORE MAKING YOUR PULL REQUEST I SWEAR TO RNGESUS
 
 
 def path_to_db():

@@ -1,5 +1,5 @@
-# Change these values when going into production, these are to provide some very very (read: very) basic security
-# against fake child servers
+# Change the key values when going into production. These are a simple but bad way to protect against random
+# requests in order to cheat
 
 keys = {
     'node': 'P6rNeO%QnpHoCHdt5Op&G2mqojetESj*gQf*fK!K0uyDjN6XmBblu1S2*fWMCF*77SSOJ2Iy%5!9i&Oor3Lgup8dOhDq^gfOyK!u',
@@ -8,4 +8,4 @@ keys = {
 
 address = 'http://localhost'
 master_address = 'http://localhost:7100'
-developing = True
+developing = False
