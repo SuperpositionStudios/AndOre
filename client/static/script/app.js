@@ -2,12 +2,14 @@
 //also uses rl.js -- http://cs.stanford.edu/people/karpathy/reinforcejs/
 
 var productionServerUrl = "http://iwanttorule.space";
+var production_master_node_endpoint = "/nodes-master";
 var production_game_server_endpoint = "/game-server";
 var production_ai_storage_endpoint = "/ai-storage-server";
 var production_auth_server_endpoint = "/auth";
 
 var devServerUrl = "http://localhost";
-var dev_game_server_endpoint = ":7001";
+var dev_master_node_endpoint = ":7100";
+var dev_game_server_endpoint = ":7101";
 var dev_ai_storage_endpoint = ":7003";
 var dev_auth_server_endpoint = ":7004";
 
@@ -20,12 +22,16 @@ var ai_name = '';
 var game_server_endpoint = null;
 var ai_storage_endpoint = null;
 var auth_server_endpoint = null;
+var master_node_endpoint = null;
+var current_node_endpoint = null;
 
 if (use_dev_server) {
+  master_node_endpoint = devServerUrl + dev_master_node_endpoint;
   game_server_endpoint = devServerUrl + dev_game_server_endpoint;
   ai_storage_endpoint = devServerUrl + dev_ai_storage_endpoint;
   auth_server_endpoint = devServerUrl + dev_auth_server_endpoint;
 } else {
+  master_node_endpoint = productionServerUrl + production_master_node_endpoint;
   game_server_endpoint = productionServerUrl + production_game_server_endpoint;
   ai_storage_endpoint = productionServerUrl + production_ai_storage_endpoint;
   auth_server_endpoint = productionServerUrl + production_auth_server_endpoint;
@@ -93,9 +99,11 @@ App.prototype = {
   	});*/
     self.GetAuthId(function() {
       self.GetGameId(function() {
-        self.ListenToStartAi(function() {
-          self.view = new View();
-          self.view.SetupView(this, App.GetDisplay);
+        self.GetNodeServer(function() {
+          self.ListenToStartAi(function() {
+            self.view = new View();
+            self.view.SetupView(this, App.GetDisplay);
+          });
         });
       });
     })
@@ -209,6 +217,29 @@ App.prototype = {
       });
     });
   },
+  GetNodeServer:function(callback) {
+    var self = this;
+    var data = {
+      'id': self.gameId
+    };
+    $.ajax({
+        method: 'GET',
+        url: master_node_endpoint + '/get_player_info',
+        data: data,
+        dataType: "json",
+        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+        success: function(data) {
+          if (data['status'] == 'Success') {
+            current_node_endpoint = data['world']['server'];
+            $('#currentNodeName').text(data['world']['name']);
+            CallCallback(callback);
+          } else {
+            console.log(data);
+          }
+        }
+
+      });
+  },
   ListenToStartAi:function(callback) {
     var self = this;
 
@@ -254,7 +285,7 @@ function CallCallback (callback){
 }
 
 function AjaxCall(endpoint, data, callback, failCallback){
-  var server = game_server_endpoint;
+  var server = current_node_endpoint;
 
   if(internetOff){
     callback(testData);

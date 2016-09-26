@@ -1,9 +1,11 @@
-import uuid, standing_colors
+import uuid
+from child_game import standing_colors, cell, corporation
+import child_game
 
 
 class GameObject:
 
-    def __init__(self, _cell):
+    def __init__(self, _cell: 'cell.Cell'):
         assert(_cell.__class__.__name__ == 'Cell')
         self.cell = _cell
         self.col = self.cell.col
@@ -37,11 +39,31 @@ class GameObject:
         return
 
 
+class StarGate(GameObject):
+
+    def __init__(self, _cell: 'cell.Cell', target_node_name: str):
+        super().__init__(_cell)
+        self.icon = {
+            'Panagoul': 'Ⓟ',
+            'Ulysses': 'Ⓤ'
+        }.get(target_node_name, '⎊')
+        self.target_node = target_node_name
+        self.passable = {
+            'M': False,
+            'A': False,
+            'N': False,
+            'E': False
+        }
+
+    def use(self, user: 'child_game.player.Player'):
+        self.cell.world.transfer_corp_assets(user)
+
+
 class CorpOwnedBuilding(GameObject):
 
     construction_cost = 0
 
-    def __init__(self, _cell, _corp):
+    def __init__(self, _cell: 'cell.Cell', _corp: 'corporation.Corporation'):
         assert(_cell.__class__.__name__ == 'Cell')
         assert(_corp.__class__.__name__ == 'Corporation')
 
@@ -53,7 +75,7 @@ class CorpOwnedBuilding(GameObject):
 
         self.owner_corp.add_corp_building(self)
 
-    def take_damage(self, damage, attacking_corp):
+    def take_damage(self, damage, attacking_corp: 'corporation.Corporation'):
         assert(attacking_corp.__class__.__name__ == 'Corporation')
         # Standings related thing
         self.owner_corp.worsen_standing(attacking_corp.corp_id)
@@ -98,7 +120,7 @@ class CorpOwnedBuilding(GameObject):
 
 class OreDeposit(GameObject):
 
-    def __init__(self, _cell):
+    def __init__(self, _cell: 'cell.Cell'):
         super().__init__(_cell)
         self.icon = '$'
         self.cell = _cell
@@ -116,7 +138,7 @@ class OreGenerator(CorpOwnedBuilding):
 
     construction_cost = 100
 
-    def __init__(self, _cell, _corp):
+    def __init__(self, _cell: 'cell.Cell', _corp: 'corporation.Corporation'):
         assert(_cell.__class__.__name__ == 'Cell')
         assert(_corp.__class__.__name__ == 'Corporation')
 
@@ -141,7 +163,6 @@ class OreGenerator(CorpOwnedBuilding):
         self.price_to_construct = OreGenerator.construction_cost
         self.health = 225
 
-
     def tick(self):
         self.owner_corp.gain_ore(self.ore_generated_per_tick)
         self.health -= 1
@@ -149,7 +170,7 @@ class OreGenerator(CorpOwnedBuilding):
 
 
 class CorpOwnedStore(CorpOwnedBuilding):
-    def __init__(self, _cell, _corp):
+    def __init__(self, _cell: 'cell.Cell', _corp: 'corporation.Corporation'):
         assert(_cell.__class__.__name__ == 'Cell')
         assert(_corp.__class__.__name__ == 'Corporation')
 
@@ -185,7 +206,7 @@ class CorpOwnedStore(CorpOwnedBuilding):
     def get_profit(self, _corp, item_num):
         return self.products[item_num]['profits'][self.owner_corp.fetch_standing(_corp.corp_id)]
 
-    def asd(self, item_num):
+    def product_price_from_product_num(self, item_num):
         return self.products[item_num]['item'].construction_cost
 
     def buy_item(self, _corp, item_num):
@@ -197,16 +218,14 @@ class CorpOwnedStore(CorpOwnedBuilding):
         assert(_corp.__class__.__name__ == 'Corporation')
 
         # Checking if both parties are able to pay
-        if (_corp.amount_of_ore() >= self.get_price(_corp, item_num) and self.owner_corp.amount_of_ore() >= self.asd(item_num)) is False:
+        if (_corp.amount_of_ore() >= self.get_price(_corp, item_num) and self.owner_corp.amount_of_ore() >= self.product_price_from_product_num(item_num)) is False:
             return False
 
-        # Payment
-        _corp.lose_ore(self.get_price(_corp, item_num))
-        self.owner_corp.gain_ore(self.get_price(_corp, item_num))
-
-        # Manufacturing & delivery
-        self.owner_corp.lose_ore(self.asd(item_num))
-        manufactured_item = self.products[item_num]['item'](_corp)
+        # Financial Transfers
+        _corp.lose_ore(self.get_price(_corp, item_num))  # Buyer Pays
+        self.owner_corp.gain_ore(self.get_price(_corp, item_num))  # Owner gets Profit
+        self.owner_corp.lose_ore(self.product_price_from_product_num(item_num))  # Owner pays for goods that were sold to the Buyer
+        _corp.queue_inventory_delta(self.products[item_num]['item'].__name__, 1)  # Buyer gets their goods
 
         return True
 
@@ -269,12 +288,11 @@ class Pharmacy(CorpOwnedStore):
 class Consumable:
     item_type = 'Consumable'
     construction_cost = 0
+    icon = '?'  # Icon to represent item in inventory
 
-    def __init__(self, _corp):
-        self.owner_corp = _corp
+    def __init__(self):
         self.item_type = 'Consumable'
         self.obj_id = str(uuid.uuid4())
-        self.icon = '?'  # Icon Displayed in Inventory
         self.effects = {
             'Health Delta': 0,  # Modifies the Health of the Player
             'Ore Delta': 0,  # Modifies the ore amount of the Player
@@ -283,51 +301,49 @@ class Consumable:
             'Ore Multiplier Delta': 0,  # Adds this to the player's ore multiplier
             'Ore Multiplier Multiplier Delta': 0  # Multiplies the player's ore multiplier by this + 1.
         }
-        self.owner_corp.add_to_inventory(self)
 
     def consume(self):
-        self.owner_corp.remove_from_inventory(self)
         return self.effects
 
 
 class HealthCapPotion(Consumable):
 
     construction_cost = 500
+    icon = 'HC'
 
-    def __init__(self, _corp):
-        super().__init__(_corp)
+    def __init__(self):
+        super().__init__()
         self.effects['Health Cap Delta'] = 10
-        self.icon = 'HC'
 
 
 class MinerMultiplierPotion(Consumable):
 
     construction_cost = 300
+    icon = 'MM'
 
-    def __init__(self, _corp):
-        super().__init__(_corp)
+    def __init__(self):
+        super().__init__()
         self.effects['Ore Multiplier Multiplier Delta'] = .15
-        self.icon = 'MM'
 
 
 class AttackPowerPotion(Consumable):
 
     construction_cost = 200
+    icon = '⚒'
 
-    def __init__(self, _corp):
-        super().__init__(_corp)
+    def __init__(self):
+        super().__init__()
         self.effects['Attack Power Delta'] = 4
-        self.icon = '⚒'
 
 
 class HealthPotion(Consumable):
 
     construction_cost = 50
+    icon = '♥'
 
-    def __init__(self, _corp):
-        super().__init__(_corp)
+    def __init__(self):
+        super().__init__()
         self.effects['Health Delta'] = 15
-        self.icon = '♥'
 
 
 class RespawnBeacon(CorpOwnedBuilding):
