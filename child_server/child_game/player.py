@@ -70,7 +70,8 @@ class Player(gameObject.GameObject):
             '-': "for setting a corp to a lower standing (A -> N -> E)",
             '+': "for setting a corp to a higher standing (E -> N -> A)",
             'b': "Build mode",
-            'u': "for using something in your corp inventory"
+            'u': "for using something in your corp inventory",
+            'c': "Cancel a corp owned building's existence"
         }
         secondary_modifier_keys = {
             '0': "",
@@ -222,10 +223,16 @@ class Player(gameObject.GameObject):
                 return self.try_improving_standing(affected_cell)
             elif self.primary_modifier_key == 'u':  # Player is trying to use something in their corp inventory
                 return self.try_using_inventory()
+            elif self.primary_modifier_key == 'c':  # Player is trying to cancel a building's existence
+                return self.try_deconstructing(affected_cell)
             else:
                 return False
         else:
             return False
+
+    def try_deconstructing(self, _cell):
+        if _cell is not None:
+            _cell.deconstruct_first_possible_building_owned_by_corp(self.corp.corp_id)
 
     def try_using_inventory(self):
         #print("tried to use inventory")
@@ -343,7 +350,7 @@ class Player(gameObject.GameObject):
         if _cell is not None and _cell.can_enter(player_obj=self):
             ore_cost = gameObject.Fence.construction_cost
             if self.corp.amount_of_ore() >= ore_cost:
-                _cell.add_fence()
+                _cell.add_building(self.corp,'Fence')
                 self.lose_ore(ore_cost)
                 return True
         return False

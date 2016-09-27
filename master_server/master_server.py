@@ -70,15 +70,18 @@ def is_valid_node(node_name: str) -> bool:
 
 def update_nodes_on_new_nodes(skip=None):
     for node_name in nodes['nodes']:
-        if node_name == skip:
-            continue
-        req = requests.post(nodes['nodes'][node_name]['address'] + '/update/nodes', json={
-            'key': config.keys['master'],
-            'nodes': nodes
-        })
-        node_response = req.json()
-        if node_response['Successful_Request'] is False:
-            print('Failed to update {node_name} on new nodes'.format(node_name=node_name))
+        try:
+            if node_name == skip:
+                continue
+            req = requests.post(nodes['nodes'][node_name]['address'] + '/update/nodes', json={
+                'key': config.keys['master'],
+                'nodes': nodes
+            })
+            node_response = req.json()
+            if node_response['Successful_Request'] is False:
+                print('Failed to update {node_name} on new nodes'.format(node_name=node_name))
+        except:
+            print("Server should have crashed right now, but since I added a try with a nonspecific except it didn't")
 
 
 def message_node(endpoint: str, node_name: str, data: dict) -> dict:

@@ -44,6 +44,18 @@ class Cell:
                     return True
         return False
 
+    def deconstruct_first_possible_building_owned_by_corp(self, corp_id):
+        for building in self.contents:
+            building_owner_id = None
+            try:
+                building_owner_id = building.owner_corp.corp_id
+            except:
+                pass
+            if corp_id == building_owner_id:
+                building.died()
+                return True
+        return False
+
     def add_game_object(self, x):
         self.contents.append(x)
 
@@ -73,6 +85,8 @@ class Cell:
             a = gameObject.Hospital(self, owner_corp)
         elif building_type == 'OreGenerator':
             a = gameObject.OreGenerator(self, owner_corp)
+        elif building_type == 'Fence':
+            a = gameObject.Fence(self, owner_corp)
         self.add_game_object(a)
 
     def remove_object(self, object_id: str):
@@ -115,15 +129,14 @@ class Cell:
                                 'Player': 'a',
                                 'SentryTurret': 'b',
                                 'SpikeTrap': 'b',
-                                'Fence': 'e',
+                                'Fence': 'c',
                                 'Pharmacy': 'b',
                                 'Hospital': 'b',
                                 'Door': 'b',
                                 'RespawnBeacon': 'b',
                                 'OreGenerator': 'c',
                                 'OreDeposit': 'd',
-                                'Loot': 'd',
-                                'Fence': 'd'
+                                'Loot': 'd'
                             }
 
                             if types_of_rendering[obj_class_name] == 'a':
