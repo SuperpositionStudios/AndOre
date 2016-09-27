@@ -118,6 +118,29 @@ class CorpOwnedBuilding(GameObject):
         self.cell.add_game_object(loot_object)
 
 
+class Fence(CorpOwnedBuilding):
+
+    construction_cost = 30
+
+    def __init__(self, _cell: 'cell.Cell', owner: 'corporation.Corporation'):
+        super().__init__(_cell, owner)
+        self.health = 60
+        self.icon = '#'
+        self.icons = {
+            'M': ['#', standing_colors.mane['M']],
+            'A': ['#', standing_colors.mane['A']],
+            'N': ['#', standing_colors.mane['N']],
+            'E': ['#', standing_colors.mane['E']]
+        }
+        self.ore_cost_to_deploy = 30
+        self.passable = {
+            'M': False,
+            'A': False,
+            'N': False,
+            'E': False
+        }
+
+
 class OreDeposit(GameObject):
 
     def __init__(self, _cell: 'cell.Cell'):
@@ -546,34 +569,3 @@ class HealthPack(Loot):
         super().__init__(_cell)
         self.health_quantity = 0
         self.icon = '⨮'
-
-
-class Fence(GameObject):
-
-    construction_cost = 30
-
-    def __init__(self, _cell):
-        super().__init__(_cell)
-        self.health = 60
-        self.icon = '#'
-        self.ore_cost_to_deploy = 30
-        self.passable = {
-            'M': False,
-            'A': False,
-            'N': False,
-            'E': False
-        }
-
-    def take_damage(self, damage):
-        self.health -= damage
-        if self.check_if_dead():
-            self.died()
-
-    def check_if_dead(self):
-        if self.health <= 0:
-            return True
-        else:
-            return False
-
-    def died(self):
-        self.delete()

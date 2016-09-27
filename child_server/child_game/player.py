@@ -350,7 +350,7 @@ class Player(gameObject.GameObject):
         if _cell is not None and _cell.can_enter(player_obj=self):
             ore_cost = gameObject.Fence.construction_cost
             if self.corp.amount_of_ore() >= ore_cost:
-                _cell.add_fence()
+                _cell.add_building(self.corp,'Fence')
                 self.lose_ore(ore_cost)
                 return True
         return False

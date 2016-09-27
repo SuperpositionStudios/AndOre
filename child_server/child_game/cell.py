@@ -85,6 +85,8 @@ class Cell:
             a = gameObject.Hospital(self, owner_corp)
         elif building_type == 'OreGenerator':
             a = gameObject.OreGenerator(self, owner_corp)
+        elif building_type == 'Fence':
+            a = gameObject.Fence(self, owner_corp)
         self.add_game_object(a)
 
     def remove_object(self, object_id: str):
@@ -127,15 +129,14 @@ class Cell:
                                 'Player': 'a',
                                 'SentryTurret': 'b',
                                 'SpikeTrap': 'b',
-                                'Fence': 'e',
+                                'Fence': 'c',
                                 'Pharmacy': 'b',
                                 'Hospital': 'b',
                                 'Door': 'b',
                                 'RespawnBeacon': 'b',
                                 'OreGenerator': 'c',
                                 'OreDeposit': 'd',
-                                'Loot': 'd',
-                                'Fence': 'd'
+                                'Loot': 'd'
                             }
 
                             if types_of_rendering[obj_class_name] == 'a':
