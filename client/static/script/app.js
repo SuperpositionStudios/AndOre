@@ -75,6 +75,7 @@ App.prototype = {
     "+", // Primary Modifier Key
     "b", // Primary Modifier Key
     "u", // Primary Modifier Key
+    "c", // Primary Modifier Key
     "0", // Secondary Modifier Key
     "1", // Secondary Modifier Key
     "2", // Secondary Modifier Key

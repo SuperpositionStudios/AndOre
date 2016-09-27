@@ -44,6 +44,18 @@ class Cell:
                     return True
         return False
 
+    def deconstruct_first_possible_building_owned_by_corp(self, corp_id):
+        for building in self.contents:
+            building_owner_id = None
+            try:
+                building_owner_id = building.owner_corp.corp_id
+            except:
+                pass
+            if corp_id == building_owner_id:
+                building.died()
+                return True
+        return False
+
     def add_game_object(self, x):
         self.contents.append(x)
 
