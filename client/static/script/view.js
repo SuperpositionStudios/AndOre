@@ -177,7 +177,7 @@ View.prototype = {
     if (data.world != '') {
       var world_json = copy(data.world);
       world_json.pop();
-      world_json.pop();
+      world_json.pop(); //JOHN THIS IS THE WORST FIX IT - HL
       this.DrawWorldView(world_json);
     }
 

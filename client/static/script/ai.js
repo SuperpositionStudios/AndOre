@@ -5,6 +5,8 @@ var BaseAi = function(app) {
 };
 
 BaseAi.prototype = {
+  uploadFrequency: 100,
+  uploadCount: 0,
   app: null,
   actions: [
       "a",  // Direction Key
@@ -21,7 +23,7 @@ BaseAi.prototype = {
   charLookup: {},
   lastHealth: 0,
   lastAge: 0,
-  lookRadius: 10,
+  lookRadius: 1,
   hasActed: false,
   lastAction: null,
   lastVitals: null,
@@ -38,7 +40,7 @@ BaseAi.prototype = {
   /* needed for ai lib */
 
   GetDataSize: function() {
-    return this.charCount * 4;
+    return this.charCount * (this.lookRadius * 2 + 1)^2 + this.charCount;
 
   },
   GetModel: function() {
@@ -47,23 +49,32 @@ BaseAi.prototype = {
         'mid': prompt("What is the AI's Name?")
     };
     ai_name = data['mid'];
-    if(use_ai_storage_server){
-      $.ajax({
-          type: "POST",
-          contentType: "application/json; charset=utf-8",
-          dataType: "json",
-          url: ai_storage_endpoint + "/retrieve",
-          data: JSON.stringify(data),
-          success: function(_data) {
-              console.log(_data);
-              self.oldBrain = JSON.parse(_data['model']);
-              console.log("Retrieved and saved AI Model into memory");
-              self.Start();
-          }
-      });
-    } else {
-      self.StartAi();
+    var retry;
+    retry = function() {
+      if(use_ai_storage_server){
+        $.ajax({
+            type: "POST",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            url: ai_storage_endpoint + "/retrieve",
+            data: JSON.stringify(data),
+            success: function(_data) {
+                console.log(_data);
+                if(_data != "" && data.model != "" && data.model != null){
+                  self.oldBrain = JSON.parse(_data['model']);                
+                }
+                console.log("Retrieved and saved AI Model into memory");
+                self.Start();
+            }
+          }).fail(function(e){
+            console.log(e);
+            self.Start();
+          });
+      } else {
+        self.Start();
+      }
     }
+    retry();
   },
   Start: function() {
     //this.actions = this.actions.length > 0? this.actions : this.app.actions;
@@ -109,6 +120,10 @@ BaseAi.prototype = {
 
   UploadModel: function(model) {
     console.log("Uploading Model...");
+    this.uploadCount++;
+    if(this.uploadFrequency % this.uploadCount != 0){
+      return;
+    }
     var ai_model = model;
     data = {
         'mid': ai_name,
@@ -168,7 +183,7 @@ BaseAi.prototype = {
     this.world = world;
     
     worldView.Update(world, data.vitals);
-    var state = worldView.GetEyesView(data.vitals.col, data.vitals.row);
+    var state = worldView.GetPrimaryView(data.vitals.col, data.vitals.row);
     this.lastAge = data.vitals.world_age;
     this.lastVitals = data.vitals;
     this.lastHealth = data.vitals.health;
@@ -189,7 +204,9 @@ BaseAi.prototype = {
     }
     this.lastWorld = world;
     this.lastAction = action;
-    this.UploadModel(this.agent.toJSON());
+    if(use_ai_storage_server){
+      this.UploadModel(this.agent.toJSON());
+    }
     callback();
   }
 
@@ -197,11 +214,11 @@ BaseAi.prototype = {
 
 SimpleAi = function(app) {
   this.app = app;
-  this.worldView = new AiWorldView(this.GetDataSize());
+  this.worldView = new AiWorldView(20,20);
 };
 SimpleAi.prototype = $.extend(BaseAi.prototype, {
   tickCount: 0,
-  lookRadius:2,
+  lookRadius:1,
 });
 
 function AiWorldView(maxWidth, maxHeight) {
@@ -215,10 +232,15 @@ AiWorldView.prototype = {
   maxWidth: 0,
   maxHeight: 0,
   charLookup: {},
+
   Update: function(world, vitals){
     this.world = world;
     this.vitals = vitals;
     this.charLookup = {};
+    this.charSniffer = [];
+    for(var i = 0; i < 256; i++){
+      this.charSniffer[i] == 0;
+    }
     var state = [];
     var y = 0;
     for (var i in world) {
@@ -236,10 +258,20 @@ AiWorldView.prototype = {
   },
   CheckAddChar: function(character, x, y){
     var currentArray = this.charLookup[character];
+    var playerY = this.vitals.row;
+    var playerX = this.vitals.col;
+ 
     if(currentArray == null){
       currentArray = [];
       this.charLookup[character] = currentArray;
     }
+
+    var deltaX = playerX - x;
+    var deltaY = playerY - y;
+
+    var smellStrength = 1 - (Sigmoid(deltaX ^ 2 + deltaY ^ 2)) * 2;
+
+    this.charSniffer[character] += smellStrength;
     currentArray.push({x: x, y: y});
   },
   GetFlatView: function(lookRadius) {
@@ -274,17 +306,25 @@ AiWorldView.prototype = {
     }
     return state;
   },
+  GetDataSize: function() {
+    return this.charCount * (this.lookRadius * 2 + 1)^2;
+  },
+  GetPrimaryView: function(playerX, playerY){
+    return this.GetNoseView().concat(this.GetEyesView(playerX, playerY));
+  },
   GetEyesView: function(playerX, playerY) {
-    var wasd = {
-      w: this.MakeInputArray(this.GetCharAt(playerX, playerY - 1)),
-      a: this.MakeInputArray(this.GetCharAt(playerX - 1, playerY)),
-      s: this.MakeInputArray(this.GetCharAt(playerX, playerY + 1)),
-      d: this.MakeInputArray(this.GetCharAt(playerX + 1, playerY)),
-    };
-    return [].concat(wasd.w)
-      .concat(wasd.a)
-      .concat(wasd.s)
-      .concat(wasd.d);
+    var radius = this.radius;
+    var out = [];
+    var self = this;
+    Griderate(playerX - 1, playerX + 1, playerY - 1, playerY + 1, function(x,y){
+      out.concat(self.MakeInputArray(self.GetCharAt(x, y)));
+
+    });
+    return out;
+  },
+  GetNoseView: function() {
+    return this.charSniffer;
+
   },
   GetCharAt: function(x, y){
     if(x < 0 || x > this.maxWidth) {
@@ -304,9 +344,18 @@ AiWorldView.prototype = {
     return out;
   } 
 }
-
+function Griderate(startX, startY, endX, endY, func){
+  for(var x = startX; x < endX; x++){
+    for(var y = startY; y < endY; y++){
+      func(x,y);
+    }
+  }
+}
 Clamp = function(x, xmax, xmin){
   var out =  Math.max(x, xmin);
   out = Math.min(out, this.xmax);
   return out;
+}
+Sigmoid = function(t){
+  return 1 / (1 + Math.E ^ -t);
 }
