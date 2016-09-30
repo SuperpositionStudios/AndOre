@@ -1,0 +1,7 @@
+
+Hospital: Allows players to heal by looting building
+Health:200
+icon :⚕ 
+Construction Cost:200
+Health Per Use:5
+
