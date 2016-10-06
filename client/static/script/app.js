@@ -121,6 +121,7 @@ App.prototype = {
         username: username,
         password: password
       };
+      Materialize.toast("Logging in...!", 2000, 'rounded');
       $.ajax({
         method: 'POST',
         url: auth_server_endpoint + '/account/login',
@@ -129,6 +130,7 @@ App.prototype = {
         contentType: "application/json",
         success: function(data) {
           if (data['status'] == 'Success') {
+            Materialize.toast("Logged in", 2000, 'rounded light-green accent-4');
             self.authId = data['uid'];
             $('#modal1').closeModal();
             CallCallback(callback);
@@ -136,11 +138,18 @@ App.prototype = {
           } else {
             console.log(data);
           }
+        },
+        error: function(jqXHR, exception) {
+          if (jqXHR.status === 401) {
+            Materialize.toast('Invalid Credentials', 3000, 'rounded red accent-4');
+          } else {
+            Materialize.toast('Unknown Error. \n ' + jqXHR.responseText, 3000, 'rounded red accent-4');
+          }
         }
-
       });
     });
     $('#signup').click(function() {
+      Materialize.toast("Signing up...", 2000, 'rounded');
       var username = $('#signup_username').val();
       var password = $('#signup_password').val();
       var data = {
@@ -155,6 +164,8 @@ App.prototype = {
         contentType: "application/json",
         success: function(data) {
           if (data['status'] == 'Success') {
+            Materialize.toast("Signed up", 2000, 'rounded light-green accent-4');
+            Materialize.toast("Logged in", 2000, 'rounded light-green accent-4');
             self.authId = data['uid'];
             $('#modal1').closeModal();
             CallCallback(callback);
@@ -162,8 +173,14 @@ App.prototype = {
           } else {
             console.log(data);
           }
+        },
+        error: function(jqXHR, exception) {
+          if (jqXHR.status === 401) {
+            Materialize.toast('Invalid Credentials', 3000, 'rounded red accent-4');
+          } else {
+            Materialize.toast('Unknown Error. \n ' + jqXHR.responseText, 3000, 'rounded red accent-4');
+          }
         }
-
       });
     });
   },
@@ -219,6 +236,7 @@ App.prototype = {
     });
   },
   GetNodeServer:function(callback) {
+    Materialize.toast("Finding our world...", 1000, 'rounded');
     var self = this;
     var data = {
       'id': self.gameId
@@ -231,6 +249,7 @@ App.prototype = {
         contentType: "application/x-www-form-urlencoded; charset=UTF-8",
         success: function(data) {
           if (data['status'] == 'Success') {
+            Materialize.toast("Found our world!", 1000, 'rounded light-green accent-4');
             current_node_endpoint = data['world']['server'];
             $('#currentNodeName').text(data['world']['name']);
             CallCallback(callback);
@@ -246,6 +265,7 @@ App.prototype = {
 
     $("body").keypress(function(e) {
       if (String.fromCharCode(e.which) == self.startAiKey && self.AiStarted == false) {
+        Materialize.toast("Starting Ai Mode!", 1500, 'rounded light-green accent-4');
         self.ai = new SimpleAi(self);
         if(use_ai_storage_server)  {
           self.ai.GetModel();
