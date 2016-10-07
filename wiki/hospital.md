@@ -37,6 +37,6 @@ They originally spawned in naturally, just like ore deposits, but now have to be
 Contributors
 ============
 
-- JCharnate
+- JCharante
 
 ##### Page last edited on 10/06/16
