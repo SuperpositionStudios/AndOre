@@ -1,0 +1,11 @@
+Turret
+=======
+
+* Icon: `T`
+* Build with: `b, 7, *`
+* Build Cost: `500 Ore`
+* Ore Dropped on Destruction: `166 Ore`
+* Damage per attack: `5`
+#### Services Offered
+
+The Turret attacks enemy(E) and nuetral(N) players
