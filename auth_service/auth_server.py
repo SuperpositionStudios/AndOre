@@ -1,6 +1,6 @@
 # Nickname: Erebus
 
-from flask import Flask, request, jsonify, url_for, render_template, make_response, redirect, current_app
+from flask import Flask, request, jsonify, url_for, render_template, make_response, redirect, current_app, abort, Response
 import database_functions_, requests, config_, json
 
 app = Flask(__name__)
@@ -14,10 +14,17 @@ def home_cor(obj):
     return return_response
 
 
+@app.errorhandler(401)
+def custom_401(error):
+    return Response('Invalid Credentials', 401, {'Erebus':'error="Invalid Credentials"'})
+
+
 @app.route('/account/create', methods=['POST', 'OPTIONS'])
 def account_create():
     data = request.json
     response = dict()
+    if request.method == 'OPTIONS':
+        return home_cor(jsonify(**response))
     if data is not None:
         username = data.get('username', None)
         password = data.get('password', None)
@@ -26,22 +33,16 @@ def account_create():
             if db_response[0]:
                 response['status'] = 'Success'
                 response['uid'] = db_response[1]
-            else:
-                response['status'] = 'Error'
-                response['error_message'] = db_response[1]
-        else:
-            response['status'] = 'Error'
-            response['error_message'] = 'Username or Password are None'
-    else:
-        response['status'] = 'Error'
-        response['error_message'] = 'No JSON Sent'
-    return home_cor(jsonify(**response))
+                return home_cor(jsonify(**response))
+    abort(401)
 
 
 @app.route('/account/login', methods=['POST', 'OPTIONS'])
 def account_login():
     data = request.json
     response = dict()
+    if request.method == 'OPTIONS':
+        return home_cor(jsonify(**response))
     if data is not None:
         username = data.get('username', None)
         password = data.get('password', None)
@@ -50,13 +51,8 @@ def account_login():
             if db_response[0]:
                 response['status'] = 'Success'
                 response['uid'] = db_response[1]
-            else:
-                response['status'] = 'Error'
-                response['error_message'] = db_response[1]
-        else:
-            response['status'] = 'Error'
-            response['error_message'] = 'Username or Password are None'
-    return home_cor(jsonify(**response))
+                return home_cor(jsonify(**response))
+    abort(401)
 
 
 @app.route('/game/join', methods=['POST', 'OPTIONS'])
