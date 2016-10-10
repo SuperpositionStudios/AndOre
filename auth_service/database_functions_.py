@@ -2,11 +2,11 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from database_setup_ import Base, User
 import helper_functions_
-import config_, uuid
+import config, uuid
 from typing import Tuple
 
 # Connects to the database
-engine = create_engine(config_.path_to_db())
+engine = create_engine(config.path_to_db())
 Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
