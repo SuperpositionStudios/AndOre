@@ -2,6 +2,7 @@
 
 from flask import Flask, request, jsonify, url_for, render_template, make_response, redirect, current_app
 import database_functions
+import config
 
 app = Flask(__name__)
 
@@ -41,5 +42,8 @@ def upload():
 def clone_model(original_id, clone_id):
     database_functions.clone_model(original_id, clone_id)
     return home_cor(jsonify({"response": "okay"}))
+
+print("Starting Auth Server...")
+print("Database file located at: {}".format(config.path_to_db()))
 
 app.run(debug=True, host='0.0.0.0', port=7003)
