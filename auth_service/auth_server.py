@@ -1,7 +1,7 @@
 # Nickname: Erebus
 
 from flask import Flask, request, jsonify, url_for, render_template, make_response, redirect, current_app, abort, Response
-import database_functions_, requests, config_, json
+import database_functions_, requests, config, json
 
 app = Flask(__name__)
 
@@ -63,7 +63,7 @@ def game_join():
         aid = data.get('uid', None)
         username = database_functions_.get_username_from_aid(aid)
         if aid is not None and database_functions_.valid_aid(aid) and username[0]:
-            req = requests.post(config_.game_server_url() + '/join', json={
+            req = requests.post(config.game_server_url() + '/join', json={
                 'aid': aid,
                 'username': username[1]
             }).json()
@@ -90,7 +90,7 @@ def game_rejoin():
         if aid is not None and database_functions_.valid_aid(aid) and username[0]:
             response['status'] = 'Success'
             stored_game_id = database_functions_.get_game_id(aid)[1]
-            req = requests.post(config_.game_server_url() + '/valid_id', json={
+            req = requests.post(config.game_server_url() + '/valid_id', json={
                 'game_id': stored_game_id
             }).json()
             if req['status'] == 'valid':
@@ -98,7 +98,7 @@ def game_rejoin():
             else:
                 #req = requests.get(config_.game_server_url() + '/join')
                 print(username)
-                req = requests.post(config_.game_server_url() + '/join', json={
+                req = requests.post(config.game_server_url() + '/join', json={
                     'aid': aid,
                     'username': username[1]
                 }).json()
@@ -113,5 +113,10 @@ def game_rejoin():
         response['status'] = 'Error'
         response['error_message'] = 'no json sent'
     return home_cor(jsonify(**response))
+
+
+print("Starting Auth Server...")
+print("Database file located at: {}".format(config.path_to_db()))
+print("Master Server: {}".format(config.game_server_url()))
 
 app.run(debug=True, host='0.0.0.0', port=7004)
