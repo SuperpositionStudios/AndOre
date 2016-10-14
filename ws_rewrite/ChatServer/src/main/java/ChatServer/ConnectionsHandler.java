@@ -1,25 +1,25 @@
 package ChatServer;
 
-import ChatServer.Endpoints.AccountsEndpointSession;
+import ChatServer.Endpoints.ChatEndpointSession;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ConnectionsHandler {
-    public List<AccountsEndpointSession> connectedClients;
+    public List<ChatEndpointSession> connectedClients;
     public int numConnectedClients;
 
     public ConnectionsHandler() {
-        connectedClients = new ArrayList<AccountsEndpointSession>();
+        connectedClients = new ArrayList<ChatEndpointSession>();
         numConnectedClients = 0;
     }
 
-    public void AddClient(AccountsEndpointSession account) {
+    public void AddClient(ChatEndpointSession account) {
         connectedClients.add(account);
         numConnectedClients++;
     }
 
     public void MessageAll(String message) {
-        for (AccountsEndpointSession account: connectedClients) {
+        for (ChatEndpointSession account: connectedClients) {
             account.messageSelf(message);
         }
     }
