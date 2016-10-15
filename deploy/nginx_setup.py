@@ -35,15 +35,6 @@ else:
     sys.exit()
 
 
-def install_nginx_ubuntu():
-    s.sudo('apt-get install nginx')
-
-
-def install_nginx(os):
-    if os == "ubuntu":
-        install_nginx_ubuntu()
-
-
 def generate_nginx_config():
     config = []
     config.append('server {')
@@ -106,7 +97,6 @@ def restart_nginx():
 def test_config_file():
     s.sudo('nginx -t')
 
-install_nginx(operating_system)
 write_nginx_config()
 test_config_file()
 restart_nginx()
