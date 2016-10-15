@@ -1,0 +1,54 @@
+Follow this https://www.raspberrypi.org/forums/viewtopic.php?t=132674
+
+For the dnamaq setup add this instead:
+
+(sudo nano /etc/dnsmasq.conf)
+
+################
+
+interface=eth0      # Use interface eth0
+listen-address=192.168.3.11 # Explicitly specify the address to listen on
+bind-interfaces      # Bind to the interface to make sure we aren't sending things elsewhere
+server=8.8.8.8       # Forward DNS requests to Google DNS
+domain-needed        # Don't forward short names
+bogus-priv           # Never forward addresses in the non-routed address spaces.
+dhcp-range=192.168.3.12,192.168.3.50,12h # Assign IP addresses between 172.24.1.50 and 172.24.1.150 with a 12 hour lease time
+
+# Static DHCP clients
+
+# Thinky
+dhcp-host=f0:de:f1:68:74:9b,192.168.3.42
+
+# falas
+dhcp-host=b8:27:eb:ff:48:47,192.168.3.12
+
+# rhun
+dhcp-host=5a:4c:a7:b9:6b:14,192.168.3.13
+
+# arnos
+dhcp-host=96:ce:1c:b4:71:82,192.168.3.14
+
+################
+
+
+For Ethernet Static IP where you do sudo nano /etc/network/interfaces add this:
+
+###################
+
+#iface eth0 inet manual
+allow-hotplug eth0
+iface eth0 inet static
+    address 192.168.3.11
+    netmask 255.255.255.0
+    network 192.168.3.0
+    broadcast 192.168.3.255
+
+###################
+
+I found it necessary to add this to /etc/rc.local as it was not running on startup
+
+###
+
+sudo iptables -t nat -A POSTROUTING -o wlan0 -j MASQUERADE
+
+###

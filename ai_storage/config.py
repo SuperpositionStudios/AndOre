@@ -1,11 +1,10 @@
-paths_to_databases = {
-    'hal': 'sqlite:////Users/hlarsson/repos/AndOre/ai_storage/database.db',
-    'john': 'sqlite:////home/jcharante/Projects/AndOre/AndOre/ai_storage/database.db',
-    'production': 'sqlite:////home/andore/AndOre/ai_storage/database.db'
-}
+import os
 
-user = 'hal'  # change this
+
+def path_to_this_files_directory():
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    return dir_path + '/'
 
 
 def path_to_db():
-    return paths_to_databases[user]
+    return 'sqlite:///' + str(path_to_this_files_directory()) + 'database.db'

@@ -1,27 +1,39 @@
-import gameObject, uuid, config
+import uuid
+import config
+from child_game import gameObject
+import warnings
 
 
 class Corporation:
 
-    def __init__(self, initial_member, _world):
-        assert(initial_member.__class__.__name__ == 'Player')
-
-        self.corp_id = str(uuid.uuid4())
+    def __init__(self, _world, corp_id=None):
+        if corp_id is None:
+            self.corp_id = str(uuid.uuid4())
+        else:
+            self.corp_id = corp_id
         self.world = _world
         self.members = []  # Members of the corporation, the actual Player objects are stored here, not just their ids.
         self.buildings = []  # Buildings owned by the corporation, building objects are stored here, not just their ids.
-        self.inventory = dict()  # Items owned are stored here
-        """
-        Example:
-        self.inventory = {
-            'Consumables': {
-                'HealthPotion': [HealthPotion(), HealthPotion()],
-            },
-            'Deployables': {
-                'Fence': [Fence(), Fence()]
+        self.assets = {
+            "inventory": {
+                "HealthPotion": {
+                    "quantity": 0,
+                    "item": gameObject.HealthPotion
+                },
+                "HealthCapPotion": {
+                    "quantity": 0,
+                    "item": gameObject.HealthCapPotion
+                },
+                "AttackPowerPotion": {
+                    "quantity": 0,
+                    "item": gameObject.AttackPowerPotion
+                },
+                "MinerMultiplierPotion": {
+                    "quantity": 0,
+                    "item": gameObject.MinerMultiplierPotion
+                }
             }
         }
-        """
         self.usage_inventory = []
         self.ore_quantity = 0
         if config.developing:
@@ -29,68 +41,54 @@ class Corporation:
         self.sent_merge_invites = []  # A list containing ids of corps that have been sent merge invites
         self.received_merge_invites = []  # A list containing ids of corps that have sent use merge invites
         self.standings = dict()
+        self.pending_requests = {
+            'ore_delta': 0,
+            'inventory_deltas': {
+                'HealthPotion': 0,
+                'HealthCapPotion': 0,
+                'AttackPowerPotion': 0,
+                'MinerMultiplierPotion': 0
+            }
+        }
 
-        self.add_member(initial_member)
+    def update_inventory_quantities(self, data):
+        for itemName in data:
+            self.set_inventory_value(itemName, data.get(itemName))
+
+    def reset_pending_requests(self):
+        self.pending_requests['ore_delta'] = 0
+        self.pending_requests['inventory_deltas']['HealthPotion'] = 0
+        self.pending_requests['inventory_deltas']['HealthCapPotion'] = 0
+        self.pending_requests['inventory_deltas']['AttackPowerPotion'] = 0
+        self.pending_requests['inventory_deltas']['MinerMultiplierPotion'] = 0
+
+    def queue_inventory_delta(self, item_name, delta):
+        self.pending_requests["inventory_deltas"][item_name] = self.pending_requests["inventory_deltas"].get(item_name, 0) + delta
+
+    def set_inventory_value(self, item_name, value):
+        self.assets['inventory'][item_name] = {
+            "quantity": value,
+            "item": self.assets['inventory'].get(item_name, {}).get('item', None)
+        }
 
     def render_inventory(self):
         rendered_inventory = ''
         self.usage_inventory = []
-        # Loop through item type names
-        for item_type in self.inventory:
-            # Loop through item's arrays
-            for item_name in self.inventory[item_type]:
-                quantity = len(self.inventory[item_type][item_name])
-                if quantity > 0:
-                    icon = self.inventory[item_type][item_name][0].icon
-                    rendered_inventory += '{icon}: {quantity} '.format(icon=icon, quantity=quantity)
-                    self.usage_inventory.append(self.inventory[item_type][item_name][0])
+        for itemName in self.assets["inventory"]:
+            itemDict = self.assets["inventory"][itemName]
+            if itemDict.get("quantity", 0) > 0:
+                icon = itemDict["item"].icon
+                rendered_inventory += '{icon}: {quantity} '.format(icon=icon, quantity=itemDict.get("quantity", 0))
+                self.usage_inventory.append(itemDict["item"])
         return rendered_inventory.ljust(self.world.cols)
 
     def return_obj_selected_in_rendered_inventory(self, selected):
-        # Selected are the Secondary Modifier Keys for the Usage Inventory Modifier key, so 1, 2, 3, 4, 5, 6, 7, 8, 9, 0
-        # 1 refers to self.usage_inventory[0]
-        # 0 refers to self.usage_inventory[9]
-        # 1 -> 0
-        # 2 -> 1
-        # 3 -> 2
-        # 4 -> 3
-        # 5 -> 4
-        # 6 -> 5
-        # 7 -> 6
-        # 8 -> 7
-        # 9 -> 8
-        # 0 -> 9
-        if selected == 0:
-            return self.usage_inventory[9]
-        else:
-            return self.usage_inventory[selected - 1]
+        selected = int(selected)
+        ops = [9, 0, 1, 2, 3, 4, 5, 6, 7, 8]
+        return self.usage_inventory[ops[selected]]
 
-    def remove_from_inventory(self, item_obj):
-        item_type_storage = self.inventory.get(item_obj.item_type, None)
-        if item_type_storage is not None:
-            item_storage = item_type_storage.get(item_obj.__class__.__name__, None)
-            if item_storage is not None:
-                for i in range(0, len(item_storage)):
-                    if item_storage[i].obj_id == item_obj.obj_id:
-                        del item_storage[i]
-                        return
-            else:
-                self.inventory[item_obj.item_type][item_obj.__class__.__name__] = []
-        else:
-            self.inventory[item_obj.item_type] = dict()
-            self.remove_from_inventory(item_obj)
-
-    def add_to_inventory(self, item_obj):
-        item_type_storage = self.inventory.get(item_obj.item_type, None)
-        if item_type_storage is not None:
-            item_storage = item_type_storage.get(item_obj.__class__.__name__, None)
-            if item_storage is not None:
-                item_storage.append(item_obj)
-            else:
-                self.inventory[item_obj.item_type][item_obj.__class__.__name__] = [item_obj]
-        else:
-            self.inventory[item_obj.item_type] = dict()
-            self.add_to_inventory(item_obj)
+    def apply_inventory_change(self, item, delta):
+        self.assets["inventory"][item] = self.assets["inventory"].get(item, 0) + delta
 
     def tick_buildings(self):
         for building in self.buildings:
@@ -117,7 +115,7 @@ class Corporation:
             if building.__class__.__name__ == 'RespawnBeacon' and building.obj_id != new_beacon.obj_id:
                 building.delete()
 
-    def fetch_standing(self, corp_id):
+    def fetch_standing(self, corp_id: str):
         if corp_id == self.corp_id:
             return 'M'
         elif corp_id in self.standings:
@@ -158,11 +156,24 @@ class Corporation:
         assert(member.__class__.__name__ == 'Player')
         self.members.append(member)
 
+    def remove_member(self, member):
+        assert(member.__class__.__name__ == 'Player')
+        member_id = member.obj_id
+        for i in range(0, len(self.members)):
+            if self.members[i].obj_id == member_id:
+                del self.members[i]
+                return
+
     def gain_ore(self, amount):
-        self.ore_quantity += amount
+        self.pending_requests['ore_delta'] += amount
+        #self.ore_quantity += amount
 
     def lose_ore(self, amount):
-        self.ore_quantity -= amount
+        self.pending_requests['ore_delta'] -= amount
+        #self.ore_quantity -= amount
+
+    def set_ore_quantity(self, amount):
+        self.ore_quantity = amount
 
     def amount_of_ore(self):
         return self.ore_quantity
@@ -189,10 +200,20 @@ class Corporation:
         for received in self.received_merge_invites:
             if received in self.sent_merge_invites:
                 corp_id_to_merge_with = received
-                self.world.corporations[corp_id_to_merge_with].merge_me(self.corp_id)
+                #print(corp_id_to_merge_with)
+                #print(self.world.corporations[corp_id_to_merge_with])
+                #print(corp_id_to_merge_with in self.world.corporations)
+                if corp_id_to_merge_with in self.world.corporations:
+                    self.world.corporations[corp_id_to_merge_with].merge_me(self.corp_id)
 
     # Another corp will call this with their corp id to indicate that they want to be merged into our corp
     def merge_me(self, other_corp_id):
+        self.world.message_master_node('/merge_corporations', {
+            'key': config.keys['node'],
+            'acquirer_id': self.corp_id,
+            'acquiree_id': other_corp_id
+        })
+        """
         _other_corp = self.world.corporations[other_corp_id]
 
         #print("Old corp size: {}".format(len(self.members)))
@@ -226,3 +247,4 @@ class Corporation:
         # Deletes the other corp to save memory
         self.world.corporations.pop(other_corp_id)
         #print("New corp size: {}".format(len(self.members)))
+        """

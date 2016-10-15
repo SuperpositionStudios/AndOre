@@ -1,20 +1,17 @@
-import uuid, random
-import gameObject
-import warnings
-from corporation import Corporation
-import standing_colors
+import uuid
+from child_game import standing_colors, gameObject, world, corporation
 
 
 class Cell:
 
-    def __init__(self, _world, _row, _col):
+    def __init__(self, _world: 'world.World', _row: int, _col: int):
         self.world = _world
         self.obj_id = str(uuid.uuid4())
-        self.row = _row
-        self.col = _col
+        self.row = _row  # type: int
+        self.col = _col  # type: int
         self.contents = []
 
-    def try_get_cell_by_offset(self, row_offset, col_offset):
+    def try_get_cell_by_offset(self, row_offset: int, col_offset: int):
         fetched_cell = self.world.get_cell(self.row + row_offset, self.col + col_offset)
         if fetched_cell is False or fetched_cell is None:
             return False
@@ -35,7 +32,7 @@ class Cell:
                         return True
         return False
 
-    def damage_first_player(self, attacking_corp, damage):
+    def damage_first_player(self, attacking_corp: 'corporation.Corporation', damage):
         struct = self.contains_object_type('Player')
         if struct[0]:
             player = self.get_game_object_by_obj_id(struct[1])
@@ -47,78 +44,58 @@ class Cell:
                     return True
         return False
 
+    def deconstruct_first_possible_building_owned_by_corp(self, corp_id):
+        for building in self.contents:
+            building_owner_id = None
+            try:
+                building_owner_id = building.owner_corp.corp_id
+            except:
+                pass
+            if corp_id == building_owner_id:
+                building.died()
+                return True
+        return False
+
     def add_game_object(self, x):
         self.contents.append(x)
-
-    def add_ore_deposit(self):
-        a = gameObject.OreDeposit(self)
-        self.contents.append(a)
-
-    def add_respawn_beacon(self, owner_corp):
-        assert(owner_corp.__class__.__name__ == 'Corporation')
-        a = gameObject.RespawnBeacon(self, owner_corp)
-        self.add_game_object(a)
-
-    def add_building(self, owner_corp, building_type):
-        assert(owner_corp.__class__.__name__ == 'Corporation')
-        a = None
-        if building_type == 'SentryTurret':
-            a = gameObject.SentryTurret(self, owner_corp)
-        elif building_type == 'SpikeTrap':
-            a = gameObject.SpikeTrap(self, owner_corp)
-        self.add_game_object(a)
-
-
-    def add_door(self, owner_corp):
-        assert(owner_corp.__class__.__name__ == 'Corporation')
-        a = gameObject.Door(self, owner_corp)
-        self.add_game_object(a)
-
-    def add_pharmacy(self, owner_corp):
-        assert(owner_corp.__class__.__name__ == 'Corporation')
-        a = gameObject.Pharmacy(self, owner_corp)
-        self.add_game_object(a)
-
-    def add_hospital(self, owner_corp):
-        assert(owner_corp.__class__.__name__ == 'Corporation')
-        a = gameObject.Hospital(self, owner_corp)
-        self.add_game_object(a)
-
-        return a.price_to_construct
-
-    def add_ore_generator(self, owner_corp):
-        assert(owner_corp.__class__.__name__ == 'Corporation')
-        a = gameObject.OreGenerator(self, owner_corp)
-        self.add_game_object(a)
-
-        return a.price_to_construct
 
     def add_fence(self):
         a = gameObject.Fence(self)
         self.add_game_object(a)
         return a.ore_cost_to_deploy
 
-    def destroy(self):
-        self.world = None
-        self.contents = None
-        for obj in self.contents:
-            obj.leave_cell(self)
+    def add_ore_deposit(self):
+        a = gameObject.OreDeposit(self)
+        self.contents.append(a)
 
-    def add_object(self, obj):
-        warnings.warn("Use add_game_object instead", DeprecationWarning)  #
-        if obj.cell != self:
-            obj.cell = self
+    def add_building(self, owner_corp: 'corporation.Corporation', building_type: str):
+        assert (owner_corp.__class__.__name__ == 'Corporation')
+        a = None
+        if building_type == 'SentryTurret':
+            a = gameObject.SentryTurret(self, owner_corp)
+        elif building_type == 'SpikeTrap':
+            a = gameObject.SpikeTrap(self, owner_corp)
+        elif building_type == 'RespawnBeacon':
+            a = gameObject.RespawnBeacon(self, owner_corp)
+        elif building_type == 'Door':
+            a = gameObject.Door(self, owner_corp)
+        elif building_type == 'Pharmacy':
+            a = gameObject.Pharmacy(self, owner_corp)
+        elif building_type == 'Hospital':
+            a = gameObject.Hospital(self, owner_corp)
+        elif building_type == 'OreGenerator':
+            a = gameObject.OreGenerator(self, owner_corp)
+        elif building_type == 'Fence':
+            a = gameObject.Fence(self, owner_corp)
+        self.add_game_object(a)
 
-        self.contents.append(obj)
-
-    def remove_object(self, object_id):
+    def remove_object(self, object_id: str):
         for i in range(0, len(self.contents)):
-            #print("{} out of {}".format(i, len(self.contents)))
             if self.contents[i].obj_id == object_id:
                 del self.contents[i]
                 return
 
-    def contains_object_type(self, obj_type_name):
+    def contains_object_type(self, obj_type_name: str):
         # obj_type_name is the class name, example: 'Cell'
         # Returns a tuple, a boolean answering if the cell contains an object with the same class name as the input
         # and a string, if the boolean is true then it will return the object's obj_id
@@ -128,7 +105,7 @@ class Cell:
                 return True, obj.obj_id
         return False, ''
 
-    def get_game_object_by_obj_id(self, obj_id):
+    def get_game_object_by_obj_id(self, obj_id: str):
         for obj in self.contents:
             if obj.obj_id == obj_id:
                 return True, obj
@@ -152,7 +129,7 @@ class Cell:
                                 'Player': 'a',
                                 'SentryTurret': 'b',
                                 'SpikeTrap': 'b',
-                                'Fence': 'e',
+                                'Fence': 'c',
                                 'Pharmacy': 'b',
                                 'Hospital': 'b',
                                 'Door': 'b',
@@ -204,7 +181,3 @@ class Cell:
                 if obj.passable[obj_standing] is False:
                     return False
             return True
-    """
-    def try_get_cell_by_offset(self, row_offset, col_offset):
-        return self.world.get_cell(self.row + row_offset, self.col + col_offset)
-    """

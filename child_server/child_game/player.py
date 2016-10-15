@@ -1,13 +1,13 @@
 import uuid, random
-from cell import Cell
-import gameObject
-import corporation, standing_colors
+from child_game import gameObject, standing_colors, corporation, cell
+import child_game
 
 
 class Player(gameObject.GameObject):
-    def __init__(self, _id, _world, _cell):
+    def __init__(self, _id: str, _world: 'child_game.world.World', _cell: 'cell.Cell', _corp: 'corporation.Corporation'):
         super().__init__(_cell)
         assert (_world is not None)
+        assert (_corp is not None)
 
         self.id = _id
         self.obj_id = _id
@@ -52,8 +52,13 @@ class Player(gameObject.GameObject):
             'E': False
         }
         self.last_action_at_world_age = 0
-        self.corp = self.world.new_corporation(self)
-        self.corp.ore_quantity = self.starting_ore
+        self.corp = _corp
+
+    # Called when being removed from the node
+    def despawn(self):
+        # Removes self from the node's copy of the corp
+        self.corp.remove_member(self)
+        self.delete()
 
     def action(self, key_pressed):
         direction_keys = ['w', 'a', 's', 'd']
@@ -65,7 +70,8 @@ class Player(gameObject.GameObject):
             '-': "for setting a corp to a lower standing (A -> N -> E)",
             '+': "for setting a corp to a higher standing (E -> N -> A)",
             'b': "Build mode",
-            'u': "for using something in your corp inventory"
+            'u': "for using something in your corp inventory",
+            'c': "Cancel a corp owned building's existence"
         }
         secondary_modifier_keys = {
             '0': "",
@@ -217,19 +223,26 @@ class Player(gameObject.GameObject):
                 return self.try_improving_standing(affected_cell)
             elif self.primary_modifier_key == 'u':  # Player is trying to use something in their corp inventory
                 return self.try_using_inventory()
+            elif self.primary_modifier_key == 'c':  # Player is trying to cancel a building's existence
+                return self.try_deconstructing(affected_cell)
             else:
                 return False
         else:
             return False
 
+    def try_deconstructing(self, _cell):
+        if _cell is not None:
+            _cell.deconstruct_first_possible_building_owned_by_corp(self.corp.corp_id)
+
     def try_using_inventory(self):
+        #print("tried to use inventory")
         #  Consumables
-        chosen = self.corp.return_obj_selected_in_rendered_inventory(int(self.secondary_modifier_key))
+        chosen = self.corp.return_obj_selected_in_rendered_inventory(int(self.secondary_modifier_key))()
         #print(chosen)
         if chosen.item_type == 'Consumable':
-            #print(True)
             effects = chosen.consume()
             self.take_effects(effects)
+            self.corp.queue_inventory_delta(chosen.__class__.__name__, -1)
             return True
         else:
             #print("Else")
@@ -292,7 +305,7 @@ class Player(gameObject.GameObject):
         if _cell is not None and _cell.can_enter(player_obj=self):
             ore_cost = gameObject.Pharmacy.construction_price
             if self.corp.amount_of_ore() >= ore_cost:
-                _cell.add_pharmacy(self.corp)
+                _cell.add_building(self.corp, 'Pharmacy')
                 self.lose_ore(ore_cost)
                 return True
         return False
@@ -301,7 +314,7 @@ class Player(gameObject.GameObject):
         if _cell is not None and _cell.can_enter(player_obj=self):
             ore_cost = gameObject.RespawnBeacon.construction_cost
             if self.corp.amount_of_ore() >= ore_cost:
-                _cell.add_respawn_beacon(self.corp)
+                _cell.add_building(self.corp, 'RespawnBeacon')
                 self.lose_ore(ore_cost)
                 return True
         return False
@@ -310,7 +323,7 @@ class Player(gameObject.GameObject):
         if _cell is not None and _cell.can_enter(player_obj=self):
             ore_cost = gameObject.Door.construction_price
             if self.corp.amount_of_ore() >= ore_cost:
-                _cell.add_door(self.corp)
+                _cell.add_building(self.corp, 'Door')
                 self.lose_ore(ore_cost)
                 return True
         return False
@@ -319,7 +332,7 @@ class Player(gameObject.GameObject):
         if _cell is not None and _cell.can_enter(player_obj=self) and _cell.next_to_ore_deposit():
             ore_cost = gameObject.OreGenerator.construction_cost
             if self.corp.amount_of_ore() >= ore_cost:
-                _cell.add_ore_generator(self.corp)
+                _cell.add_building(self.corp, 'OreGenerator')
                 self.lose_ore(ore_cost)
                 return True
         return False
@@ -328,7 +341,7 @@ class Player(gameObject.GameObject):
         if _cell is not None and _cell.can_enter(player_obj=self):
             ore_cost = gameObject.Hospital.construction_cost
             if self.corp.amount_of_ore() >= ore_cost:
-                _cell.add_hospital(self.corp)
+                _cell.add_building(self.corp, 'Hospital')
                 self.lose_ore(ore_cost)
                 return True
         return False
@@ -337,7 +350,7 @@ class Player(gameObject.GameObject):
         if _cell is not None and _cell.can_enter(player_obj=self):
             ore_cost = gameObject.Fence.construction_cost
             if self.corp.amount_of_ore() >= ore_cost:
-                _cell.add_fence()
+                _cell.add_building(self.corp,'Fence')
                 self.lose_ore(ore_cost)
                 return True
         return False
@@ -429,7 +442,7 @@ class Player(gameObject.GameObject):
                 struct = _cell.contains_object_type('Fence')
                 fence = _cell.get_game_object_by_obj_id(struct[1])
                 if fence[0]:
-                    fence[1].take_damage(self.attack_power)
+                    fence[1].take_damage(self.attack_power, self.corp)
                     return True
             elif _cell.contains_object_type('Hospital')[0]:
                 struct = _cell.contains_object_type('Hospital')

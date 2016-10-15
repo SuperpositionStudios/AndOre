@@ -2,10 +2,11 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from database_setup_ import Base, User
 import helper_functions_
-import config_, uuid
+import config, uuid
+from typing import Tuple
 
 # Connects to the database
-engine = create_engine(config_.path_to_db())
+engine = create_engine(config.path_to_db())
 Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
@@ -14,15 +15,15 @@ session = DBSession()
 def create_user(username, password):
     if session.query(User).filter(User.username == username).first() is not None:
         return False, "Username taken"
-    uid = str(uuid.uuid4())
+    aid = str(uuid.uuid4())
     hashed_password = helper_functions_.encrypt_new_password(password)
-    session.add(User(uid=uid,
+    session.add(User(uid=aid,
                      game_id='',
                      username=username,
                      hashed_password=hashed_password
                      ))
     session.commit()
-    return True, uid
+    return True, aid
 
 
 def login(username, password):
@@ -36,8 +37,8 @@ def login(username, password):
         return False, "wrong password"
 
 
-def valid_uid(uid):
-    stored_user = session.query(User).filter(User.uid == uid).first()
+def valid_aid(aid):
+    stored_user = session.query(User).filter(User.uid == aid).first()
     return stored_user is not None
 
 
@@ -55,3 +56,11 @@ def get_game_id(uid):
     if stored_user is None:
         return False, "uid doesn't exist"
     return True, stored_user.game_id
+
+
+def get_username_from_aid(aid: str) -> Tuple[bool, str]:
+    row = session.query(User).filter(User.uid == aid).first()
+    if row is not None:
+        return True, row.username
+    else:
+        return False, ''
