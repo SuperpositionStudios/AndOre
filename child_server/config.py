@@ -9,7 +9,7 @@ keys = {
 production_sleipnir_address = 'sleipnir.iwanttorule.space'
 developing_sleipnir_address = "http://localhost:7100"
 
-developing = True  # Remember to make this False before making a pull request into unstable.
+developing = False  # Remember to make this False before making a pull request into unstable.
 
 if developing:
     sleipnir_address = developing_sleipnir_address
