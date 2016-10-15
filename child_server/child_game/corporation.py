@@ -1,5 +1,5 @@
 import uuid
-import child_server_config as config
+import config
 from child_game import gameObject
 import warnings
 

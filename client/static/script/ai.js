@@ -56,7 +56,7 @@ BaseAi.prototype = {
             type: "POST",
             contentType: "application/json; charset=utf-8",
             dataType: "json",
-            url: ai_storage_endpoint + "/retrieve",
+            url: absolutionURL + "/retrieve",
             data: JSON.stringify(data),
             success: function(_data) {
                 console.log(_data);
@@ -131,7 +131,7 @@ BaseAi.prototype = {
     };
     if(!internetOff){
       $.ajax({
-        url: ai_storage_endpoint + "/upload",
+        url: absolutionURL + "/upload",
         type: "POST",
         data: JSON.stringify(data),
         dataType: "json",

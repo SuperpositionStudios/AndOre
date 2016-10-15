@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify, url_for, render_template, make_response, redirect, current_app
 from child_game import world
-import child_server_config as config
+import config
 import datetime
 import requests
 
@@ -10,7 +10,7 @@ class Node:
         print('Starting node...')
         self.port = port
         self.keys = keys
-        self.address = "{domain}:{port}".format(domain=address, port=port)
+        self.address = address
         self.name = name
         self.nodes = nodes
         self.world = world.World(self.nodes['master']['address'], self.message_master_node)
