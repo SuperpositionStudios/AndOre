@@ -14,7 +14,7 @@ var dev_game_server_endpoint = ":7101";
 var dev_ai_storage_endpoint = ":7003";
 var dev_auth_server_endpoint = ":7004";
 
-var use_dev_server = true;  // Used for development
+var use_dev_server = false;  // Used for development
 var use_ai_storage_server = true;
 var internetOff = false;  // Used for testing view.js with testData.js
 
