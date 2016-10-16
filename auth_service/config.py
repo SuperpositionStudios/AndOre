@@ -9,8 +9,8 @@ def path_to_this_files_directory():
     return dir_path + '/'
 
 
-def path_to_db():
-    return 'sqlite:///' + str(path_to_this_files_directory()) + 'database.db'
+def path_to_db(database_name='database.db'):
+    return 'sqlite:///' + str(path_to_this_files_directory()) + database_name
 
 
 def game_server_url():

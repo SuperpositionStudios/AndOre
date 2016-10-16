@@ -1,7 +1,7 @@
 # Nickname: Erebus
 
 from flask import Flask, request, jsonify, url_for, render_template, make_response, redirect, current_app, abort, Response
-import database_functions_, requests, config, json
+import database_functions, requests, config, json
 
 app = Flask(__name__)
 
@@ -29,7 +29,7 @@ def account_create():
         username = data.get('username', None)
         password = data.get('password', None)
         if username is not None and password is not None:
-            db_response = database_functions_.create_user(username, password)
+            db_response = database_functions.create_user(username, password)
             if db_response[0]:
                 response['status'] = 'Success'
                 response['uid'] = db_response[1]
@@ -47,7 +47,7 @@ def account_login():
         username = data.get('username', None)
         password = data.get('password', None)
         if username is not None and password is not None:
-            db_response = database_functions_.login(username, password)
+            db_response = database_functions.login(username, password)
             if db_response[0]:
                 response['status'] = 'Success'
                 response['uid'] = db_response[1]
@@ -61,8 +61,8 @@ def game_join():
     response = dict()
     if data is not None:
         aid = data.get('uid', None)
-        username = database_functions_.get_username_from_aid(aid)
-        if aid is not None and database_functions_.valid_aid(aid) and username[0]:
+        username = database_functions.get_username_from_aid(aid)
+        if aid is not None and database_functions.valid_aid(aid) and username[0]:
             req = requests.post(config.game_server_url() + '/join', json={
                 'aid': aid,
                 'username': username[1]
@@ -70,7 +70,7 @@ def game_join():
             response['status'] = 'Success'
             response['game-id'] = req['id']
             gid = req['id']
-            database_functions_.update_game_id(aid, gid)
+            database_functions.update_game_id(aid, gid)
         else:
             response['status'] = 'Error'
             response['error_message'] = 'no uid was send in the request or invalid uid'
@@ -86,10 +86,10 @@ def game_rejoin():
     response = dict()
     if data is not None:
         aid = data.get('uid', None)
-        username = database_functions_.get_username_from_aid(aid)
-        if aid is not None and database_functions_.valid_aid(aid) and username[0]:
+        username = database_functions.get_username_from_aid(aid)
+        if aid is not None and database_functions.valid_aid(aid) and username[0]:
             response['status'] = 'Success'
-            stored_game_id = database_functions_.get_game_id(aid)[1]
+            stored_game_id = database_functions.get_game_id(aid)[1]
             req = requests.post(config.game_server_url() + '/valid_id', json={
                 'game_id': stored_game_id
             }).json()
@@ -104,7 +104,7 @@ def game_rejoin():
                 }).json()
                 #game_server_response = req.json()
                 new_game_id = req['id']
-                database_functions_.update_game_id(aid, new_game_id)
+                database_functions.update_game_id(aid, new_game_id)
                 response['game-id'] = req['id']
         else:
             response['status'] = 'Error'

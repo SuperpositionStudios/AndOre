@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine
 import config
@@ -10,10 +10,11 @@ Base = declarative_base()
 class User(Base):
     __tablename__ = 'Users'
     pk = Column(Integer, primary_key=True)
-    uid = Column(String())
+    aid = Column(String())
     game_id = Column(String())
     username = Column(String())
     hashed_password = Column(String())
+    last_login = Column(DateTime)
 
 # Create an engine that stores data in the local directory's
 # database.db file.
