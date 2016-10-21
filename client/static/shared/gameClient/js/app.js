@@ -143,7 +143,8 @@ App.prototype = {
           if (jqXHR.status === 401) {
             Materialize.toast('Invalid Credentials', 3000, 'rounded red accent-4');
           } else {
-            Materialize.toast('Unknown Error. \n ' + jqXHR.responseText, 3000, 'rounded red accent-4');
+            Materialize.toast('So something bad happened, but I don\'t exactly know what happened.', 3000, 'rounded red accent-4');
+            console.log('Unknown Error. \n ' + jqXHR.responseText);
           }
         }
       });
