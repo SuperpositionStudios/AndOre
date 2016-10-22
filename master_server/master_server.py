@@ -116,20 +116,23 @@ def spawn_player(uid: str) -> None:
     if is_valid_node(player_node) is False:
         print("Couldn't transfer new player to node {} due to it not being valid.".format(player_node))
         return
-    req = requests.post(nodes['nodes'][player_node]['address'] + '/player/enter', json={
-        'player': {
-            'uid': player_obj.uid,
-            'corporation': {
-                'corp_id': player_obj.corp.corp_id,
-                'ore_quantity': player_obj.corp.amount_of_ore()
+    try:
+        req = requests.post(nodes['nodes'][player_node]['address'] + '/player/enter', json={
+            'player': {
+                'uid': player_obj.uid,
+                'corporation': {
+                    'corp_id': player_obj.corp.corp_id,
+                    'ore_quantity': player_obj.corp.amount_of_ore()
+                }
             }
-        }
-    })
-    node_response = req.json()
-    if node_response['Successful_Request']:
-        print("Successfully transferred new player to ", starter_system_name)
-    else:
-        print("Error while transferring new player to ", starter_system_name)
+        })
+        node_response = req.json()
+        if node_response['Successful_Request']:
+            print("Successfully transferred new player to ", starter_system_name)
+        else:
+            print("Error while transferring new player to ", starter_system_name)
+    except:
+        print("Could not communicate with {}", starter_system_name)
 
 
 @app.route('/register/node', methods=['POST', 'OPTIONS'])
