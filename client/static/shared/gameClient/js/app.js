@@ -2,7 +2,7 @@
 //also uses rl.js -- http://cs.stanford.edu/people/karpathy/reinforcejs/
 
 /* Begin Settings */
-var use_dev_server = false;  // Used for development
+var use_dev_server = true;  // Used for development
 var use_ai_storage_server = true;
 var internetOff = false;  // Used for testing view.js with testData.js
 var useSecureHTTP = false;
@@ -13,7 +13,7 @@ var productionDomain = "iwanttorule.space";
 var productionSleipnirSubdomain = "sleipnir.";
 var productionAbsolutionSubdomain = "absolution.";
 var productionErebusSubdomain = "erebus.";
-var productionSynergySubdomain = "synergy";
+var productionSynergySubdomain = "synergy.";
 
 var devServerUrl = "localhost";
 var dev_master_node_endpoint = ":7100";
@@ -47,11 +47,11 @@ if (use_dev_server) {
   }
 } else {
   if (useSecureHTTP) {
-    sleipnirURL = "https://" + productionSynergySubdomain + productionDomain;
+    sleipnirURL = "https://" + productionSleipnirSubdomain + productionDomain;
     absolutionURL = "https://" + productionAbsolutionSubdomain + productionDomain;
     erebusURL = "https://" + productionErebusSubdomain + productionDomain;
   } else {
-    sleipnirURL = "http://" + productionSynergySubdomain + productionDomain;
+    sleipnirURL = "http://" + productionSleipnirSubdomain + productionDomain;
     absolutionURL = "http://" + productionAbsolutionSubdomain + productionDomain;
     erebusURL = "http://" + productionErebusSubdomain + productionDomain;
   }
@@ -135,7 +135,12 @@ App.prototype = {
   },
   StartChat: function(callback) {
     var self = this;
-    self.synergyWS = new WebSocket("ws://localhost:7005");
+    self.synergyWS = new WebSocket(synergyURL);
+    self.synergyWS.onmessage = function (event) {
+      console.log(event.data);
+      $("#chatDiv").css({'height':($("#playerStatsDiv").height()+'px')});
+      $('#chatDiv').append('<p>' + event.data + '</p>');
+    };
     CallCallback(callback);
   },
   GetAuthId: function (callback) {
