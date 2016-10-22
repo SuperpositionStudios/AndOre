@@ -54,6 +54,7 @@ App.prototype = {
   hasActed: false,
   authId: null,
   gameId: null,
+  synergyWS: null,
   startAiKey: '~',
   AiStarted: false,
   oldBrain: '',
@@ -94,15 +95,22 @@ App.prototype = {
     var self = this;
     this.actionsLut = ArrayToKeys(this.actions);
     self.GetAuthId(function() {
-      self.GetGameId(function() {
-        self.GetNodeServer(function() {
-          self.ListenToStartAi(function() {
-            self.view = new View();
-            self.view.SetupView(this, App.GetDisplay);
+      self.StartChat(function() {
+        self.GetGameId(function() {
+          self.GetNodeServer(function() {
+            self.ListenToStartAi(function() {
+              self.view = new View();
+              self.view.SetupView(this, App.GetDisplay);
+            });
           });
         });
       });
-    })
+    });
+  },
+  StartChat: function(callback) {
+    var self = this;
+    self.synergyWS = new WebSocket("ws://localhost:7005");
+    CallCallback(callback);
   },
   GetAuthId: function (callback) {
     var self = this;
