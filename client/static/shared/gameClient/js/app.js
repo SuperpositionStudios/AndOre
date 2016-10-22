@@ -93,11 +93,6 @@ App.prototype = {
   Init: function() {
     var self = this;
     this.actionsLut = ArrayToKeys(this.actions);
-    /*
-  	this.GetUserId(function(){
-      self.view = new View();
-      self.view.SetupView(this, App.GetDisplay);
-  	});*/
     self.GetAuthId(function() {
       self.GetGameId(function() {
         self.GetNodeServer(function() {
@@ -297,7 +292,7 @@ App.prototype = {
         view.Draw(data.world);
       });
     }
-  },
+  }
 };
 
 function CallCallback (callback){
