@@ -6,6 +6,12 @@ keys = {
     'master': 'Prsbh%Ul0U6R4ckZEq&iIxGrNY0M#$Fi^TvJuhhZC!E6wt^Sq@whkXWJFS!5iH9f#iPMMp%BFtjP6Eqmz1bN2fi0qllC&^i2TWJ2'
 }
 
-address = 'http://localhost'
-master_address = 'http://localhost:7100'
-developing = False
+production_sleipnir_address = "http://sleipnir.iwanttorule.space"
+developing_sleipnir_address = "http://localhost:7100"
+
+developing = False  # Remember to make this False before making a pull request into unstable.
+
+if developing:
+    sleipnir_address = developing_sleipnir_address
+else:
+    sleipnir_address = production_sleipnir_address

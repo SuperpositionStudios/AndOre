@@ -442,7 +442,7 @@ class Player(gameObject.GameObject):
                 struct = _cell.contains_object_type('Fence')
                 fence = _cell.get_game_object_by_obj_id(struct[1])
                 if fence[0]:
-                    fence[1].take_damage(self.attack_power)
+                    fence[1].take_damage(self.attack_power, self.corp)
                     return True
             elif _cell.contains_object_type('Hospital')[0]:
                 struct = _cell.contains_object_type('Hospital')

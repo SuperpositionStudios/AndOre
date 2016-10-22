@@ -1,4 +1,4 @@
-import child_server_config as config
+import config
 
 def drint(text):
     if config.developing:

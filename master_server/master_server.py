@@ -249,7 +249,10 @@ def new_player():
         username = data.get('username', None)
         if aid is not None and username is not None:
             new_corp = game_classes.Corporation()
-            new_corp.gain_ore(5000)
+            if config.developing:
+                new_corp.gain_ore(5000)
+            else:
+                new_corp.gain_ore(205)
             corporations[new_corp.corp_id] = new_corp
             player = game_classes.Player()
             player.assign_corp(new_corp)

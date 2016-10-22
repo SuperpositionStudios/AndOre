@@ -5,6 +5,6 @@ keys = {
     'node': 'P6rNeO%QnpHoCHdt5Op&G2mqojetESj*gQf*fK!K0uyDjN6XmBblu1S2*fWMCF*77SSOJ2Iy%5!9i&Oor3Lgup8dOhDq^gfOyK!u'
 }
 
-address = "http://localhost:7100"
+address = "http://sleipnir.iwanttorule.space"
 
-developing = True
+developing = False

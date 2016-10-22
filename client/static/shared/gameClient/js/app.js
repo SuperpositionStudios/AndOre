@@ -1,11 +1,12 @@
 //load view.js before running this
 //also uses rl.js -- http://cs.stanford.edu/people/karpathy/reinforcejs/
 
-var productionServerUrl = "http://iwanttorule.space";
-var production_master_node_endpoint = "/nodes-master";
-var production_game_server_endpoint = "/game-server";
-var production_ai_storage_endpoint = "/ai-storage-server";
-var production_auth_server_endpoint = "/auth";
+var productionDomain = ["http://", "iwanttorule.space"];
+var productionSleipnirSubdomain = "sleipnir.";
+var productionUlyssesSubdomain = "ulysses.";
+var productionPanagoulSubdomain = "panagoul.";
+var productionAbsolutionSubdomain = "absolution.";
+var productionErebusSubdomain = "erebus.";
 
 var devServerUrl = "http://localhost";
 var dev_master_node_endpoint = ":7100";
@@ -13,28 +14,28 @@ var dev_game_server_endpoint = ":7101";
 var dev_ai_storage_endpoint = ":7003";
 var dev_auth_server_endpoint = ":7004";
 
-var use_dev_server = true;  // Used for development
+var use_dev_server = false;  // Used for development
 var use_ai_storage_server = true;
 var internetOff = false;  // Used for testing view.js with testData.js
 
 var ai_name = '';
 
-var game_server_endpoint = null;
-var ai_storage_endpoint = null;
-var auth_server_endpoint = null;
-var master_node_endpoint = null;
-var current_node_endpoint = null;
+var panagoulURL = null;
+var absolutionURL = null;
+var erebusURL = null;
+var sleipnirURL = null;
+var currentnodeURL = null;
 
 if (use_dev_server) {
-  master_node_endpoint = devServerUrl + dev_master_node_endpoint;
-  game_server_endpoint = devServerUrl + dev_game_server_endpoint;
-  ai_storage_endpoint = devServerUrl + dev_ai_storage_endpoint;
-  auth_server_endpoint = devServerUrl + dev_auth_server_endpoint;
+  sleipnirURL = devServerUrl + dev_master_node_endpoint;
+  panagoulURL = devServerUrl + dev_game_server_endpoint;
+  absolutionURL = devServerUrl + dev_ai_storage_endpoint;
+  erebusURL = devServerUrl + dev_auth_server_endpoint;
 } else {
-  master_node_endpoint = productionServerUrl + production_master_node_endpoint;
-  game_server_endpoint = productionServerUrl + production_game_server_endpoint;
-  ai_storage_endpoint = productionServerUrl + production_ai_storage_endpoint;
-  auth_server_endpoint = productionServerUrl + production_auth_server_endpoint;
+  sleipnirURL = productionDomain[0] + productionSleipnirSubdomain + productionDomain[1];
+  panagoulURL = productionDomain[0] + productionPanagoulSubdomain + productionDomain[1];
+  absolutionURL = productionDomain[0] + productionAbsolutionSubdomain + productionDomain[1];
+  erebusURL = productionDomain[0] + productionErebusSubdomain + productionDomain[1];
 }
 
 function ArrayToKeys(inArray) {
@@ -124,7 +125,7 @@ App.prototype = {
       Materialize.toast("Logging in...!", 2000, 'rounded');
       $.ajax({
         method: 'POST',
-        url: auth_server_endpoint + '/account/login',
+        url: erebusURL + '/account/login',
         data: JSON.stringify(data),
         dataType: "json",
         contentType: "application/json",
@@ -159,7 +160,7 @@ App.prototype = {
       };
       $.ajax({
         method: 'POST',
-        url: auth_server_endpoint + '/account/create',
+        url: erebusURL + '/account/create',
         data: JSON.stringify(data),
         dataType: "json",
         contentType: "application/json",
@@ -197,7 +198,7 @@ App.prototype = {
       };
       $.ajax({
         method: 'POST',
-        url: auth_server_endpoint + '/game/rejoin',
+        url: erebusURL + '/game/rejoin',
         data: JSON.stringify(data),
         dataType: "json",
         contentType: "application/json",
@@ -219,7 +220,7 @@ App.prototype = {
       };
       $.ajax({
         method: 'POST',
-        url: auth_server_endpoint + '/game/join',
+        url: erebusURL + '/game/join',
         data: JSON.stringify(data),
         dataType: "json",
         contentType: "application/json",
@@ -244,14 +245,14 @@ App.prototype = {
     };
     $.ajax({
         method: 'GET',
-        url: master_node_endpoint + '/get_player_info',
+        url: sleipnirURL + '/get_player_info',
         data: data,
         dataType: "json",
         contentType: "application/x-www-form-urlencoded; charset=UTF-8",
         success: function(data) {
           if (data['status'] == 'Success') {
             Materialize.toast("Found our world!", 1000, 'rounded light-green accent-4');
-            current_node_endpoint = data['world']['server'];
+            currentnodeURL = data['world']['server'];
             $('#currentNodeName').text(data['world']['name']);
             CallCallback(callback);
           } else {
@@ -307,7 +308,7 @@ function CallCallback (callback){
 }
 
 function AjaxCall(endpoint, data, callback, failCallback){
-  var server = current_node_endpoint;
+  var server = currentnodeURL;
 
   if(internetOff){
     callback(testData);
