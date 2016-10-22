@@ -18,11 +18,12 @@ def create_user(username, password):
         return False, "Username taken"
     aid = str(uuid.uuid4())
     hashed_password = helper_functions.encrypt_new_password(password)
-    session.add(User(uid=aid,
+    session.add(User(aid=aid,
                      game_id='',
                      username=username,
                      hashed_password=hashed_password,
-                     last_login=datetime.now()
+                     last_login=datetime.now(),
+                     privilege="player"
                      ))
     session.commit()
     return True, aid
