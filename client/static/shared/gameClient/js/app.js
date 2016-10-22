@@ -1,21 +1,25 @@
 //load view.js before running this
 //also uses rl.js -- http://cs.stanford.edu/people/karpathy/reinforcejs/
 
-var productionDomain = ["http://", "iwanttorule.space"];
+/* Begin Settings */
+var use_dev_server = false;  // Used for development
+var use_ai_storage_server = true;
+var internetOff = false;  // Used for testing view.js with testData.js
+var useSecureHTTP = false;
+var useSecureWS = false;
+/* End Settings */
+
+var productionDomain = "iwanttorule.space";
 var productionSleipnirSubdomain = "sleipnir.";
 var productionAbsolutionSubdomain = "absolution.";
 var productionErebusSubdomain = "erebus.";
 var productionSynergySubdomain = "synergy";
 
-var devServerUrl = "http://localhost";
+var devServerUrl = "localhost";
 var dev_master_node_endpoint = ":7100";
 var dev_ai_storage_endpoint = ":7003";
 var dev_auth_server_endpoint = ":7004";
 var devSynergyEndpoint = ":7005";
-
-var use_dev_server = false;  // Used for development
-var use_ai_storage_server = true;
-var internetOff = false;  // Used for testing view.js with testData.js
 
 var ai_name = '';
 
@@ -26,15 +30,37 @@ var synergyURL = null;
 var currentnodeURL = null;
 
 if (use_dev_server) {
-  sleipnirURL = devServerUrl + dev_master_node_endpoint;
-  absolutionURL = devServerUrl + dev_ai_storage_endpoint;
-  erebusURL = devServerUrl + dev_auth_server_endpoint;
-  synergyURL = devServerUrl + devSynergyEndpoint;
+  if (useSecureHTTP) {
+    sleipnirURL = "https://" + devServerUrl + dev_master_node_endpoint;
+    absolutionURL = "https://" + devServerUrl + dev_ai_storage_endpoint;
+    erebusURL = "https://" + devServerUrl + dev_auth_server_endpoint;
+  } else {
+    sleipnirURL = "http://" + devServerUrl + dev_master_node_endpoint;
+    absolutionURL = "http://" + devServerUrl + dev_ai_storage_endpoint;
+    erebusURL = "http://" + devServerUrl + dev_auth_server_endpoint;
+  }
+
+  if (useSecureWS) {
+    synergyURL = "wss://" + devServerUrl + devSynergyEndpoint;
+  } else {
+    synergyURL = "ws://" + devServerUrl + devSynergyEndpoint;
+  }
 } else {
-  sleipnirURL = productionDomain[0] + productionSleipnirSubdomain + productionDomain[1];
-  absolutionURL = productionDomain[0] + productionAbsolutionSubdomain + productionDomain[1];
-  erebusURL = productionDomain[0] + productionErebusSubdomain + productionDomain[1];
-  synergyURL = productionDomain[0] + productionSynergySubdomain + productionDomain[1];
+  if (useSecureHTTP) {
+    sleipnirURL = "https://" + productionSynergySubdomain + productionDomain;
+    absolutionURL = "https://" + productionAbsolutionSubdomain + productionDomain;
+    erebusURL = "https://" + productionErebusSubdomain + productionDomain;
+  } else {
+    sleipnirURL = "http://" + productionSynergySubdomain + productionDomain;
+    absolutionURL = "http://" + productionAbsolutionSubdomain + productionDomain;
+    erebusURL = "http://" + productionErebusSubdomain + productionDomain;
+  }
+
+  if (useSecureWS) {
+    synergyURL = "wss://" + productionSynergySubdomain + productionDomain;
+  } else {
+    synergyURL = "ws://" + productionSynergySubdomain + productionDomain;
+  }
 }
 
 function ArrayToKeys(inArray) {
