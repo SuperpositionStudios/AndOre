@@ -3,16 +3,15 @@
 
 var productionDomain = ["http://", "iwanttorule.space"];
 var productionSleipnirSubdomain = "sleipnir.";
-var productionUlyssesSubdomain = "ulysses.";
-var productionPanagoulSubdomain = "panagoul.";
 var productionAbsolutionSubdomain = "absolution.";
 var productionErebusSubdomain = "erebus.";
+var productionSynergySubdomain = "synergy";
 
 var devServerUrl = "http://localhost";
 var dev_master_node_endpoint = ":7100";
-var dev_game_server_endpoint = ":7101";
 var dev_ai_storage_endpoint = ":7003";
 var dev_auth_server_endpoint = ":7004";
+var devSynergyEndpoint = ":7005";
 
 var use_dev_server = false;  // Used for development
 var use_ai_storage_server = true;
@@ -20,22 +19,22 @@ var internetOff = false;  // Used for testing view.js with testData.js
 
 var ai_name = '';
 
-var panagoulURL = null;
 var absolutionURL = null;
 var erebusURL = null;
 var sleipnirURL = null;
+var synergyURL = null;
 var currentnodeURL = null;
 
 if (use_dev_server) {
   sleipnirURL = devServerUrl + dev_master_node_endpoint;
-  panagoulURL = devServerUrl + dev_game_server_endpoint;
   absolutionURL = devServerUrl + dev_ai_storage_endpoint;
   erebusURL = devServerUrl + dev_auth_server_endpoint;
+  synergyURL = devServerUrl + devSynergyEndpoint;
 } else {
   sleipnirURL = productionDomain[0] + productionSleipnirSubdomain + productionDomain[1];
-  panagoulURL = productionDomain[0] + productionPanagoulSubdomain + productionDomain[1];
   absolutionURL = productionDomain[0] + productionAbsolutionSubdomain + productionDomain[1];
   erebusURL = productionDomain[0] + productionErebusSubdomain + productionDomain[1];
+  synergyURL = productionDomain[0] + productionSynergySubdomain + productionDomain[1];
 }
 
 function ArrayToKeys(inArray) {
