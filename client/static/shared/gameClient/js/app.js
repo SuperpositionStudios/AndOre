@@ -158,7 +158,7 @@ App.prototype = {
       }
       if (validAid == false) {
         if (json.author == 'Synergy' && json.color == 'red') {
-            if (json.message == 'Hello') {
+            if (json.authenticated) {
             validAid = true;
             input.removeAttr('disabled');
           }
@@ -375,6 +375,7 @@ App.prototype = {
     }
   }
 };
+
 
 function CallCallback (callback){
   if(callback != null) {
