@@ -1,8 +1,7 @@
 # Nickname: Absolution
 
 from flask import Flask, request, jsonify, url_for, render_template, make_response, redirect, current_app
-import database_functions
-import config
+import database_functions, config
 
 app = Flask(__name__)
 
