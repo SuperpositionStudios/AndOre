@@ -1,6 +1,7 @@
 import asyncio
 import websockets
 import requests
+import json
 
 erebus_address = 'http://localhost:7004'
 public_address = 'localhost'
@@ -25,14 +26,16 @@ async def handler(websocket, path):
                     if req.get('valid_aid', False):
                         username = req.get('username', '')
                         aid = attemped_aid
-                        await websocket.send("Welcome {}".format(username))
+                        await websocket.send(json.dumps({'author': 'Synergy', 'color': 'red', 'message': 'Hello'}))
                     else:
-                        await websocket.send("Invalid aid")
+                        await websocket.send(json.dumps({'author': 'Synergy', 'color': 'red', 'message': "Invalid aid"}))
                 else:
-                    await websocket.send("You must send over an aid first")
+                    await websocket.send(json.dumps({'author': 'Synergy', 'color': 'red', 'message': "You must send over an aid first"}))
             else:
                 if message[:6] == '/chat ':
-                    await asyncio.wait([ws.send(username + ": " + message[6:]) for ws in connected])
+                    await asyncio.wait([ws.send(json.dumps({'author': username, 'color': 'green', 'message': message[6:]})) for ws in connected])
+                else:
+                    await websocket.send(json.dumps({'author': 'Synergy', 'color': 'red', 'message': 'Unknown command "{}"'.format(message)}))
     finally:
         # Unregister.
         connected.remove(websocket)
