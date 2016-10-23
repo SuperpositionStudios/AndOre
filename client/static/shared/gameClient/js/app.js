@@ -191,8 +191,8 @@ App.prototype = {
       dismissible: false
     });
     $('#login').click(function() {
-      var username = $('#login_username').val();
-      var password = $('#login_password').val();
+      var username = $('#username').val();
+      var password = $('#password').val();
       var data = {
         username: username,
         password: password
@@ -227,8 +227,8 @@ App.prototype = {
     });
     $('#signup').click(function() {
       Materialize.toast("Signing up...", 2000, 'rounded');
-      var username = $('#signup_username').val();
-      var password = $('#signup_password').val();
+      var username = $('#username').val();
+      var password = $('#password').val();
       var data = {
         username: username,
         password: password
