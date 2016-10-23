@@ -135,12 +135,54 @@ App.prototype = {
   },
   StartChat: function(callback) {
     var self = this;
-    self.synergyWS = new WebSocket(synergyURL);
-    self.synergyWS.onmessage = function (event) {
-      console.log(event.data);
-      $("#chatDiv").css({'height':($("#playerStatsDiv").height()+'px')});
-      $('#chatDiv').append('<p>' + event.data + '</p>');
+
+    var content = $('#chatBoxContent');
+    var input = $('#chatBoxInput');
+    var status = $('#chatBoxStatus');
+    var validAid = false;
+
+    self.synergyWS = new WebSocket('ws://localhost:7005');
+
+    self.synergyWS.onopen = function () {
+        self.synergyWS.send('/register ' + self.authId);
+      status.text('Global Chat:');
     };
+
+
+    self.synergyWS.onmessage = function (message) {
+        try {
+        var json = JSON.parse(message.data);
+      } catch (e) {
+        console.log('This doesn\'t look like a valid JSON: ', message.data);
+        return;
+      }
+      if (validAid == false) {
+        if (json.author == 'Synergy' && json.color == 'red') {
+            if (json.message == 'Hello') {
+            validAid = true;
+            input.removeAttr('disabled');
+          }
+        }
+      }
+      addMessage(json.author, json.message, json.color);
+    };
+
+    input.keydown(function(e) {
+      if (e.keyCode === 13) {
+        var msg = $(this).val();
+        if (!msg) {
+          return;
+        }
+        // send the message as an ordinary text
+        self.synergyWS.send('/chat ' + msg);
+        $(this).val('');
+      }
+    });
+
+
+    function addMessage(author, message, color) {
+      content.prepend('<p><span style="color:' + color + '">' + author + '</span>: ' + message + '</p>');
+    }
     CallCallback(callback);
   },
   GetAuthId: function (callback) {

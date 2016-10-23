@@ -21,3 +21,13 @@
     margin-left: 0em;
     margin-right: 0em;
 }
+
+#chatBox {
+  border-width: 2px;
+  border-style: inset;
+  overflow: auto;
+}
+
+#chatBoxContent {
+  height: 8em;
+}
