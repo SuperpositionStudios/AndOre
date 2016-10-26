@@ -3,12 +3,41 @@ import html
 import json
 import requests
 import websockets
+import os
 
 erebus_address = 'http://localhost:7004'
 public_address = 'localhost'
 server_port = 7005
 
 connected = set()
+
+
+def path_to_this_files_directory():
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    return dir_path + '/'
+
+with open(path_to_this_files_directory() + 'word_whitelist.json') as json_data:
+    d = json.load(json_data)
+    word_whitelist = d.get('approved_words', [])
+
+
+def filter_word(word: str):
+    lower_word = str(word).lower()
+    if lower_word in word_whitelist:
+        return word
+    else:
+        return 'heck'
+
+
+def filter_sentence(sentence: str):
+    words = sentence.split(' ')
+    new_words = []
+    for word in words:
+        new_words.append(filter_word(word))
+    new_sentence = ""
+    for word in new_words:
+        new_sentence += word + " "
+    return new_sentence
 
 
 def dumps(obj: dict):
@@ -69,7 +98,7 @@ async def handler(websocket, path):
                     await asyncio.wait([ws.send(dumps({
                         'author': username,
                         'color': 'green',
-                        'message': html.escape(message[6:])
+                        'message': html.escape(filter_sentence(message[6:]))
                     })) for ws in connected])
                 else:
                     await websocket.send(json.dumps({
