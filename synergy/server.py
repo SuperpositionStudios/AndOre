@@ -4,6 +4,7 @@ import json
 import requests
 import websockets
 import os
+import string
 
 erebus_address = 'http://localhost:7004'
 public_address = 'localhost'
@@ -16,17 +17,43 @@ def path_to_this_files_directory():
     dir_path = os.path.dirname(os.path.realpath(__file__))
     return dir_path + '/'
 
+# Generate whitelisted_words set
 with open(path_to_this_files_directory() + 'word_whitelist.json') as json_data:
     d = json.load(json_data)
-    word_whitelist = d.get('approved_words', [])
+    whitelisted_words = set()
+
+    # List of characters we're excluding (punctuation)
+    punctiation_set = set(string.punctuation)
+
+    # Looping through all the stories in the json file
+    stories = d.get('stories', [])
+    for story in stories:
+        sanitized_string = ''.join(ch for ch in story if ch not in punctiation_set)  # Removing the punctuation from the story
+        sanitized_string = sanitized_string.lower()
+        whitelisted_words = whitelisted_words | set(sanitized_string.split(' '))  # Merging sets
+
+    # Adding the whitelisted words to our set
+    whitelisted_words = whitelisted_words | set(d.get('approved_words', []))
+
+    # Adding the game specific words to our set
+    whitelisted_words = whitelisted_words | set(d.get('game_terms', []))
+
+    # For our information
+    whitelisted_words.remove('')
+    print("Whitelist includes {} words".format((whitelisted_words.__len__())))
 
 
 def filter_word(word: str):
-    lower_word = str(word).lower()
-    if lower_word in word_whitelist:
-        return word
-    else:
-        return 'heck'
+    sanitized_word = str(word).lower()
+    sanitized_word = ''.join(ch for ch in sanitized_word if ch not in punctiation_set)
+    try:
+        val = int(sanitized_word)
+        return val
+    except ValueError:
+        if sanitized_word in whitelisted_words:
+            return word
+        else:
+            return 'heck'
 
 
 def filter_sentence(sentence: str):
