@@ -135,6 +135,12 @@ App.prototype = {
       });
     });
   },
+  Ping: function() {
+    var self = this;
+    self.currentNodeWS.send(JSON.stringify({
+      'request': 'ping'
+    }));
+  },
   StartChat: function(callback) {
     var self = this;
 
@@ -302,13 +308,24 @@ App.prototype = {
       self.currentNodeWS.send(JSON.stringify({
         'request': 'register',
         'aid': self.authId
-      }))
+      }));
+      self.Ping();
     };
     self.currentNodeWS.onmessage = function(message) {
       message = JSON.parse(message.data);
       console.log(message);
+
+      if ('time' in message) {
+        var sentTime = new Date(message.time);
+        var receivedTime = new Date();
+        var roundTripLatency =  (receivedTime.getTime() - sentTime.getTime()) * 2;
+        $('#rtl').text(roundTripLatency);
+      }
+
       if (message.request == 'sendState') {
         self.view.Draw(message);
+      } else if (message.request == 'auth') {
+        $('#currentNodeName').text(message.nodeName);
       }
     };
     Materialize.toast("Found our world!", 1000, 'rounded light-green accent-4');
@@ -350,7 +367,7 @@ App.prototype = {
       'request': 'action',
       'action': command,
       'sendState': true
-    }))
+    }));
   }
 };
 

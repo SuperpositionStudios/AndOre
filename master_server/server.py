@@ -140,9 +140,11 @@ async def node_client(websocket, path):
         while True:
             request = await websocket.recv()
             request = loads(request)
+            print("Node: {}".format(request))
 
             if authenticated:
                 if request.get('request', None) == 'update_values':
+                    print("Updating values")
                     """
                     example_data = {
                         'corporations': {
@@ -164,15 +166,19 @@ async def node_client(websocket, path):
                             if corp_id in corporations:
                                 corp_obj = corporations[corp_id]
                                 corp_obj.apply_child_server_deltas(data['corporations'][corp_id])
-                    data = {}
+                    response = {
+                        'corporations': {}
+                    }
                     for corp_id in corporations:
                         corp_obj = corporations[corp_id]
-                        data['corporations'][corp_id] = {
+                        response['corporations'][corp_id] = {
                             'ore_quantity': corp_obj.amount_of_ore(),
                             'inventory': corp_obj.assets['inventory']
                         }
+                    #print(response)
                     await websocket.send(dumps({
-                        'data': data
+                        'data': response,
+                        'request': 'update_values'
                     }))
 
             else:

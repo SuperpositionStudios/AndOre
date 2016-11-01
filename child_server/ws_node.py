@@ -27,7 +27,7 @@ def message_sleipnir(endpoint, data):
 
 
 def new_message_sleipnir(data: dict):
-    sleipnir_connection.send(dumps(data))
+    asyncio.get_event_loop().create_task(sleipnir_connection.send(dumps(data)))
 
 World = world_py.World
 
@@ -85,9 +85,14 @@ async def game_client(websocket, path):
             tick_server_if_needed()
             request = loads(request)
 
-            print(request)
+            #print(request)
             if authenticated:
-                if request.get('request', None) == 'action':
+                if request.get('request', None) == 'ping':
+                    await websocket.send(dumps({
+                        'request': 'pong',
+                        'time': datetime.datetime.utcnow().isoformat()
+                    }))
+                elif request.get('request', None) == 'action':
                     action = request.get('action', '')
                     world.players[aid].action(action)
                     world_view = world.players[aid].world_state()
@@ -99,7 +104,8 @@ async def game_client(websocket, path):
                         'request': 'sendState',
                         'world': world_view,
                         'inventory': inventory,
-                        'vitals': vitals
+                        'vitals': vitals,
+                        'time': datetime.datetime.utcnow().isoformat()
                     }))
                 elif request.get('request', None) == 'send_state':
                     world_view = world.players[aid].world_state()
@@ -121,8 +127,10 @@ async def game_client(websocket, path):
                         username = erebus_response.get('username', '')
                         authenticated = True
                         await websocket.send(dumps({
+                            'request': 'auth',
                             'authenticated': authenticated,
-                            'message': 'Welcome to Panagoul'
+                            'nodeName': 'Toivo',
+                            'message': 'Welcome to Toivo'
                         }))
                     else:
                         await websocket.send(dumps({
@@ -155,6 +163,7 @@ async def sleipnir_client():
             while True:
                 request = await websocket.recv()
                 request = loads(request)
+                print('Sleipnir: {}'.format(request))
                 request_type = request.get('request', None)
                 if request_type == 'player_enter':
                     player_corp_id = request.get('cid')

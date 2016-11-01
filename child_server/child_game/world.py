@@ -6,7 +6,20 @@ import warnings
 from child_game import helper_functions
 import requests
 from typing import Dict, List
+import json
 
+def dumps(obj: dict):
+    try:
+        return json.dumps(obj)
+    except:
+        return "{}"
+
+
+def loads(obj: str):
+    try:
+        return json.loads(obj)
+    except:
+        return {}
 
 class World:  # World is not really world, it's more Level
 
