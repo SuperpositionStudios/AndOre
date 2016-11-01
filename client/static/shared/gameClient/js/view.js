@@ -211,7 +211,7 @@ View.prototype = {
       }
     });
     // For handling dir & mod keys
-    $("#worldview").keypress(function(e){
+    $("#worldview").on("keyup", function(e){
       command = String.fromCharCode(e.which).toLowerCase();
       app.SendCommand(command);
     });
