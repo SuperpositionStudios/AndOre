@@ -6,6 +6,18 @@ import datetime
 import master_server_config as config
 from typing import Dict, List
 import game_classes
+import random
+
+erebus_address = 'http://localhost:7004'
+sleipnir_address = 'ws://localhost:7100'
+public_address = 'localhost'
+node_port = 7100
+client_port = 7099
+
+nodes = dict()  # type: Dict[str, Node]
+corporations = dict()  # type: Dict[str, game_classes.Corporation]
+players = dict()  # type: Dict[str, game_Classes.Player]
+connected_players = dict()  # type: Dict[str, PlayerConnection]
 
 
 def dumps(obj: dict):
@@ -36,21 +48,14 @@ class Node:
         self.public_address = address
 
 
-erebus_address = 'http://localhost:7004'
-sleipnir_address = 'ws://localhost:7100'
-public_address = 'localhost'
-node_port = 7100
-client_port = 7099
-
-nodes = dict()  # type: Dict[str, Node]
-corporations = dict()  # type: Dict[str, game_classes.Corporation]
-players = dict()  # type: Dict[str, game_Classes.Player]
-connected_players = dict()  # type: Dict[str, PlayerConnection]
-
-
 def get_username(aid):
-    req = requests.get('http://localhost:7004/get/username', params={'aid': aid}).json()
+    req = requests.get(erebus_address + '/get/username', params={'aid': aid}).json()
     return req
+
+
+def get_random_node_name():
+    return random.choice(list(nodes.keys()))
+    #return nodes[list(nodes.keys())[0]].name
 
 
 async def player(websocket, path):
@@ -70,8 +75,10 @@ async def player(websocket, path):
                     # check if loaded in a world
                     if aid in players:
                         current_node = players[aid].get_current_node()
+                        if current_node in nodes is False:
+                            players[aid].assign_node(get_random_node_name())
                         node_obj = nodes[current_node]
-                        await nodes['Toivo'].connection.send(dumps({
+                        await nodes[current_node].connection.send(dumps({
                             'request': 'player_enter',
                             'coq': players[aid].corp.amount_of_ore(),
                             'aid': aid,
@@ -93,18 +100,21 @@ async def player(websocket, path):
                         current_player.assign_aid(aid)
                         current_player.assign_corp(new_corp)
                         current_player.assign_username(username)
-                        current_player.assign_node('Toivo')
-                        await nodes['Toivo'].connection.send(dumps({
+                        current_player.assign_node(get_random_node_name())
+
+                        players[aid] = current_player
+
+                        current_node = players[aid].get_current_node()
+                        node_obj = nodes[current_node]
+
+                        await nodes[current_node].connection.send(dumps({
                             'request': 'player_enter',
                             'coq': current_player.corp.amount_of_ore(),
                             'aid': aid,
                             'cid': new_corp.corp_id
                         }))
 
-                        players[aid] = current_player
 
-                        current_node = players[aid].get_current_node()
-                        node_obj = nodes[current_node]
                         await websocket.send(dumps({
                             'request': 'update_node',
                             'node_name': node_obj.name,
