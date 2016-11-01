@@ -170,7 +170,11 @@ async def sleipnir_client():
                 elif request_type == 'update_values':
                     response = request.get('data', {})
                     world.update_values(response)
-
+                elif request_type == 'transfer_assets':
+                    acquiree_id = request.get('acquiree_id', '')
+                    acquirer_id = request.get('acquirer_id', '')
+                    if acquiree_id != '' and acquirer_id != '':
+                        world.transfer_corp_assets(acquirer_id, acquiree_id)
         finally:
             print("Connection to sleipnir closed")
 

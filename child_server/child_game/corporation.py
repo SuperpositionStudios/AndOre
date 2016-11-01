@@ -208,7 +208,8 @@ class Corporation:
 
     # Another corp will call this with their corp id to indicate that they want to be merged into our corp
     def merge_me(self, other_corp_id):
-        self.world.message_master_node('/merge_corporations', {
+        self.world.message_master_node({
+            'request': 'merge_corporations',
             'key': config.keys['node'],
             'acquirer_id': self.corp_id,
             'acquiree_id': other_corp_id

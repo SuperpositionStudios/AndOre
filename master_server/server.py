@@ -149,7 +149,29 @@ async def node_client(websocket, path):
             #print("Node: {}".format(request))
 
             if authenticated:
-                if request.get('request', None) == 'update_values':
+                if request.get('request', None) == 'merge_corporations':
+                    acquirer_id = request.get('acquirer_id', '')
+                    acquiree_id = request.get('acquiree_id', '')
+                    if acquiree_id != '' and acquirer_id != '':
+                        # Transferring Inventories
+                        corporations[acquirer_id].apply_inventory_delta_multiple(
+                            corporations[acquiree_id].assets['inventory'])
+                        # Changing acquiree's player's corp
+                        for member in corporations[acquiree_id].members:
+                            member.assign_corp(corporations[acquirer_id])
+                        corporations[acquirer_id].gain_ore(corporations[acquiree_id].amount_of_ore())
+                        corporations[acquiree_id].members = []
+                        corporations.pop(acquiree_id, None)
+                        # Server telling all child nodes to transfer corp belongings including players
+                        # Transferring ownership of buildings is handled by the message
+                        for node_name in nodes:
+                            await nodes[node_name].connection.send(dumps({
+                                'request': 'transfer_assets',
+                                'key': config.keys['master'],
+                                'acquirer_id': acquirer_id,
+                                'acquiree_id': acquiree_id
+                            }))
+                elif request.get('request', None) == 'update_values':
                     #print("Updating values")
                     """
                     example_data = {
