@@ -1,0 +1,7 @@
+{
+  "inProduction": false,
+  "productionErebusAddress": "http://erebus.iwanttorule.space",
+  "developmentErebusAddress": "http://localhost:7004",
+  "productionSleipnirAddress": "ws://sleipnir.iwanttorule.space",
+  "developmentSleipnirAddress": "ws://localhost:7100"
+}
