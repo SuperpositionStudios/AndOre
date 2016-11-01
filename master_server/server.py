@@ -63,7 +63,7 @@ async def player(websocket, path):
         while True:
             request = await websocket.recv()
             request = loads(request)
-            print(request)
+            #print(request)
 
             if authenticated:
                 if request.get('request', None) == 'join':
@@ -71,6 +71,12 @@ async def player(websocket, path):
                     if aid in players:
                         current_node = players[aid].get_current_node()
                         node_obj = nodes[current_node]
+                        await nodes['Toivo'].connection.send(dumps({
+                            'request': 'player_enter',
+                            'coq': players[aid].corp.amount_of_ore(),
+                            'aid': aid,
+                            'cid': players[aid].corp.corp_id
+                        }))
                         await websocket.send(dumps({
                             'request': 'update_node',
                             'node_name': node_obj.name,
@@ -140,11 +146,11 @@ async def node_client(websocket, path):
         while True:
             request = await websocket.recv()
             request = loads(request)
-            print("Node: {}".format(request))
+            #print("Node: {}".format(request))
 
             if authenticated:
                 if request.get('request', None) == 'update_values':
-                    print("Updating values")
+                    #print("Updating values")
                     """
                     example_data = {
                         'corporations': {

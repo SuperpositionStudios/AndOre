@@ -19,13 +19,6 @@ connected = set()
 sleipnir_connection = None
 
 
-def message_sleipnir(endpoint, data):
-    req = requests.post(sleipnir_address + endpoint, json=data)
-    node_response = req.json()
-    if node_response['Successful_Request'] is False:
-        print('Failed to message master node with {data}'.format(data=str(data)))
-
-
 def new_message_sleipnir(data: dict):
     asyncio.get_event_loop().create_task(sleipnir_connection.send(dumps(data)))
 
@@ -163,13 +156,17 @@ async def sleipnir_client():
             while True:
                 request = await websocket.recv()
                 request = loads(request)
-                print('Sleipnir: {}'.format(request))
+                #print('Sleipnir: {}'.format(request))
                 request_type = request.get('request', None)
                 if request_type == 'player_enter':
-                    player_corp_id = request.get('cid')
-                    player_aid = request.get('aid')
-                    corp_ore_quantity = request.get('coq', 0)
-                    new_player_obj = world.new_player(player_id=player_aid, corp_id=player_corp_id, corp_ore_quantity=corp_ore_quantity)
+                    # Checking to see if the player is not in the world.
+                    # We check this because if the node (we) don't know about a player and they try to join
+                    # bad stuff happens.
+                    if world.active_aid(request.get('aid', '')) is False:
+                        player_corp_id = request.get('cid')
+                        player_aid = request.get('aid')
+                        corp_ore_quantity = request.get('coq', 0)
+                        new_player_obj = world.new_player(player_id=player_aid, corp_id=player_corp_id, corp_ore_quantity=corp_ore_quantity)
                 elif request_type == 'update_values':
                     response = request.get('data', {})
                     world.update_values(response)
