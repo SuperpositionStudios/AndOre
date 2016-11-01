@@ -43,7 +43,6 @@ with open(path_to_this_files_directory() + 'word_whitelist.json') as json_data:
 
     # For our information
     whitelisted_words.remove('')
-    whitelisted_words.remove(' ')
     print("Whitelist includes {} words".format((whitelisted_words.__len__())))
 
 
