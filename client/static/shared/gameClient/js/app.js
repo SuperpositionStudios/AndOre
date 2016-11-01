@@ -16,7 +16,7 @@ var productionErebusSubdomain = "erebus.";
 var productionSynergySubdomain = "synergy.";
 
 var devServerUrl = "localhost";
-var dev_master_node_endpoint = ":7100";
+var dev_master_node_endpoint = ":7200";
 var dev_ai_storage_endpoint = ":7003";
 var dev_auth_server_endpoint = ":7004";
 var devSynergyEndpoint = ":7005";
@@ -31,19 +31,19 @@ var currentnodeURL = null;
 
 if (use_dev_server) {
   if (useSecureHTTP) {
-    sleipnirURL = "https://" + devServerUrl + dev_master_node_endpoint;
     absolutionURL = "https://" + devServerUrl + dev_ai_storage_endpoint;
     erebusURL = "https://" + devServerUrl + dev_auth_server_endpoint;
   } else {
-    sleipnirURL = "http://" + devServerUrl + dev_master_node_endpoint;
     absolutionURL = "http://" + devServerUrl + dev_ai_storage_endpoint;
     erebusURL = "http://" + devServerUrl + dev_auth_server_endpoint;
   }
 
   if (useSecureWS) {
     synergyURL = "wss://" + devServerUrl + devSynergyEndpoint;
+    sleipnirURL = "wss://" + devServerUrl + dev_master_node_endpoint;
   } else {
     synergyURL = "ws://" + devServerUrl + devSynergyEndpoint;
+    sleipnirURL = "ws://" + devServerUrl + dev_master_node_endpoint;
   }
 } else {
   if (useSecureHTTP) {
@@ -81,6 +81,8 @@ App.prototype = {
   authId: null,
   gameId: null,
   synergyWS: null,
+  sleipnirWS: null,
+  currentNodeWS: null,
   startAiKey: '~',
   AiStarted: false,
   oldBrain: '',
@@ -122,8 +124,8 @@ App.prototype = {
     this.actionsLut = ArrayToKeys(this.actions);
     self.GetAuthId(function() {
       self.StartChat(function() {
-        self.GetGameId(function() {
-          self.GetNodeServer(function() {
+        self.StartSleipnirWS(function() {
+          self.CreateNodeWS(function() {
             self.ListenToStartAi(function() {
               self.view = new View();
               self.view.SetupView(this, App.GetDisplay);
@@ -150,8 +152,9 @@ App.prototype = {
 
 
     self.synergyWS.onmessage = function (message) {
-        try {
+      try {
         var json = JSON.parse(message.data);
+        console.log(json);
       } catch (e) {
         console.log('This doesn\'t look like a valid JSON: ', message.data);
         return;
@@ -261,81 +264,56 @@ App.prototype = {
       });
     });
   },
-  GetGameId: function (callback) {
+  StartSleipnirWS: function (callback) {
     var self = this;
-    $('#modal2').openModal({
-      dismissible: false
-    });
-
-    $('#rejoin_game').click(function() {
-      var data = {
-        uid: self.authId
-      };
-      $.ajax({
-        method: 'POST',
-        url: erebusURL + '/game/rejoin',
-        data: JSON.stringify(data),
-        dataType: "json",
-        contentType: "application/json",
-        success: function(data) {
-          if (data['status'] == 'Success') {
-            self.gameId = data['game-id'];
-            $('#modal2').closeModal();
-            CallCallback(callback);
-          } else {
-            console.log(data);
-          }
-        }
-
-      });
-    });
-    $('#start_anew').click(function() {
-      var data = {
-        uid: self.authId
-      };
-      $.ajax({
-        method: 'POST',
-        url: erebusURL + '/game/join',
-        data: JSON.stringify(data),
-        dataType: "json",
-        contentType: "application/json",
-        success: function(data) {
-          if (data['status'] == 'Success') {
-            self.gameId = data['game-id'];
-            $('#modal2').closeModal();
-            CallCallback(callback);
-          } else {
-            console.log(data);
-          }
-        }
-
-      });
-    });
-  },
-  GetNodeServer:function(callback) {
-    Materialize.toast("Finding our world...", 1000, 'rounded');
-    var self = this;
-    var data = {
-      'id': self.gameId
+    var authenticated = false;
+    self.sleipnirWS = new WebSocket("ws://localhost:7200");
+    console.log(self.authId);
+    self.sleipnirWS.onopen = function () {
+      self.sleipnirWS.send(JSON.stringify({
+        'request': 'register',
+        'aid': self.authId
+      }))
     };
-    $.ajax({
-        method: 'GET',
-        url: sleipnirURL + '/get_player_info',
-        data: data,
-        dataType: "json",
-        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
-        success: function(data) {
-          if (data['status'] == 'Success') {
-            Materialize.toast("Found our world!", 1000, 'rounded light-green accent-4');
-            currentnodeURL = data['world']['server'];
-            $('#currentNodeName').text(data['world']['name']);
-            CallCallback(callback);
-          } else {
-            console.log(data);
-          }
+    self.sleipnirWS.onmessage = function (message) {
+      message = JSON.parse(message.data);
+      console.log(message);
+      if (authenticated) {
+        if (message.request == 'update_node') {
+          currentnodeURL = message.node_address;
+          CallCallback(callback);
         }
+      } else {
+        if (message.authenticated == true) {
+          authenticated = true;
+          // Join game
+          self.sleipnirWS.send(JSON.stringify({
+            'request': 'join'
+          }))
+        }
+      }
+    }
+  },
+  CreateNodeWS:function(callback) {
+    var self = this;
+    Materialize.toast("Finding our world...", 1000, 'rounded');
+    self.currentNodeWS = new WebSocket(currentnodeURL);
+    self.currentNodeWS.onopen = function () {
+      self.currentNodeWS.send(JSON.stringify({
+        'request': 'register',
+        'aid': self.authId
+      }))
+    };
+    self.currentNodeWS.onmessage = function(message) {
+      message = JSON.parse(message.data);
+      console.log(message);
+      if (message.request == 'sendState') {
+        self.view.Draw(message);
+      }
+    };
+    Materialize.toast("Found our world!", 1000, 'rounded light-green accent-4');
+    CallCallback(callback);
 
-      });
   },
   ListenToStartAi:function(callback) {
     var self = this;
@@ -357,10 +335,10 @@ App.prototype = {
   GetDisplay: function(callback) {
     var self = this;
     var view = this.view;
-  	AjaxCall("/sendState", {id: self.gameId}, function(data){
-      view.Draw(data);
-      CallCallback(callback);
-  	});
+    self.currentNodeWS.send(JSON.stringify({
+      'request': 'send_state'
+    }));
+    CallCallback(callback);
   },
   SendCommand: function(command){
     var self = this;
@@ -368,11 +346,11 @@ App.prototype = {
     if(this.AiStarted) {
       self.ai.SendCommand(command);
     }
-    if(app.actionsLut[command]) {
-      AjaxCall("/action", {id: self.gameId, action: command, sendState:true}, function(data){
-        view.Draw(data.world);
-      });
-    }
+    self.currentNodeWS.send(JSON.stringify({
+      'request': 'action',
+      'action': command,
+      'sendState': true
+    }))
   }
 };
 
