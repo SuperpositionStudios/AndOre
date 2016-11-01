@@ -136,6 +136,7 @@ App.prototype = {
     });
   },
   Ping: function() {
+    // Requests the current node to send a Pong; Not used very frequently because it usually sends one by itself.
     var self = this;
     self.currentNodeWS.send(JSON.stringify({
       'request': 'ping'
@@ -378,33 +379,18 @@ function CallCallback (callback){
   }
 }
 
-function AjaxCall(endpoint, data, callback, failCallback){
-  var server = currentnodeURL;
-
-  if(internetOff){
-    callback(testData);
-  }
-
-  var ajax = $.ajax({
-    method: "GET",
-    url: server + endpoint,
-    data: data
-  });
-  ajax.done(function(data) {
-    //console.log("from " + server + endpoint + " returned: " + data);
-    callback(data);
-  });
-  ajax.fail(function(req, status, error){
-    console.log("bad req to " + server + endpoint + ":  " + status + " | " + error);
-    if(failCallback != null){
-
-      failCallback();
-    }
-  });
-}
-
 
 $(function(){
   app = new App();
   app.Init();
+
+  // User closed the tab; Emergency Disconnecting.
+  window.onbeforeunload = function() {
+    app.sleipnirWS.onclose = function () {}; // disable onclose handler first
+    app.sleipnirWS.close();
+    app.currentNodeWS.onclose = function () {};
+    app.currentNodeWS.close();
+    app.synergyWS.onclose = function () {};
+    app.synergyWS.close();
+  };
 });
