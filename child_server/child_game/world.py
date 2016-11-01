@@ -32,7 +32,7 @@ class World:  # World is not really world, it's more Level
         self.world = []  # type: List[List[Cell]]
         self.world_age = 1
         self.last_tick = datetime.datetime.now()
-        self.microseconds_per_tick = 300000  # type: int
+        self.microseconds_per_tick = 250000  # type: int
         self.players = dict()  # type: Dict[str, Player]
         self.corporations = dict()  # type: Dict[str, Corporation]
         self.buildings = dict()
@@ -104,6 +104,9 @@ class World:  # World is not really world, it's more Level
 
     def corp_exists(self, corp_id):
         return corp_id in self.corporations
+
+    def active_aid(self, aid: str):
+        return aid in self.players
 
     def new_player(self, player_id=None, corp_id=None, corp_ore_quantity=0):
         spawn_location = self.random_can_enter_cell()
