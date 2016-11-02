@@ -125,7 +125,7 @@ App.prototype = {
     self.GetAuthId(function() {
       self.StartChat(function() {
         self.StartSleipnirWS(function() {
-          self.CreateNodeWS(function() {
+          self.EstablishCurrentNodeWS(function() {
             self.ListenToStartAi(function() {
               self.view = new View();
               self.view.SetupView(this, App.GetDisplay);
@@ -294,14 +294,19 @@ App.prototype = {
         if (message.authenticated == true) {
           authenticated = true;
           // Join game
-          self.sleipnirWS.send(JSON.stringify({
-            'request': 'join'
-          }))
+          self.FindCurrentNode(null);
         }
       }
     }
   },
-  CreateNodeWS:function(callback) {
+  FindCurrentNode: function (callback) {
+    var self = this;
+    self.sleipnirWS.send(JSON.stringify({
+      'request': 'join'
+    }));
+    CallCallback(callback);
+  },
+  EstablishCurrentNodeWS:function(callback) {
     var self = this;
     Materialize.toast("Finding our world...", 1000, 'rounded');
     self.currentNodeWS = new WebSocket(currentnodeURL);
@@ -328,6 +333,9 @@ App.prototype = {
       } else if (message.request == 'auth') {
         $('#currentNodeName').text(message.nodeName);
       }
+    };
+    self.currentNodeWS.onclose = function () {
+      self.FindCurrentNode(null);
     };
     Materialize.toast("Found our world!", 1000, 'rounded light-green accent-4');
     CallCallback(callback);
@@ -361,9 +369,9 @@ App.prototype = {
   SendCommand: function(command){
     var self = this;
     var view = this.view;
-    if(this.AiStarted) {
+    /*if(this.AiStarted) {
       self.ai.SendCommand(command);
-    }
+    }*/
     self.currentNodeWS.send(JSON.stringify({
       'request': 'action',
       'action': command,
