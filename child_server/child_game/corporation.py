@@ -84,8 +84,22 @@ class Corporation:
 
     def return_obj_selected_in_rendered_inventory(self, selected):
         selected = int(selected)
-        ops = [9, 0, 1, 2, 3, 4, 5, 6, 7, 8]
-        return self.usage_inventory[ops[selected]]
+        ops = {
+            0: 9,
+            1: 0,
+            2: 1,
+            3: 2,
+            4: 3,
+            5: 4,
+            6: 5,
+            7: 6,
+            8: 7,
+            9: 8,
+        }
+        if ops.get(selected, 0) in self.usage_inventory:
+            return self.usage_inventory[ops.get(selected, 0)]
+        else:
+            return None
 
     def apply_inventory_change(self, item, delta):
         self.assets["inventory"][item] = self.assets["inventory"].get(item, 0) + delta
