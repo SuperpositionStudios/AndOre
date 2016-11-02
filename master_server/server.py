@@ -2,7 +2,6 @@ import asyncio
 import json
 import requests
 import websockets
-import datetime
 import master_server_config as config
 from typing import Dict, List
 import game_classes
@@ -55,7 +54,6 @@ def get_username(aid):
 
 def get_random_node_name():
     return random.choice(list(nodes.keys()))
-    #return nodes[list(nodes.keys())[0]].name
 
 
 async def player(websocket, path):
@@ -75,8 +73,11 @@ async def player(websocket, path):
                     # check if loaded in a world
                     if aid in players:
                         current_node = players[aid].get_current_node()
-                        if current_node in nodes is False:
-                            players[aid].assign_node(get_random_node_name())
+                        if current_node in nodes:
+                            pass
+                        else:
+                            current_node = get_random_node_name()
+                            players[aid].assign_node(current_node)
                         node_obj = nodes[current_node]
                         await nodes[current_node].connection.send(dumps({
                             'request': 'player_enter',
@@ -236,6 +237,7 @@ async def node_client(websocket, path):
     finally:
         # Unregister.
         nodes.pop(client.name, None)
+        print("Removed {} from pool of nodes".format(client.name))
 
 
 start_node_server = websockets.serve(node_client, 'localhost', node_port)
