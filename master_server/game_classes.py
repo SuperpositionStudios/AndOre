@@ -35,9 +35,9 @@ class Corporation:
         self.assets = {
             'ore': 0,
             'inventory': {
-                'HealthPotion': 6,
-                'HealthCapPotion': 0,
-                'AttackPowerPotion': 0,
+                'HealthPotion': 1,
+                'HealthCapPotion': 1,
+                'AttackPowerPotion': 1,
                 'MinerMultiplierPotion': 0
             }
         }
