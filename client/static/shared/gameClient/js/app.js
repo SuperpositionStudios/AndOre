@@ -56,10 +56,10 @@ if (use_dev_server) {
 
   if (useSecureWS) {
     synergyURL = "wss://" + productionSynergySubdomain + productionDomain;
-    sleipnirURL = "wss://" + productionErebusSubdomain + productionDomain;
+    sleipnirURL = "wss://" + productionSleipnirSubdomain + productionDomain;
   } else {
     synergyURL = "ws://" + productionSynergySubdomain + productionDomain;
-    sleipnirURL = "ws://" + productionErebusSubdomain + productionDomain;
+    sleipnirURL = "ws://" + productionSleipnirSubdomain + productionDomain;
   }
 }
 
