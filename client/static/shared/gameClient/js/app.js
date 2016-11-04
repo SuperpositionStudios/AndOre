@@ -10,7 +10,7 @@ var useSecureWS = false;
 /* End Settings */
 
 var productionDomain = "iwanttorule.space";
-var productionSleipnirSubdomain = "sleipnir.";
+var productionSleipnirSubdomain = "player.ws.sleipnir.";
 var productionAbsolutionSubdomain = "absolution.";
 var productionErebusSubdomain = "erebus.";
 var productionSynergySubdomain = "synergy.";
@@ -47,19 +47,19 @@ if (use_dev_server) {
   }
 } else {
   if (useSecureHTTP) {
-    sleipnirURL = "https://" + productionSleipnirSubdomain + productionDomain;
     absolutionURL = "https://" + productionAbsolutionSubdomain + productionDomain;
     erebusURL = "https://" + productionErebusSubdomain + productionDomain;
   } else {
-    sleipnirURL = "http://" + productionSleipnirSubdomain + productionDomain;
     absolutionURL = "http://" + productionAbsolutionSubdomain + productionDomain;
     erebusURL = "http://" + productionErebusSubdomain + productionDomain;
   }
 
   if (useSecureWS) {
     synergyURL = "wss://" + productionSynergySubdomain + productionDomain;
+    sleipnirURL = "wss://" + productionErebusSubdomain + productionDomain;
   } else {
     synergyURL = "ws://" + productionSynergySubdomain + productionDomain;
+    sleipnirURL = "ws://" + productionErebusSubdomain + productionDomain;
   }
 }
 
