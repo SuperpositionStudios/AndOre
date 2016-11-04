@@ -2,7 +2,7 @@
 //also uses rl.js -- http://cs.stanford.edu/people/karpathy/reinforcejs/
 
 /* Begin Settings */
-var use_dev_server = true;  // Used for development
+var use_dev_server = false;  // Used for development
 var use_ai_storage_server = true;
 var internetOff = false;  // Used for testing view.js with testData.js
 var useSecureHTTP = false;
@@ -150,7 +150,7 @@ App.prototype = {
     var status = $('#chatBoxStatus');
     var validAid = false;
 
-    self.synergyWS = new WebSocket('ws://localhost:7005');
+    self.synergyWS = new WebSocket(synergyURL);
 
     self.synergyWS.onopen = function () {
         self.synergyWS.send('/register ' + self.authId);
@@ -274,7 +274,7 @@ App.prototype = {
   StartSleipnirWS: function (callback) {
     var self = this;
     var authenticated = false;
-    self.sleipnirWS = new WebSocket("ws://localhost:7200");
+    self.sleipnirWS = new WebSocket(sleipnirURL);
     console.log(self.authId);
     self.sleipnirWS.onopen = function () {
       self.sleipnirWS.send(JSON.stringify({
