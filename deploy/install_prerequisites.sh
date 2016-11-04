@@ -5,6 +5,12 @@ pip2 install --upgrade pip;
 pip2 install sultan;
 git config --global user.email "you@example.com";
 git config --global user.name "Your Name";
+cd ~
 git clone https://github.com/baxter-cs/AndOre.git;
+cd AndOre;
+git checkout sphere;
 pip3 install -r ~/AndOre/auth_service/requirements.txt;
+cd deploy;
+sudo chmod +x ./enable_swap.sh;
+sudo ./enable_swap.sh;
 
