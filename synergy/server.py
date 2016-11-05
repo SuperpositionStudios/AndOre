@@ -6,7 +6,7 @@ import websockets
 import os
 import string
 
-erebus_address = 'http://localhost:7004'
+erebus_address = 'http://erebus.iwanttorule.space'
 public_address = 'localhost'
 server_port = 7005
 
@@ -85,7 +85,7 @@ def loads(obj: str):
 
 
 def get_username(aid):
-    req = requests.get('http://localhost:7004/get/username', params={'aid': aid}).json()
+    req = requests.get(erebus_address + '/get/username', params={'aid': aid}).json()
     return req
 
 async def handler(websocket, path):
