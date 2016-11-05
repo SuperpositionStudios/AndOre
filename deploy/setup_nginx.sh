@@ -26,6 +26,8 @@ then
 	echo -e "\tlisten 80;" >> default;
 	echo -e "\tserver_name $4" >> default;
 	echo -e "\taccess_log off;" >> default;
+	echo -e "\tproxy_pass_header Server;" >> default;
+    echo -e "\t" >> default;
 	echo -e "\tlocation / {" >> default;
 
 	echo -e "\t\tproxy_set_header    Host            \$host;" >> default;
@@ -62,6 +64,8 @@ else
 	echo -e "\tlisten 80;" >> default;
 	echo -e "\tserver_name $4" >> default;
 	echo -e "\taccess_log off;" >> default;
+	echo -e "\tproxy_pass_header Server;" >> default;
+    echo -e "\t" >> default;
 	echo -e "\tlocation / {" >> default;
 
 	echo -e "\t\tproxy_set_header    Host            \$host;" >> default;
@@ -99,6 +103,8 @@ else
 	echo -e "\tlisten 80;" >> default;
 	echo -e "\tserver_name $6" >> default;
 	echo -e "\taccess_log off;" >> default;
+	echo -e "\tproxy_pass_header Server;" >> default;
+    echo -e "\t" >> default;
 	echo -e "\tlocation / {" >> default;
 
 	echo -e "\t\tproxy_set_header    Host            \$host;" >> default;
