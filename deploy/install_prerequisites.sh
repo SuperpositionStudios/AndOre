@@ -9,7 +9,7 @@ cd ~;
 git clone https://github.com/baxter-cs/AndOre.git;
 cd AndOre;
 git checkout sphere;
-pip3 install -r ~/AndOre/auth_service/requirements.txt;
+pip3 install -r ~/AndOre/erebus/requirements.txt;
 cd deploy;
 sudo chmod +x ./enable_swap.sh;
 sudo ./enable_swap.sh;
