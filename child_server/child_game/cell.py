@@ -168,10 +168,19 @@ class Cell:
         if player_obj is not None:
             assert(player_obj.__class__.__name__ == 'Player')
             for obj in self.contents:
-                if obj.__class__.__name__ == 'OreDeposit' or obj.__class__.__name__ == 'Fence':
+
+                class_types = {
+                    'OreDeposit': 0,
+                    'Fence': 0,
+                    'Loot': 0
+                }
+                class_type = class_types.get(obj.__class__.__name__, 1)
+
+                if class_type == 0:
                     obj_standing = 'N'
-                else:
+                elif class_type == 1:
                     obj_standing = obj.owner_corp.fetch_standing_for_player(player_obj.obj_id)
+
                 if obj.passable[obj_standing] is False:
                     return False
             return True
