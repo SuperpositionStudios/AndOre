@@ -136,7 +136,10 @@ else
 fi
 
 echo -e "Finished setting up nginx config :D\n";
-echo -e "Now I'm going to restart nginx for you\n";
+echo -e "Not I'm going to test the generated nginx config";
+echo -e "If this fails it could be that your default.backup file is just terrible and didn't pass the test";
+echo -e "So just press the up arrow and run this command again in order to get a success, or don't, it's up to you.\n";
 sudo nginx -t;
+echo -e "Now I'm going to restart nginx for you\n";
 sudo service nginx restart;
 echo -e "\nHave a nice day :D\n";
