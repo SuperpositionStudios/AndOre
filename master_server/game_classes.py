@@ -5,11 +5,14 @@ import requests
 
 class Player:
     def __init__(self):
-        self.node = 'Panagoul'
+        self.node = None
         self.aid = None
         self.username = None
         self.corp = None
         self.uid = str(uuid.uuid4())  # TODO: Rename this to gid (game id) to differentiate between aid (auth id)
+
+    def get_current_node(self):
+        return self.node
 
     def assign_aid(self, new_aid: str) -> None:
         self.aid = new_aid
@@ -32,9 +35,9 @@ class Corporation:
         self.assets = {
             'ore': 0,
             'inventory': {
-                'HealthPotion': 6,
-                'HealthCapPotion': 0,
-                'AttackPowerPotion': 0,
+                'HealthPotion': 1,
+                'HealthCapPotion': 1,
+                'AttackPowerPotion': 1,
                 'MinerMultiplierPotion': 0
             }
         }

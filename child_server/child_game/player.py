@@ -237,7 +237,11 @@ class Player(gameObject.GameObject):
     def try_using_inventory(self):
         #print("tried to use inventory")
         #  Consumables
-        chosen = self.corp.return_obj_selected_in_rendered_inventory(int(self.secondary_modifier_key))()
+        chosen = self.corp.return_obj_selected_in_rendered_inventory(int(self.secondary_modifier_key))
+        if chosen is None:
+            return False
+        else:
+            chosen()
         #print(chosen)
         if chosen.item_type == 'Consumable':
             effects = chosen.consume()

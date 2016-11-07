@@ -87,7 +87,7 @@ BaseAi.prototype = {
     this.app.view.SetupRewardListener(this);
     this.StartTicks();
   },
-  SendCommand(command){
+  SendCommand: function (command) {
     //does nothing right now, going to put in some AI specific commands
     
   },
@@ -105,6 +105,8 @@ BaseAi.prototype = {
       } else {
         command = self.actions[self.lastAction];
       }
+      app.SendCommand(command);
+      /*
       AjaxCall("/action", {id: self.app.gameId, action: command, sendState:true}, function(data){
         var worldAge = data.vitals.world_age;
         if (worldAge > self.lastAge) {
@@ -113,7 +115,7 @@ BaseAi.prototype = {
         } else {
           setTimeout(repeat, self.app.delay);
         }
-      }, repeat);
+      }, repeat); */
     };
     repeat();
   },

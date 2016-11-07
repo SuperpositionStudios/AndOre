@@ -1,0 +1,6 @@
+{
+  "inProduction": true,
+  "productionErebusAddress": "http://erebus.iwanttorule.space",
+  "developmentErebusAddress": "http://localhost:7004",
+  "serverPort": 7005
+}

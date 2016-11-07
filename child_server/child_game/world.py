@@ -6,7 +6,20 @@ import warnings
 from child_game import helper_functions
 import requests
 from typing import Dict, List
+import json
 
+def dumps(obj: dict):
+    try:
+        return json.dumps(obj)
+    except:
+        return "{}"
+
+
+def loads(obj: str):
+    try:
+        return json.loads(obj)
+    except:
+        return {}
 
 class World:  # World is not really world, it's more Level
 
@@ -19,7 +32,8 @@ class World:  # World is not really world, it's more Level
         self.world = []  # type: List[List[Cell]]
         self.world_age = 1
         self.last_tick = datetime.datetime.now()
-        self.microseconds_per_tick = 300000
+        self.microseconds_per_tick = 250000  # type: int
+        self.seconds_per_tick = float(self.microseconds_per_tick) / float(1000000)
         self.players = dict()  # type: Dict[str, Player]
         self.corporations = dict()  # type: Dict[str, Corporation]
         self.buildings = dict()
@@ -42,11 +56,11 @@ class World:  # World is not really world, it's more Level
         self.last_tick = datetime.datetime.now()
         self.world_age += 1
         self.tick_corp_buildings()
-        self.update_values()
+        self.send_pending_requests()
 
-    def update_values(self):
+    def send_pending_requests(self):
         data = {
-            'corporations': dict()
+            'corporations': dict(),
         }
         for corp_id in self.corporations:
             corp_obj = self.corporations[corp_id]
@@ -54,15 +68,15 @@ class World:  # World is not really world, it's more Level
                 'ore_delta': corp_obj.pending_requests['ore_delta'],
                 'inventory_deltas': corp_obj.pending_requests['inventory_deltas']
             }
-        req = requests.post(self.master_node_address + '/update_values', json=data)
-        response = req.json()
-        if response['Successful_Request']:
-            for corp_id in response['corporations']:
-                if corp_id in self.corporations:
-                    corp_obj = self.corporations[corp_id]
-                    corp_obj.reset_pending_requests()
-                    corp_obj.set_ore_quantity(response['corporations'][corp_id]['ore_quantity'])
-                    corp_obj.update_inventory_quantities(response['corporations'][corp_id]['inventory'])
+        self.message_master_node({'data': data, 'request': 'update_values'})
+
+    def update_values(self, response):
+        for corp_id in response['corporations']:
+            if corp_id in self.corporations:
+                corp_obj = self.corporations[corp_id]
+                corp_obj.reset_pending_requests()
+                corp_obj.set_ore_quantity(response['corporations'][corp_id]['ore_quantity'])
+                corp_obj.update_inventory_quantities(response['corporations'][corp_id]['inventory'])
 
     def tick_corp_buildings(self):
         for corp_id, corp in self.corporations.items():
@@ -91,6 +105,9 @@ class World:  # World is not really world, it's more Level
 
     def corp_exists(self, corp_id):
         return corp_id in self.corporations
+
+    def active_aid(self, aid: str):
+        return aid in self.players
 
     def new_player(self, player_id=None, corp_id=None, corp_ore_quantity=0):
         spawn_location = self.random_can_enter_cell()

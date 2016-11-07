@@ -69,10 +69,12 @@ def is_valid_node(node_name: str) -> bool:
 
 
 def update_nodes_on_new_nodes(skip=None):
+    pop_list = []
     for node_name in nodes['nodes']:
+        if node_name == skip:
+            continue
+
         try:
-            if node_name == skip:
-                continue
             req = requests.post(nodes['nodes'][node_name]['address'] + '/update/nodes', json={
                 'key': config.keys['master'],
                 'nodes': nodes
@@ -81,7 +83,12 @@ def update_nodes_on_new_nodes(skip=None):
             if node_response['Successful_Request'] is False:
                 print('Failed to update {node_name} on new nodes'.format(node_name=node_name))
         except:
-            print("Server should have crashed right now, but since I added a try with a nonspecific except it didn't")
+            print('Failed to update {node_name} on new nodes'.format(node_name=node_name))
+            print('This means {node_name} is offline'.format(node_name=node_name))
+            pop_list.append(node_name)
+    for node_to_pop in pop_list:
+        nodes['nodes'].pop(node_to_pop)
+        print('Removing {node_name} from the cluster'.format(node_name=node_to_pop))
 
 
 def message_node(endpoint: str, node_name: str, data: dict) -> dict:
@@ -109,20 +116,23 @@ def spawn_player(uid: str) -> None:
     if is_valid_node(player_node) is False:
         print("Couldn't transfer new player to node {} due to it not being valid.".format(player_node))
         return
-    req = requests.post(nodes['nodes'][player_node]['address'] + '/player/enter', json={
-        'player': {
-            'uid': player_obj.uid,
-            'corporation': {
-                'corp_id': player_obj.corp.corp_id,
-                'ore_quantity': player_obj.corp.amount_of_ore()
+    try:
+        req = requests.post(nodes['nodes'][player_node]['address'] + '/player/enter', json={
+            'player': {
+                'uid': player_obj.uid,
+                'corporation': {
+                    'corp_id': player_obj.corp.corp_id,
+                    'ore_quantity': player_obj.corp.amount_of_ore()
+                }
             }
-        }
-    })
-    node_response = req.json()
-    if node_response['Successful_Request']:
-        print("Successfully transferred new player to ", starter_system_name)
-    else:
-        print("Error while transferring new player to ", starter_system_name)
+        })
+        node_response = req.json()
+        if node_response['Successful_Request']:
+            print("Successfully transferred new player to ", starter_system_name)
+        else:
+            print("Error while transferring new player to ", starter_system_name)
+    except:
+        print("Could not communicate with {}", starter_system_name)
 
 
 @app.route('/register/node', methods=['POST', 'OPTIONS'])
@@ -155,6 +165,7 @@ def register_server():
     }
     response['Successful_Request'] = True
     response['nodes'] = nodes
+    print('Added {} to the cluster'.format(node_name))
     update_nodes_on_new_nodes(skip=node_name)
     return home_cor(jsonify(**response))
 

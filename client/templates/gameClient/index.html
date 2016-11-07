@@ -25,17 +25,17 @@
 
 		<link href="https://fonts.googleapis.com/css?family=Ubuntu+Mono" rel="stylesheet">
 
-		<script src="static/external/jquery-2.1.1.min.js"></script>
+		<script src="{{ url_for('static', filename='shared/external/js/jquery-2.1.1.min.js') }}"></script>
 
-		<link rel="stylesheet" type="text/css" href="static/external/materialize.min.css">
-		<script src="static/external/materialize.min.js"></script>
+		<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='shared/external/css/materialize.min.css') }}">
+		<script src="{{ url_for('static', filename='shared/external/js/materialize.min.js') }}"></script>
 
-		<script src="static/script/testData.js"></script>
-		<script src="static/external/rl.js"></script>
-		<script src="static/script/ai.js"></script>
-		<script src="static/script/view.js"></script>
-		<script src="static/script/app.js"></script>
-		<link rel="stylesheet" type="text/css" href="static/style.css">
+		<script src="{{ url_for('static', filename='shared/gameClient/js/testData.js') }}"></script>
+		<script src="{{ url_for('static', filename='shared/external/js/rl.js') }}"></script>
+		<script src="{{ url_for('static', filename='shared/gameClient/js/ai.js') }}"></script>
+		<script src="{{ url_for('static', filename='shared/gameClient/js/view.js') }}"></script>
+		<script src="{{ url_for('static', filename='shared/gameClient/js/app.js') }}"></script>
+		<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='shared/gameClient/css/style.css') }}">
 
         <script async defer src="https://buttons.github.io/buttons.js"></script>
 
@@ -47,38 +47,35 @@
                 <div class="row">
                     <h4>Welcome to And/Ore</h4>
                     <hr>
-                    <div class="col s6">
+                    <div class="col s12">
                         <div class="row">
-                            <div class="input-field col s12">
-                                <input placeholder="And" id="login_username" type="text" class="validate">
-                                <label for="login_username">Username</label>
+                            <div class="col s6">
+                                <div class="input-field col s12">
+                                    <input placeholder="JCharante" id="username" type="text" class="validate">
+                                    <label for="username">Username</label>
+                                </div>
                             </div>
-                            <div class="input-field col s12">
-                                <input placeholder="Ore" id="login_password" type="password" class="validate">
-                                <label for="login_password">Password</label>
+                            <div class="col s6">
+                                <a class="waves-effect waves-light btn col s4" id="login">Login</a>
                             </div>
-                            <a class="waves-effect waves-light btn col s4" id="login">Login</a>
                         </div>
-                    </div>
-                    <div class="col s6">
                         <div class="row">
-                            <div class="input-field col s12">
-                                <input placeholder="And" id="signup_username" type="text" class="validate">
-                                <label for="signup_username">Username</label>
+                            <div class="col s6">
+                                <div class="input-field col s12">
+                                    <input placeholder="hunter2" id="password" type="password" class="validate">
+                                    <label for="password">Password</label>
+                                </div>
                             </div>
-                            <div class="input-field col s12">
-                                <input placeholder="Ore" id="signup_password" type="password" class="validate">
-                                <label for="signup_password">Password</label>
+                            <div class="col s6">
+                                <a class="waves-effect waves-light btn col s4" id="signup">Signup</a>
                             </div>
-                            <a class="waves-effect waves-light btn col s4" id="signup">Signup</a>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
                 <p style="font-size: 9px" class="center">
-                    Here at And/Ore we take your security very seriously,
-                    so we encrypt our user's passwords with ROT13 not once, but twice.
+
                 </p>
             </div>
         </div>
@@ -98,13 +95,12 @@
             </div>
             <div class="modal-footer">
                 <p style="font-size: 9px" class="center">
-                    Here at And/Ore we take your security very seriously,
-                    so we encrypt our user's passwords with ROT13 not once, but twice.
+
                 </p>
             </div>
         </div>
         <div class="row">
-            <div id="worldview" class="col s10 walls">
+            <div id="worldview" class="col s10 walls" tabindex="1">
 
             </div>
             <div class="col s2">
@@ -115,7 +111,7 @@
                     <p><b>Action Log</b></p>
                 </div>
                 <div class="walls">
-                    <p><b>Info</b></p>
+                    <p><b>RTL: <span id="rtl">-0</span>ms</b></p>
                     <hr>
                     <p>You are in <b><span id="infoModeMeaning">move</span></b> mode</p>
                     <hr>
@@ -132,7 +128,7 @@
                 <hr>
                 <p id="inventory"></p>
             </div>
-            <div class="col s4 walls">
+            <div id="playerStatsDiv" class="col s4 walls">
                 <b>Player Stats</b>
                 <hr>
                 <div class="row">
@@ -150,7 +146,15 @@
                     </div>
                 </div>
             </div>
-            <div class="col s4 walls">Global Chat</div>
+            <div id="chatBox" class="col s4 walls">
+                <div>
+                    <span id="chatBoxStatus">Connecting...</span>
+                    <input type="text" id="chatBoxInput" disabled="disabled"  tabindex="2"/>
+                </div>
+              <div id="chatBoxContent">
+
+              </div>
+            </div>
         </div>
 	</body>
 </html>
