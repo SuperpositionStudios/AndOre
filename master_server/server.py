@@ -6,12 +6,23 @@ import master_server_config as config
 from typing import Dict, List
 import game_classes
 import random
+import os
 
-erebus_address = 'http://localhost:7004'
-sleipnir_address = 'ws://localhost:7100'
+
+def path_to_this_files_directory():
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    return dir_path + '/'
+
+with open(path_to_this_files_directory() + 'settings.json') as json_data:
+    d = json.load(json_data)
+
+in_production = d.get('inProduction', False)
+
+erebus_address = d.get('productionErebusAddress', '') if in_production else d.get('developmentErebusAddress', '')
+
 public_address = 'localhost'
-node_port = 7100
-client_port = 7099
+node_port = d.get('nodePort', 7100)
+client_port = d.get('playerPort', 7200)
 
 nodes = dict()  # type: Dict[str, Node]
 corporations = dict()  # type: Dict[str, game_classes.Corporation]
