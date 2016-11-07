@@ -33,6 +33,7 @@ class World:  # World is not really world, it's more Level
         self.world_age = 1
         self.last_tick = datetime.datetime.now()
         self.microseconds_per_tick = 250000  # type: int
+        self.seconds_per_tick = float(self.microseconds_per_tick) / float(1000000)
         self.players = dict()  # type: Dict[str, Player]
         self.corporations = dict()  # type: Dict[str, Corporation]
         self.buildings = dict()
