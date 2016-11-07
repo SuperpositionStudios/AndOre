@@ -4,6 +4,7 @@ import json
 import requests
 import websockets
 import datetime
+import threading
 
 
 class Client:
@@ -43,6 +44,8 @@ class Node:
         self.world = world_py.World(sleipnir_address, self.new_message_sleipnir)
         self.world.spawn_ore_deposits(5)
 
+        self.tick_server_if_needed()
+
         print("Running {} on port {}".format(self.name, self.port))
 
     def new_message_sleipnir(self, data: dict):
@@ -56,6 +59,7 @@ class Node:
         now = datetime.datetime.now()
         if (now - self.world.last_tick).microseconds >= self.world.microseconds_per_tick:
             self.world.tick()
+        asyncio.get_event_loop().call_later(self.world.seconds_per_tick, self.tick_server_if_needed)
 
     async def game_client(self, websocket, path):
         # Register.
@@ -67,7 +71,6 @@ class Node:
             authenticated = False
             while True:
                 request = await websocket.recv()
-                self.tick_server_if_needed()
                 request = loads(request)
 
                 #print(request)
