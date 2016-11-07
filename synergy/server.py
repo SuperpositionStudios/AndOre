@@ -6,16 +6,22 @@ import websockets
 import os
 import string
 
-erebus_address = 'http://erebus.iwanttorule.space'
-public_address = 'localhost'
-server_port = 7005
-
 connected = set()
 
 
 def path_to_this_files_directory():
     dir_path = os.path.dirname(os.path.realpath(__file__))
     return dir_path + '/'
+
+# Generate whitelisted_words set
+with open(path_to_this_files_directory() + 'settings.json') as json_data:
+    d = json.load(json_data)
+
+
+erebus_address = d.get('productionErebusAddress', '') if d.get('inProduction', False) else d.get('developmentErebusAddress', '')
+server_port = d.get('serverPort', 7005)
+public_address = 'localhost'
+
 
 # Generate whitelisted_words set
 with open(path_to_this_files_directory() + 'word_whitelist.json') as json_data:
