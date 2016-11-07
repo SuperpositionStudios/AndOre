@@ -132,7 +132,11 @@ else
 	echo -e "\t\troot   /usr/local/nginx/html;" >> default;
 	echo -e "\t}" >> default;
 	echo -e "}" >> default;
-
-	echo -e "Finished setting up nginx config :D\n";
 	
 fi
+
+echo -e "Finished setting up nginx config :D\n";
+echo -e "Now I'm going to restart nginx for you\n";
+sudo nginx -t;
+sudo service nginx restart;
+echo -e "\nHave a nice day :D\n";
