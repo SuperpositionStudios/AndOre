@@ -4,7 +4,6 @@ import json
 import requests
 import websockets
 import datetime
-import threading
 
 
 class Client:
@@ -169,3 +168,4 @@ class Node:
                             self.world.transfer_corp_assets(acquirer_id, acquiree_id)
             finally:
                 print("Connection to sleipnir closed")
+                asyncio.get_event_loop().create_task(self.sleipnir_client)
