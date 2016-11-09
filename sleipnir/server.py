@@ -2,12 +2,13 @@ import asyncio
 import json
 import requests
 import websockets
-import master_server_config as config
 from typing import Dict, List
 import game_classes
 import random
 import os
 
+
+# Loading settings from json files
 
 def path_to_this_files_directory():
     dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -23,6 +24,14 @@ erebus_address = d.get('productionErebusAddress', '') if in_production else d.ge
 public_address = 'localhost'
 node_port = d.get('nodePort', 7100)
 client_port = d.get('playerPort', 7200)
+
+with open(path_to_this_files_directory() + 'keys.json') as json_data:
+    d = json.load(json_data)
+
+node_key = d.get('node', '')
+sleipnir_key = d.get('sleipnir', '')
+
+# Other Stuff
 
 nodes = dict()  # type: Dict[str, Node]
 corporations = dict()  # type: Dict[str, game_classes.Corporation]
@@ -103,7 +112,7 @@ async def player(websocket, path):
                         }))
                     else:
                         new_corp = game_classes.Corporation()
-                        if config.developing:
+                        if in_production is False:
                             new_corp.gain_ore(5000)
                         else:
                             new_corp.gain_ore(205)
@@ -125,7 +134,6 @@ async def player(websocket, path):
                             'aid': aid,
                             'cid': new_corp.corp_id
                         }))
-
 
                         await websocket.send(dumps({
                             'request': 'update_node',
