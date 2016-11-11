@@ -6,7 +6,6 @@ import websockets
 import os
 import Smelter
 
-smelter = Smelter.Smelter()
 connected = set()
 
 
@@ -23,7 +22,9 @@ erebus_address = d.get('productionErebusAddress', '') if d.get('inProduction', F
 server_port = d.get('serverPort', 7005)
 public_address = 'localhost'
 
+smelter = Smelter.Smelter()
 print("Whitelist includes {} words".format((smelter.number_of_whitelisted_words())))
+
 
 def dumps(obj: dict):
     try:
