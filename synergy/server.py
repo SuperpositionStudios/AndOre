@@ -4,7 +4,7 @@ import json
 import requests
 import websockets
 import os
-import string
+import Smelter
 
 connected = set()
 
@@ -22,58 +22,8 @@ erebus_address = d.get('productionErebusAddress', '') if d.get('inProduction', F
 server_port = d.get('serverPort', 7005)
 public_address = 'localhost'
 
-
-# Generate whitelisted_words set
-with open(path_to_this_files_directory() + 'word_whitelist.json') as json_data:
-    d = json.load(json_data)
-    whitelisted_words = set()
-
-    # List of characters we're excluding (punctuation)
-    punctiation_set = set(string.punctuation)
-    punctiation_set.add('"')
-    punctiation_set.add("'")
-    punctiation_set.add('-')
-
-    # Looping through all the stories in the json file
-    stories = d.get('stories', [])
-    for story in stories:
-        sanitized_string = ''.join(ch for ch in story if ch not in punctiation_set)  # Removing the punctuation from the story
-        sanitized_string = sanitized_string.lower()
-        whitelisted_words = whitelisted_words | set(sanitized_string.split(' '))  # Merging sets
-
-    # Adding the whitelisted words to our set
-    whitelisted_words = whitelisted_words | set(d.get('approved_words', []))
-
-    # Adding the game specific words to our set
-    whitelisted_words = whitelisted_words | set(d.get('game_terms', []))
-
-    # For our information
-    whitelisted_words.remove('')
-    print("Whitelist includes {} words".format((whitelisted_words.__len__())))
-
-
-def filter_word(word: str):
-    sanitized_word = str(word).lower()
-    sanitized_word = ''.join(ch for ch in sanitized_word if ch not in punctiation_set)
-    try:
-        val = int(sanitized_word)
-        return val
-    except ValueError:
-        if sanitized_word in whitelisted_words:
-            return word
-        else:
-            return 'heck'
-
-
-def filter_sentence(sentence: str):
-    words = sentence.split(' ')
-    new_words = []
-    for word in words:
-        new_words.append(filter_word(word))
-    new_sentence = ""
-    for word in new_words:
-        new_sentence += word + " "
-    return new_sentence
+smelter = Smelter.Smelter()
+print("Whitelist includes {} words".format((smelter.number_of_whitelisted_words())))
 
 
 def dumps(obj: dict):
@@ -134,7 +84,7 @@ async def handler(websocket, path):
                     await asyncio.wait([ws.send(dumps({
                         'author': username,
                         'color': 'green',
-                        'message': html.escape(filter_sentence(message[6:]))
+                        'message': html.escape(smelter.filter_sentence(message[6:]))
                     })) for ws in connected])
                 else:
                     await websocket.send(json.dumps({
