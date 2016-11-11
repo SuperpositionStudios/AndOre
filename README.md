@@ -1,7 +1,7 @@
 # And/Ore
 A game about gathering ore, simple enough to take a reasonable amount of time to train a neural net, yet complex enough to be fun for a human player.
 
-![AndOre Logo](https://raw.githubusercontent.com/baxter-oop/AndOre/master/AndOre%20Logo.png)
+![AndOre Logo](https://raw.githubusercontent.com/AI-Productions/AndOre/unstable/AndOre-Logo-Lossy.png)
 
 ## Try the game out
 * You can try the game out at http://iwanttorule.space
@@ -9,7 +9,7 @@ A game about gathering ore, simple enough to take a reasonable amount of time to
 
 ##Setup
 
-See https://github.com/baxter-oop/AndOre/wiki/Setup-(Developers)
+See https://github.com/AI-Productions/AndOre/wiki/Setup-(Developers)
     
 ##Versions/Releases
 
@@ -24,23 +24,23 @@ We also gained a contributor, who is helping us with our art assets. Eventually,
 Expansion Highlights:
 
 - Corp Owned Sentry Turrets to protect your land when you're not there to fend off attackers
-    - [x] https://github.com/baxter-oop/AndOre/issues/67
+    - [x] https://github.com/AI-Productions/AndOre/issues/67
 - User Accounts, allows players to retake control of their old character if they refresh the page / moved to another computer
-    - [x] https://github.com/baxter-oop/AndOre/issues/73 
+    - [x] https://github.com/AI-Productions/AndOre/issues/73 
 - Added Sprinting, hold down shift and press a dir key to move two cells at a time in exchange for 2 hp
-    - [x] https://github.com/baxter-oop/AndOre/issues/72 
+    - [x] https://github.com/AI-Productions/AndOre/issues/72 
 - New & Improved Client framework
-    - [x] https://github.com/baxter-oop/AndOre/issues/136
+    - [x] https://github.com/AI-Productions/AndOre/issues/136
 - Nerfed Potions
-    - [x] https://github.com/baxter-oop/AndOre/issues/124
+    - [x] https://github.com/AI-Productions/AndOre/issues/124
 - Nerfed Ore Generators
-    - [x] https://github.com/baxter-oop/AndOre/issues/110
+    - [x] https://github.com/AI-Productions/AndOre/issues/110
 - Secondary Modifier Key now carries over when switching Primary Modifier Keys
-    - [x] https://github.com/baxter-oop/AndOre/issues/131
+    - [x] https://github.com/AI-Productions/AndOre/issues/131
 - Fixed View Polling (Was broken in Exodus)
-    - [x] https://github.com/baxter-oop/AndOre/issues/128
+    - [x] https://github.com/AI-Productions/AndOre/issues/128
 - Added Spiketraps
-    - [x] https://github.com/baxter-oop/AndOre/issues/84
+    - [x] https://github.com/AI-Productions/AndOre/issues/84
 
 ###Exodus - Version 1.2 (Found in Exodus Branch)
 
@@ -50,31 +50,31 @@ As more people try out the game, they are able to identify more and more issues 
 Expansion Highlights:
 - Starting to add content to Wiki
 - Pharmacies now impassible
-    - [x] https://github.com/baxter-oop/AndOre/issues/83
+    - [x] https://github.com/AI-Productions/AndOre/issues/83
 - You can now press your current primary modifier key again to switch to `m`
-    - [x] https://github.com/baxter-oop/AndOre/issues/90
+    - [x] https://github.com/AI-Productions/AndOre/issues/90
 - Buildings now drop lootable wrecks when destroyed. The wrecks have 50% of the ore of the building's construction time
-    - [x] https://github.com/baxter-oop/AndOre/issues/89
+    - [x] https://github.com/AI-Productions/AndOre/issues/89
 - Corporation inventories are now merged together when corps merge together
-    - [x] https://github.com/baxter-oop/AndOre/issues/86
+    - [x] https://github.com/AI-Productions/AndOre/issues/86
 - Added color to building icons indicating standings
-    - [x] https://github.com/baxter-oop/AndOre/issues/87
+    - [x] https://github.com/AI-Productions/AndOre/issues/87
 - Added doors which are game objects that are impassable to people not in the corp which owns the doors.
-    - [x] https://github.com/baxter-oop/AndOre/issues/85
+    - [x] https://github.com/AI-Productions/AndOre/issues/85
 - Pharmacies now sell 4 potions, use `(l, 1)` for a health potion, `(l, 2)` for a health cap potion, `(l, 3)` for an attack power bonus, `(l, 4)` for a mining multiplier increase
-    - [x] https://github.com/baxter-oop/AndOre/issues/71
+    - [x] https://github.com/AI-Productions/AndOre/issues/71
 - Added a corporation building that acts as a spawn point for members in the corporation. Build with `(l, 6)`. There can only be one per corp at a single moment (others are destroyed when a new one is placed)
-    - [x] https://github.com/baxter-oop/AndOre/issues/69
+    - [x] https://github.com/AI-Productions/AndOre/issues/69
 - World Size changed from 31x32 to 14x64 due to there now being a LOS and a corp inventory. (Also the game is more tall than wide, but most people's screens are landscape)
-    - [x] https://github.com/baxter-oop/AndOre/issues/94
+    - [x] https://github.com/AI-Productions/AndOre/issues/94
 - Fixed non-working monospacing in the client
-    - [x] https://github.com/baxter-oop/AndOre/issues/97
+    - [x] https://github.com/AI-Productions/AndOre/issues/97
 - Added health decay to Ore Generators.
-    - [x] https://github.com/baxter-oop/AndOre/issues/101
+    - [x] https://github.com/AI-Productions/AndOre/issues/101
 - You now go into movement mode after dying
-    - [x] https://github.com/baxter-oop/AndOre/issues/111
+    - [x] https://github.com/AI-Productions/AndOre/issues/111
 - Increased the cost of Health Potions from 5 to 50
-    - [x] https://github.com/baxter-oop/AndOre/issues/112
+    - [x] https://github.com/AI-Productions/AndOre/issues/112
 
 ###Castor - Version 1.1 (Found in the Castor Branch)
 
