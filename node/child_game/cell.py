@@ -113,7 +113,7 @@ class Cell:
 
     def render(self, **keyword_parameters):
 
-        priority = ['Player', 'SentryTurret', 'SpikeTrap', 'OreDeposit', 'Hospital', 'Pharmacy', 'OreGenerator', 'Loot', 'Fence', 'Door', 'RespawnBeacon']
+        priority = ['Player', 'Loot', 'SentryTurret', 'SpikeTrap', 'OreDeposit', 'Hospital', 'Pharmacy', 'OreGenerator', 'Fence', 'Door', 'RespawnBeacon']
 
         if 'player_id' in keyword_parameters:
             player_id = keyword_parameters['player_id']
