@@ -113,7 +113,7 @@ class Cell:
 
     def render(self, **keyword_parameters):
 
-        priority = ['Player', 'SentryTurret', 'SpikeTrap', 'OreDeposit', 'Hospital', 'Pharmacy', 'OreGenerator', 'Loot', 'Fence', 'Door', 'RespawnBeacon']
+        priority = ['Player', 'Loot', 'SentryTurret', 'SpikeTrap', 'OreDeposit', 'Hospital', 'Pharmacy', 'OreGenerator', 'Fence', 'Door', 'RespawnBeacon']
 
         if 'player_id' in keyword_parameters:
             player_id = keyword_parameters['player_id']
@@ -172,13 +172,16 @@ class Cell:
                 class_types = {
                     'OreDeposit': 0,
                     'Fence': 0,
-                    'Loot': 0
+                    'Loot': 0,
+                    'Player': 1
                 }
-                class_type = class_types.get(obj.__class__.__name__, 1)
+                class_type = class_types.get(obj.__class__.__name__, 2)
 
                 if class_type == 0:
                     obj_standing = 'N'
                 elif class_type == 1:
+                    obj_standing = obj.corp.fetch_standing_for_player(player_obj.obj_id)
+                elif class_type == 2:
                     obj_standing = obj.owner_corp.fetch_standing_for_player(player_obj.obj_id)
 
                 if obj.passable[obj_standing] is False:
