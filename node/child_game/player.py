@@ -182,6 +182,8 @@ class Player(gameObject.GameObject):
                     return True
                 elif self.try_buying_from_pharmacy(affected_cell):
                     return True
+                elif self.try_activating_star_gate(affected_cell):
+                    return True
                 else:
                     return False
             elif self.primary_modifier_key == 'i':  # Player/Corp is trying to merge corps with another player
@@ -229,6 +231,16 @@ class Player(gameObject.GameObject):
                 return False
         else:
             return False
+
+    def try_activating_star_gate(self, _cell):
+        if _cell is not None:
+            struct = _cell.contains_object_type('StarGate')
+            if struct[0]:
+                obj = _cell.get_game_object_by_obj_id(struct[1])
+                if obj[0]:
+                    obj[1].use(self)
+                    return True
+        return False
 
     def try_deconstructing(self, _cell):
         if _cell is not None:
@@ -291,7 +303,7 @@ class Player(gameObject.GameObject):
         if _cell is not None and _cell.can_enter(player_obj=self):
             ore_cost = gameObject.SentryTurret.construction_cost
             if self.corp.amount_of_ore() >= ore_cost:
-                _cell.add_building(self.corp, 'SentryTurret')
+                _cell.add_corp_owned_building(self.corp, 'SentryTurret')
                 self.lose_ore(ore_cost)
                 return True
         return False
@@ -300,7 +312,7 @@ class Player(gameObject.GameObject):
         if _cell is not None and _cell.can_enter(player_obj=self):
             ore_cost = gameObject.SpikeTrap.construction_cost
             if self.corp.amount_of_ore() >= ore_cost:
-                _cell.add_building(self.corp, 'SpikeTrap')
+                _cell.add_corp_owned_building(self.corp, 'SpikeTrap')
                 self.lose_ore(ore_cost)
                 return True
         return False
@@ -309,7 +321,7 @@ class Player(gameObject.GameObject):
         if _cell is not None and _cell.can_enter(player_obj=self):
             ore_cost = gameObject.Pharmacy.construction_price
             if self.corp.amount_of_ore() >= ore_cost:
-                _cell.add_building(self.corp, 'Pharmacy')
+                _cell.add_corp_owned_building(self.corp, 'Pharmacy')
                 self.lose_ore(ore_cost)
                 return True
         return False
@@ -318,7 +330,7 @@ class Player(gameObject.GameObject):
         if _cell is not None and _cell.can_enter(player_obj=self):
             ore_cost = gameObject.RespawnBeacon.construction_cost
             if self.corp.amount_of_ore() >= ore_cost:
-                _cell.add_building(self.corp, 'RespawnBeacon')
+                _cell.add_corp_owned_building(self.corp, 'RespawnBeacon')
                 self.lose_ore(ore_cost)
                 return True
         return False
@@ -327,7 +339,7 @@ class Player(gameObject.GameObject):
         if _cell is not None and _cell.can_enter(player_obj=self):
             ore_cost = gameObject.Door.construction_price
             if self.corp.amount_of_ore() >= ore_cost:
-                _cell.add_building(self.corp, 'Door')
+                _cell.add_corp_owned_building(self.corp, 'Door')
                 self.lose_ore(ore_cost)
                 return True
         return False
@@ -336,7 +348,7 @@ class Player(gameObject.GameObject):
         if _cell is not None and _cell.can_enter(player_obj=self) and _cell.next_to_ore_deposit():
             ore_cost = gameObject.OreGenerator.construction_cost
             if self.corp.amount_of_ore() >= ore_cost:
-                _cell.add_building(self.corp, 'OreGenerator')
+                _cell.add_corp_owned_building(self.corp, 'OreGenerator')
                 self.lose_ore(ore_cost)
                 return True
         return False
@@ -345,7 +357,7 @@ class Player(gameObject.GameObject):
         if _cell is not None and _cell.can_enter(player_obj=self):
             ore_cost = gameObject.Hospital.construction_cost
             if self.corp.amount_of_ore() >= ore_cost:
-                _cell.add_building(self.corp, 'Hospital')
+                _cell.add_corp_owned_building(self.corp, 'Hospital')
                 self.lose_ore(ore_cost)
                 return True
         return False
@@ -354,7 +366,7 @@ class Player(gameObject.GameObject):
         if _cell is not None and _cell.can_enter(player_obj=self):
             ore_cost = gameObject.Fence.construction_cost
             if self.corp.amount_of_ore() >= ore_cost:
-                _cell.add_building(self.corp,'Fence')
+                _cell.add_corp_owned_building(self.corp, 'Fence')
                 self.lose_ore(ore_cost)
                 return True
         return False
