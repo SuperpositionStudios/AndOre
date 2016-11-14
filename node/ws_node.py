@@ -42,6 +42,7 @@ class Node:
 
         self.world = world_py.World(sleipnir_address, self.new_message_sleipnir)
         self.world.spawn_ore_deposits(5)
+        self.world.get_random_cell().add_structure('StarGate')
 
         self.tick_server_if_needed()
 
