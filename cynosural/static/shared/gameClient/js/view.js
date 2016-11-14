@@ -102,7 +102,7 @@ View.prototype = {
     this.playerStatView.modifierKey = $("#statModifierKey");
     this.playerStatView.secondaryModifierKey = $("#statSecondaryModifierKey");
     this.SetupInput();
-    this.Poll();
+    //this.Poll();
     CallCallback(callback);
   },
   DrawInventory: function(inventory) {
@@ -178,7 +178,7 @@ View.prototype = {
 
     this.DrawInventory(data.inventory);
     this.DrawPlayerStats(data.vitals);
-  },
+  },/*
   Poll: function(){
     var self = this;
     setTimeout(function() {
@@ -187,7 +187,7 @@ View.prototype = {
         self.Poll();
       });
     }, self.pollDelay);
-  },
+  },*/
   SetupInput: function() {
     // For handling shift modifier
     var shiftCode = 16;

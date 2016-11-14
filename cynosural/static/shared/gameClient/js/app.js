@@ -129,7 +129,8 @@ App.prototype = {
         self.StartSleipnirWS(function() {
           self.ListenToStartAi(function() {
             self.view = new View();
-            self.view.SetupView(this, App.GetDisplay);
+            //self.view.SetupView(this, App.GetDisplay);
+            self.view.SetupView(this, null);
           });
         });
       });
@@ -368,14 +369,14 @@ App.prototype = {
     });
     CallCallback(callback);
   },
-  GetDisplay: function(callback) {
+  /*GetDisplay: function(callback) {
     var self = this;
     var view = this.view;
     self.currentNodeWS.send(JSON.stringify({
       'request': 'send_state'
     }));
     CallCallback(callback);
-  },
+  },*/
   SendCommand: function(command){
     var self = this;
     var view = this.view;

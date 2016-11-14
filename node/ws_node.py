@@ -4,15 +4,21 @@ import json
 import requests
 import websockets
 import datetime
+from typing import Dict
 
 
-class Client:
+class ConnectedClient:
 
     def __init__(self, connection):
-        aid = None
-        username = None
-        authenticated = None
-        connection = connection
+        self.aid = None
+        self.connection = connection
+        self.authenticated = True
+
+    async def send_dict(self, obj: dict):
+        await self.connection.send(dumps(obj))
+
+    def is_authenticated(self):
+        return self.authenticated
 
 
 def dumps(obj: dict):
@@ -40,6 +46,8 @@ class Node:
 
         self.sleipnir_connection = None
 
+        self.connected_clients = dict()  # type: Dict[str, ConnectedClient]
+
         self.world = world_py.World(sleipnir_address, self.new_message_sleipnir)
         self.world.spawn_ore_deposits(5)
         self.world.get_random_cell().add_structure('StarGate')
@@ -47,6 +55,32 @@ class Node:
         self.tick_server_if_needed()
 
         print("Running {} on port {}".format(self.name, self.port))
+
+    async def send_state_to_all(self):
+        for aid, connected_client in self.connected_clients.items():
+            await self.send_state(aid)
+
+    async def send_state(self, aid: str) -> bool:
+        try:
+            connected_client = self.connected_clients.get(aid, None)
+
+            if connected_client is not None:
+
+                world_view = self.world.players[aid].world_state()
+                inventory = self.world.players[aid].corp.render_inventory()
+                vitals = self.world.players[aid].get_vitals()
+
+                await connected_client.send_dict({
+                    'authenticated': connected_client.is_authenticated(),
+                    'request': 'sendState',
+                    'world': world_view,
+                    'inventory': inventory,
+                    'vitals': vitals
+                })
+
+                return True
+        except:
+            return False
 
     def new_message_sleipnir(self, data: dict):
         asyncio.get_event_loop().create_task(self.sleipnir_connection.send(dumps(data)))
@@ -59,11 +93,11 @@ class Node:
         now = datetime.datetime.now()
         if (now - self.world.last_tick).microseconds >= self.world.microseconds_per_tick:
             self.world.tick()
+            asyncio.get_event_loop().create_task(self.send_state_to_all())
         asyncio.get_event_loop().call_later(self.world.seconds_per_tick, self.tick_server_if_needed)
 
     async def game_client(self, websocket, path):
         # Register.
-        client = Client(websocket)
         try:
             # Implement logic here.
             aid = None
@@ -73,7 +107,6 @@ class Node:
                 request = await websocket.recv()
                 request = loads(request)
 
-                #print(request)
                 if authenticated:
                     if request.get('request', None) == 'ping':
                         await websocket.send(dumps({
@@ -95,18 +128,6 @@ class Node:
                             'vitals': vitals,
                             'time': datetime.datetime.utcnow().isoformat()
                         }))
-                    elif request.get('request', None) == 'send_state':
-                        world_view = self.world.players[aid].world_state()
-                        inventory = self.world.players[aid].corp.render_inventory()
-                        vitals = self.world.players[aid].get_vitals()
-
-                        await websocket.send(dumps({
-                            'authenticated': authenticated,
-                            'request': 'sendState',
-                            'world': world_view,
-                            'inventory': inventory,
-                            'vitals': vitals
-                        }))
                 else:
                     if request.get('request', None) == 'register':
                         aid = request.get('aid', '')
@@ -114,6 +135,7 @@ class Node:
                         if erebus_response.get('valid_aid', False):
                             username = erebus_response.get('username', '')
                             authenticated = True
+                            self.connected_clients[aid] = ConnectedClient(websocket)
                             await websocket.send(dumps({
                                 'request': 'auth',
                                 'authenticated': authenticated,
@@ -131,6 +153,7 @@ class Node:
                         }))
         finally:
             # Unregister.
+            self.connected_clients.pop(aid, None)
             print("Bye bye user")
 
     async def sleipnir_client(self):
