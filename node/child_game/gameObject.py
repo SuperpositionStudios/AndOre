@@ -55,8 +55,8 @@ class StarGate(GameObject):
             'E': False
         }
 
-    def use(self, user: 'child_game.player.Player'):
-        self.cell.world.transfer_corp_assets(user)
+    def use(self, activator: 'child_game.player.Player'):
+        self.cell.world.transfer_player_to_random_node(activator.id)
 
 
 class CorpOwnedBuilding(GameObject):
