@@ -125,11 +125,9 @@ App.prototype = {
     self.GetAuthId(function() {
       self.StartChat(function() {
         self.StartSleipnirWS(function() {
-          self.EstablishCurrentNodeWS(function() {
-            self.ListenToStartAi(function() {
-              self.view = new View();
-              self.view.SetupView(this, App.GetDisplay);
-            });
+          self.ListenToStartAi(function() {
+            self.view = new View();
+            self.view.SetupView(this, App.GetDisplay);
           });
         });
       });
@@ -288,7 +286,7 @@ App.prototype = {
       if (authenticated) {
         if (message.request == 'update_node') {
           currentnodeURL = message.node_address;
-          CallCallback(callback);
+          self.EstablishCurrentNodeWS(callback);
         }
       } else {
         if (message.authenticated == true) {
@@ -310,16 +308,10 @@ App.prototype = {
     var self = this;
     Materialize.toast("Finding our world...", 1000, 'rounded');
     self.currentNodeWS = new WebSocket(currentnodeURL);
-    self.currentNodeWS.onopen = function () {
-      self.currentNodeWS.send(JSON.stringify({
-        'request': 'register',
-        'aid': self.authId
-      }));
-      self.Ping();
-    };
+
     self.currentNodeWS.onmessage = function(message) {
       message = JSON.parse(message.data);
-      console.log(message);
+      //console.log(message);
 
       if ('time' in message) {
         var sentTime = new Date(message.time);
@@ -334,11 +326,21 @@ App.prototype = {
         $('#currentNodeName').text(message.nodeName);
       }
     };
+
     self.currentNodeWS.onclose = function () {
       self.FindCurrentNode(null);
     };
-    Materialize.toast("Found our world!", 1000, 'rounded light-green accent-4');
-    CallCallback(callback);
+
+    self.currentNodeWS.onopen = function () {
+      self.currentNodeWS.send(JSON.stringify({
+        'request': 'register',
+        'aid': self.authId
+      }));
+      self.Ping();
+      Materialize.toast("Found our world!", 1000, 'rounded light-green accent-4');
+      console.log("(Re)Started View.");
+      CallCallback(callback);  // callback always starts listening to AI & restarts view.
+    };
 
   },
   ListenToStartAi:function(callback) {
