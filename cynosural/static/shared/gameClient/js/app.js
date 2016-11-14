@@ -310,6 +310,7 @@ App.prototype = {
     var self = this;
     Materialize.toast("Finding our world...", 1000, 'rounded');
     if (self.currentNodeWS != null) {
+      self.currentNodeWS.onclose = function() {};  // We reset the onclose function, or we get stuck in infinite loop.
       self.currentNodeWS.close()
     }
     self.currentNodeWS = new WebSocket(currentnodeURL);
