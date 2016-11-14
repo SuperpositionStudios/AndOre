@@ -197,7 +197,7 @@ async def node_client(websocket, path):
                         for node_name in nodes:
                             await nodes[node_name].connection.send(dumps({
                                 'request': 'transfer_assets',
-                                'key': config.keys['master'],
+                                'key': sleipnir_key,
                                 'acquirer_id': acquirer_id,
                                 'acquiree_id': acquiree_id
                             }))
