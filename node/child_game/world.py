@@ -4,9 +4,9 @@ from child_game.player import Player
 from child_game.corporation import Corporation
 import warnings
 from child_game import helper_functions
-import requests
 from typing import Dict, List
 import json
+
 
 def dumps(obj: dict):
     try:
@@ -20,6 +20,7 @@ def loads(obj: str):
         return json.loads(obj)
     except:
         return {}
+
 
 class World:  # World is not really world, it's more Level
 
@@ -217,8 +218,11 @@ class World:  # World is not really world, it's more Level
         acquiree.buildings = []
         self.corporations.pop(acquiree_id, None)
 
-    def transfer_player_to_another_node(self, player: 'Player'):
-        pass
+    def transfer_player_to_random_node(self, player_aid: str):
+        self.message_master_node({
+            'request': 'abort_player',
+            'player_aid': player_aid
+        })
 
     def valid_player_id(self, _id):
         #helper_functions.drint("Trying to find player with id {}".format(_id))
