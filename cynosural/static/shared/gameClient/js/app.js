@@ -2,13 +2,14 @@
 //also uses rl.js -- http://cs.stanford.edu/people/karpathy/reinforcejs/
 
 /* Begin Settings */
-var use_dev_server = false;  // Used for development
+var use_dev_server = false; // Set back to false when comitting
 var use_ai_storage_server = true;
 var internetOff = false;  // Used for testing view.js with testData.js
-var useSecureHTTP = false;
-var useSecureWS = false;
+var useSecureHTTP = false;  // Set to true if using https
+var useSecureWS = false;  // Set to true if using wss
 /* End Settings */
 
+/* URL Settings */
 var productionDomain = "iwanttorule.space";
 var productionSleipnirSubdomain = "player.ws.sleipnir.";
 var productionAbsolutionSubdomain = "absolution.";
@@ -20,6 +21,7 @@ var dev_master_node_endpoint = ":7200";
 var dev_ai_storage_endpoint = ":7003";
 var dev_auth_server_endpoint = ":7004";
 var devSynergyEndpoint = ":7005";
+/* End URL Settings */
 
 var ai_name = '';
 
@@ -307,6 +309,9 @@ App.prototype = {
   EstablishCurrentNodeWS:function(callback) {
     var self = this;
     Materialize.toast("Finding our world...", 1000, 'rounded');
+    if (self.currentNodeWS != null) {
+      self.currentNodeWS.close()
+    }
     self.currentNodeWS = new WebSocket(currentnodeURL);
 
     self.currentNodeWS.onmessage = function(message) {
@@ -328,6 +333,8 @@ App.prototype = {
     };
 
     self.currentNodeWS.onclose = function () {
+      delete self.view;
+      self.view = null;
       self.FindCurrentNode(null);
     };
 
