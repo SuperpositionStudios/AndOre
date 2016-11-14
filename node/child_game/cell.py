@@ -1,6 +1,6 @@
 import uuid
 from child_game import standing_colors, gameObject, world, corporation
-
+from typing import Tuple
 
 class Cell:
 
@@ -68,7 +68,7 @@ class Cell:
         a = gameObject.OreDeposit(self)
         self.contents.append(a)
 
-    def add_building(self, owner_corp: 'corporation.Corporation', building_type: str):
+    def add_corp_owned_building(self, owner_corp: 'corporation.Corporation', building_type: str):
         assert (owner_corp.__class__.__name__ == 'Corporation')
         a = None
         if building_type == 'SentryTurret':
@@ -89,13 +89,24 @@ class Cell:
             a = gameObject.Fence(self, owner_corp)
         self.add_game_object(a)
 
+    def add_structure(self, building_type: str):
+        obj = None
+        if building_type == 'StarGate':
+            obj = gameObject.StarGate(self, '')
+        self.add_game_object(obj)
+
     def remove_object(self, object_id: str):
         for i in range(0, len(self.contents)):
             if self.contents[i].obj_id == object_id:
                 del self.contents[i]
                 return
 
-    def contains_object_type(self, obj_type_name: str):
+    def contains_object_type(self, obj_type_name: str) -> Tuple[bool, any]:
+        """
+
+        :param obj_type_name: The class name, example: 'Cell'
+        :return: A tuple, [0] = a bool, true if cell contains obj_type_name. [1] = obj_id to first obj found of that class in the cell.
+        """
         # obj_type_name is the class name, example: 'Cell'
         # Returns a tuple, a boolean answering if the cell contains an object with the same class name as the input
         # and a string, if the boolean is true then it will return the object's obj_id
@@ -113,7 +124,7 @@ class Cell:
 
     def render(self, **keyword_parameters):
 
-        priority = ['Player', 'Loot', 'SentryTurret', 'SpikeTrap', 'OreDeposit', 'Hospital', 'Pharmacy', 'OreGenerator', 'Fence', 'Door', 'RespawnBeacon']
+        priority = ['Player', 'Loot', 'SentryTurret', 'SpikeTrap', 'OreDeposit', 'Hospital', 'Pharmacy', 'OreGenerator', 'Fence', 'Door', 'RespawnBeacon', 'StarGate']
 
         if 'player_id' in keyword_parameters:
             player_id = keyword_parameters['player_id']
@@ -136,6 +147,7 @@ class Cell:
                                 'RespawnBeacon': 'b',
                                 'OreGenerator': 'c',
                                 'OreDeposit': 'd',
+                                'StarGate': 'd',
                                 'Loot': 'd'
                             }
 
@@ -171,6 +183,7 @@ class Cell:
 
                 class_types = {
                     'OreDeposit': 0,
+                    'StarGate': 0,
                     'Fence': 0,
                     'Loot': 0,
                     'Player': 1
