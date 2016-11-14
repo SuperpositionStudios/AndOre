@@ -141,17 +141,12 @@ View.prototype = {
         }
       }
     } else {
-      //console.log("Updating world");
+      // Updating World
       for (var rowNum = 0; rowNum < rows; rowNum++) {
         for (var colNum = 0; colNum < cols; colNum++) {
           var cellSelector = '#' + createCellID(rowNum, colNum);
-          if (world[rowNum][colNum].length == 2) {
-            // Icon is using new format
-            $(cellSelector).html(world[rowNum][colNum][0]);
-            $(cellSelector).css('color', world[rowNum][colNum][1]);
-          } else {
-            $('#' + createCellID(rowNum, colNum)).html(world[rowNum][colNum]);
-          }
+          $(cellSelector).html(world[rowNum][colNum][0]);
+          $(cellSelector).css('color', world[rowNum][colNum][1]);
         }
       }
     }

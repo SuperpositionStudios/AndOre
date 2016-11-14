@@ -2,13 +2,14 @@
 //also uses rl.js -- http://cs.stanford.edu/people/karpathy/reinforcejs/
 
 /* Begin Settings */
-var use_dev_server = false;  // Used for development
+var use_dev_server = false; // Set back to false when comitting
 var use_ai_storage_server = true;
 var internetOff = false;  // Used for testing view.js with testData.js
-var useSecureHTTP = false;
-var useSecureWS = false;
+var useSecureHTTP = false;  // Set to true if using https
+var useSecureWS = false;  // Set to true if using wss
 /* End Settings */
 
+/* URL Settings */
 var productionDomain = "iwanttorule.space";
 var productionSleipnirSubdomain = "player.ws.sleipnir.";
 var productionAbsolutionSubdomain = "absolution.";
@@ -20,6 +21,7 @@ var dev_master_node_endpoint = ":7200";
 var dev_ai_storage_endpoint = ":7003";
 var dev_auth_server_endpoint = ":7004";
 var devSynergyEndpoint = ":7005";
+/* End URL Settings */
 
 var ai_name = '';
 
@@ -125,11 +127,9 @@ App.prototype = {
     self.GetAuthId(function() {
       self.StartChat(function() {
         self.StartSleipnirWS(function() {
-          self.EstablishCurrentNodeWS(function() {
-            self.ListenToStartAi(function() {
-              self.view = new View();
-              self.view.SetupView(this, App.GetDisplay);
-            });
+          self.ListenToStartAi(function() {
+            self.view = new View();
+            self.view.SetupView(this, App.GetDisplay);
           });
         });
       });
@@ -288,7 +288,7 @@ App.prototype = {
       if (authenticated) {
         if (message.request == 'update_node') {
           currentnodeURL = message.node_address;
-          CallCallback(callback);
+          self.EstablishCurrentNodeWS(callback);
         }
       } else {
         if (message.authenticated == true) {
@@ -309,17 +309,14 @@ App.prototype = {
   EstablishCurrentNodeWS:function(callback) {
     var self = this;
     Materialize.toast("Finding our world...", 1000, 'rounded');
+    if (self.currentNodeWS != null) {
+      self.currentNodeWS.close()
+    }
     self.currentNodeWS = new WebSocket(currentnodeURL);
-    self.currentNodeWS.onopen = function () {
-      self.currentNodeWS.send(JSON.stringify({
-        'request': 'register',
-        'aid': self.authId
-      }));
-      self.Ping();
-    };
+
     self.currentNodeWS.onmessage = function(message) {
       message = JSON.parse(message.data);
-      console.log(message);
+      //console.log(message);
 
       if ('time' in message) {
         var sentTime = new Date(message.time);
@@ -334,11 +331,23 @@ App.prototype = {
         $('#currentNodeName').text(message.nodeName);
       }
     };
+
     self.currentNodeWS.onclose = function () {
+      delete self.view;
+      self.view = null;
       self.FindCurrentNode(null);
     };
-    Materialize.toast("Found our world!", 1000, 'rounded light-green accent-4');
-    CallCallback(callback);
+
+    self.currentNodeWS.onopen = function () {
+      self.currentNodeWS.send(JSON.stringify({
+        'request': 'register',
+        'aid': self.authId
+      }));
+      self.Ping();
+      Materialize.toast("Found our world!", 1000, 'rounded light-green accent-4');
+      console.log("(Re)Started View.");
+      CallCallback(callback);  // callback always starts listening to AI & restarts view.
+    };
 
   },
   ListenToStartAi:function(callback) {
