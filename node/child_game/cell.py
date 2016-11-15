@@ -89,10 +89,10 @@ class Cell:
             a = gameObject.Fence(self, owner_corp)
         self.add_game_object(a)
 
-    def add_structure(self, building_type: str):
+    def add_structure(self, building_type: str, star_gate_target=''):
         obj = None
         if building_type == 'StarGate':
-            obj = gameObject.StarGate(self, '')
+            obj = gameObject.StarGate(self, star_gate_target)
         self.add_game_object(obj)
 
     def remove_object(self, object_id: str):
@@ -122,6 +122,7 @@ class Cell:
                 return True, obj
         return False, None
 
+    #@profile
     def render(self, **keyword_parameters):
 
         priority = ['Player', 'Loot', 'SentryTurret', 'SpikeTrap', 'OreDeposit', 'Hospital', 'Pharmacy', 'OreGenerator', 'Fence', 'Door', 'RespawnBeacon', 'StarGate']
@@ -166,7 +167,7 @@ class Cell:
                                 corp_standing_to_generator_owner_corp = player_obj.corp.fetch_standing(generator_owners.corp_id)
                                 return obj.icons[corp_standing_to_generator_owner_corp]
                             else:
-                                return obj.icon
+                                return [obj.icon, '#000000']
             return ['.', standing_colors.mane['N']]  # Returns Empty Space
         else:
             for i in priority:
