@@ -83,6 +83,7 @@ class World:  # World is not really world, it's more Level
         for corp_id, corp in self.corporations.items():
             corp.tick_buildings()
 
+    #@profile
     def render_world(self, **keyword_parameters):
         if 'player_id' in keyword_parameters:
             player_id = keyword_parameters['player_id']
@@ -196,6 +197,7 @@ class World:  # World is not really world, it's more Level
                     return
             random_cell.add_hospital()
 
+    #@profile
     def get_world(self, **keyword_parameters):
         if 'player_id' in keyword_parameters:
             player_id = keyword_parameters['player_id']
@@ -222,6 +224,13 @@ class World:  # World is not really world, it's more Level
         self.message_master_node({
             'request': 'abort_player',
             'player_aid': player_aid
+        })
+
+    def transfer_player_to_node(self, player_aid: str, target_node: str):
+        self.message_master_node({
+            'request': 'transfer_player_to_node',
+            'player_aid': player_aid,
+            'target_node': target_node
         })
 
     def valid_player_id(self, _id):
