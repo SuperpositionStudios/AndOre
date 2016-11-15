@@ -4,18 +4,18 @@ from child_game.player import Player
 from child_game.corporation import Corporation
 import warnings
 from child_game import helper_functions
-from typing import Dict, List
+from typing import Dict, List, Tuple
 import json
 
 
-def dumps(obj: dict):
+def dumps(obj: dict) -> str:
     try:
         return json.dumps(obj)
     except:
         return "{}"
 
 
-def loads(obj: str):
+def loads(obj: str) -> dict:
     try:
         return json.loads(obj)
     except:
@@ -94,15 +94,14 @@ class World:  # World is not really world, it's more Level
             rendered_world.append(current_row)
         return rendered_world
 
-    def corp_exists(self, corp_id):
+    def corp_exists(self, corp_id) -> bool:
         return corp_id in self.corporations
 
     def active_aid(self, aid: str):
         return aid in self.players
 
     def new_player(self, player_id=None, corp_id=None, corp_ore_quantity=0):
-        spawn_location = self.random_can_enter_cell()
-        assert(spawn_location.__class__.__name__ == 'Cell')
+        spawn_location = self.random_can_enter_cell()  #
 
         # Player ID
         if player_id is None:
@@ -148,10 +147,10 @@ class World:  # World is not really world, it's more Level
             random_cell = self.get_random_cell()
             attempt += 1
             if attempt == max_tries:
-                return 'too many players'
+                return self.get_cell(0, 0)
         return random_cell
 
-    def new_corporation(self, corp_id=None):
+    def new_corporation(self, corp_id=None) -> Corporation:
         new_corp = Corporation(self, corp_id=corp_id)
         self.corporations[new_corp.corp_id] = new_corp
         print(self.corporations)
@@ -170,21 +169,6 @@ class World:  # World is not really world, it's more Level
                 if attempt == max_tries:
                     return
             random_cell.add_ore_deposit()
-
-    def spawn_hospitals(self, num=1):
-        warnings.warn("Do not use this as this creates hospitals without an owner, which you cannot do", DeprecationWarning)
-        assert (num <= self.rows * self.cols)
-
-        for i in range(num):
-            random_cell = self.get_random_cell()
-            max_tries = self.rows * self.cols
-            attempt = 1
-            while random_cell.can_enter() is False:
-                random_cell = self.get_random_cell()
-                attempt += 1
-                if attempt == max_tries:
-                    return
-            random_cell.add_hospital()
 
     #@profile
     def get_world(self, player_id):
@@ -218,16 +202,15 @@ class World:  # World is not really world, it's more Level
             'target_node': target_node
         })
 
-    def valid_player_id(self, _id):
-        #helper_functions.drint("Trying to find player with id {}".format(_id))
+    def valid_player_id(self, _id: str) -> bool:
         return _id in self.players
 
-    def get_cell(self, row, col):
+    def get_cell(self, row: int, col: int) -> Cell:
         if row < 0 or row >= self.rows or col < 0 or col >= self.cols:
-            return False
+            return self.world[0][0]
         return self.world[row][col]
 
-    def get_random_cell(self):
+    def get_random_cell(self) -> Cell:
         row = random.randint(0, self.rows - 1)  # randint is inclusive
         col = random.randint(0, self.cols - 1)  # randint is inclusive
         return self.get_cell(row, col)

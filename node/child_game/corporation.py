@@ -180,11 +180,9 @@ class Corporation:
 
     def gain_ore(self, amount):
         self.pending_requests['ore_delta'] += amount
-        #self.ore_quantity += amount
 
     def lose_ore(self, amount):
         self.pending_requests['ore_delta'] -= amount
-        #self.ore_quantity -= amount
 
     def set_ore_quantity(self, amount):
         self.ore_quantity = amount
@@ -214,9 +212,6 @@ class Corporation:
         for received in self.received_merge_invites:
             if received in self.sent_merge_invites:
                 corp_id_to_merge_with = received
-                #print(corp_id_to_merge_with)
-                #print(self.world.corporations[corp_id_to_merge_with])
-                #print(corp_id_to_merge_with in self.world.corporations)
                 if corp_id_to_merge_with in self.world.corporations:
                     self.world.corporations[corp_id_to_merge_with].merge_me(self.corp_id)
 
@@ -228,38 +223,3 @@ class Corporation:
             'acquirer_id': self.corp_id,
             'acquiree_id': other_corp_id
         })
-        """
-        _other_corp = self.world.corporations[other_corp_id]
-
-        #print("Old corp size: {}".format(len(self.members)))
-        self.sent_merge_invites = list([])  # Empties the sent merge invites list
-        self.received_merge_invites = list([])  # Empties the received merge invites list
-
-        # Incorporating their ore bank into our ore bank
-        self.gain_ore(self.world.corporations[other_corp_id].ore_quantity)
-
-        # Setting the other corp's members corp to our corp
-        for member in self.world.corporations[other_corp_id].members:
-            member.corp = self
-            self.members.append(member)
-
-        # Copying their inventory to ours
-        # Loop through item type names
-        for item_type in _other_corp.inventory:
-            # Loop through item's arrays
-            for item_name in _other_corp.inventory[item_type]:
-                try:
-                    for item in _other_corp.inventory[item_type][item_name]:
-                        self.add_to_inventory(item)
-                except Exception as e:
-                    print(str(e))
-
-        # Setting the other corp's buildings corp to our corp
-        for building in self.world.corporations[other_corp_id].buildings:
-            building.owner_corp = self
-            self.buildings.append(building)
-
-        # Deletes the other corp to save memory
-        self.world.corporations.pop(other_corp_id)
-        #print("New corp size: {}".format(len(self.members)))
-        """
