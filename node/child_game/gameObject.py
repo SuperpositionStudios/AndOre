@@ -43,11 +43,14 @@ class StarGate(GameObject):
 
     def __init__(self, _cell: 'cell.Cell', target_node_name: str):
         super().__init__(_cell)
-        self.icon = {
-            'Panagoul': 'Ⓟ',
-            'Ulysses': 'Ⓤ'
-        }.get(target_node_name, '⎊')
         self.target_node = target_node_name
+        self.node_icons = {
+            'Panagoul': 'Ⓟ',
+            'Ulysses': 'Ⓤ',
+            'Toivo': 'Ⓣ',
+            'Pedals': 'Ⓑ'
+        }
+        self.icon = self.node_icons.get(target_node_name, '⎊')
         self.passable = {
             'M': False,
             'A': False,
@@ -56,7 +59,8 @@ class StarGate(GameObject):
         }
 
     def use(self, activator: 'child_game.player.Player'):
-        self.cell.world.transfer_player_to_random_node(activator.id)
+        if self.target_node in self.node_icons:
+            self.cell.world.transfer_player_to_node(activator.id, self.target_node)
 
 
 class CorpOwnedBuilding(GameObject):
