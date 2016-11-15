@@ -84,25 +84,14 @@ class World:  # World is not really world, it's more Level
             corp.tick_buildings()
 
     #@profile
-    def render_world(self, **keyword_parameters):
-        if 'player_id' in keyword_parameters:
-            player_id = keyword_parameters['player_id']
-            rendered_world = []
-            for row in range(self.rows):
-                current_row = []
-                for col in range(self.cols):
-                    rendered = self.world[row][col].render(player_id=player_id)
-                    current_row.append(rendered)
-                rendered_world.append(current_row)
-        else:
-            rendered_world = []
-            for row in range(self.rows):
-                current_row = []
-                for col in range(self.cols):
-                    rendered = self.world[row][col].render()
-                    current_row.append(rendered)
-                rendered_world.append(current_row)
-        assert(len(rendered_world) == 31, "Age: {} Len: {} Full: {}".format(self.world_age, len(rendered_world), rendered_world))
+    def render_world(self, player_id):
+        rendered_world = []
+        for row in range(self.rows):
+            current_row = []
+            for col in range(self.cols):
+                rendered = self.world[row][col].render(player_id=player_id)
+                current_row.append(rendered)
+            rendered_world.append(current_row)
         return rendered_world
 
     def corp_exists(self, corp_id):
@@ -198,12 +187,8 @@ class World:  # World is not really world, it's more Level
             random_cell.add_hospital()
 
     #@profile
-    def get_world(self, **keyword_parameters):
-        if 'player_id' in keyword_parameters:
-            player_id = keyword_parameters['player_id']
-            return self.render_world(player_id=player_id)
-        else:
-            return self.render_world()
+    def get_world(self, player_id):
+        return self.render_world(player_id)
 
     def transfer_corp_assets(self, acquirer_id, acquiree_id):
         print("Transferring assets of {} to {}".format(acquiree_id, acquirer_id))
