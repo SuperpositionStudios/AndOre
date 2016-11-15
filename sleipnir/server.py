@@ -47,7 +47,7 @@ class PlayerConnection:
 
 nodes = dict()  # type: Dict[str, Node]
 corporations = dict()  # type: Dict[str, game_classes.Corporation]
-players = dict()  # type: Dict[str, game_Classes.Player]
+players = dict()  # type: Dict[str, game_classes.Player]
 connected_players = dict()  # type: Dict[str, PlayerConnection]
 
 
@@ -287,6 +287,12 @@ async def node_client(websocket, path):
                         current_node = players[player_aid].get_current_node()
                         new_node = get_random_node_name(skip=current_node)
                         await transfer_player(player_aid, new_node)
+                elif request_type == 'transfer_player_to_node':
+                    target_node = request.get('target_node', '')
+                    player_aid = request.get('player_aid', '')
+                    if player_aid != '' and target_node != '':
+                        await transfer_player(player_aid, target_node)
+
             else:
                 if request_type == 'register':
                     if request.get('name', None) is not None and request.get('public_address', None) is not None:
