@@ -37,7 +37,7 @@ def loads(obj: str):
 
 class Node:
 
-    def __init__(self, node_name: str, node_port: int, node_public_address, erebus_address, sleipnir_address):
+    def __init__(self, node_name: str, node_port: int, node_public_address, erebus_address, sleipnir_address, star_gates=['Panagoul']):
         self.name = node_name
         self.port = node_port
         self.public_address = node_public_address
@@ -50,7 +50,8 @@ class Node:
 
         self.world = world_py.World(sleipnir_address, self.new_message_sleipnir)
         self.world.spawn_ore_deposits(5)
-        self.world.get_random_cell().add_structure('StarGate')
+        for target_node in star_gates:
+            self.world.get_random_cell().add_structure('StarGate', target_node)
 
         self.tick_server_if_needed()
 
@@ -89,6 +90,7 @@ class Node:
         req = requests.get(self.erebus_address + '/get/username', params={'aid': aid}).json()
         return req
 
+    #@profile
     def tick_server_if_needed(self):
         now = datetime.datetime.now()
         if (now - self.world.last_tick).microseconds >= self.world.microseconds_per_tick:

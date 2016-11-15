@@ -4,10 +4,9 @@ import asyncio
 import os
 import json
 
-
 class NodeStarter:
 
-    def __init__(self, node_name: str, node_port: int, production_public_address: str, development_public_address: str):
+    def __init__(self, node_name: str, node_port: int, production_public_address: str, development_public_address: str, star_gates=['Panagoul']):
 
         with open(self.path_to_this_files_directory() + 'keys.json') as json_data:
             d = json.load(json_data)
@@ -37,7 +36,7 @@ class NodeStarter:
 
         node_public_semi_address = 'localhost'
 
-        n = Node(node_name, node_port, node_public_address, erebus_address, sleipnir_address)
+        n = Node(node_name, node_port, node_public_address, erebus_address, sleipnir_address, star_gates=star_gates)
 
         start_server = websockets.serve(n.game_client, node_public_semi_address, node_port)
 
