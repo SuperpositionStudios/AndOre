@@ -162,7 +162,7 @@ Bengal.prototype = {
 			4: 1,
 			5: 1,
 			6: 1,
-			7: 1,
+			7: 4,  // Player
 			8: 1,
 			9: 1,
 			10: 1,
@@ -181,6 +181,9 @@ Bengal.prototype = {
 				//
 			} else if (rawObjectType == 3) {
 				convertedObject.target_node = rawObject[1];
+			} else if (rawObjectType == 4) {
+				convertedObject.aid = rawObject[1];
+				convertedObject.corp_id = rawObject[2];
 			}
 			convertedContents.push(convertedObject);
 		}
@@ -255,6 +258,7 @@ Bengal.prototype = {
 	}
 };
 
+/*
 bengal = new Bengal();
 bengal.Init("bill", "a");
 
@@ -311,7 +315,7 @@ var server_response = {
 		[
 			{
 				"contents": [
-					[7, "c"]
+					[7, "aid", "c"]
 				]
 			},
 			{
@@ -345,3 +349,4 @@ var server_response = {
 	]
 };
 console.log(bengal.RenderWorld(server_response));
+*/
