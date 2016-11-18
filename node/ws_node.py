@@ -58,23 +58,27 @@ class Node:
         print("Running {} on port {}".format(self.name, self.port))
 
     async def send_state_to_all(self):
+        world_state = self.world.client_side_render()
         for aid, connected_client in self.connected_clients.items():
-            await self.send_state(aid)
+            await self.send_state(aid, world_state=world_state)
 
-    async def send_state(self, aid: str) -> bool:
+    async def send_state(self, aid: str, world_state=None) -> bool:
         try:
             connected_client = self.connected_clients.get(aid, None)
 
             if connected_client is not None:
 
-                world_view = self.world.players[aid].world_state()
                 inventory = self.world.players[aid].corp.render_inventory()
                 vitals = self.world.players[aid].get_vitals()
 
+                if world_state is None:
+                    world_state = self.world.client_side_render()
+
                 await connected_client.send_dict({
                     'authenticated': connected_client.is_authenticated(),
-                    'request': 'sendState',
-                    'world': world_view,
+                    'request': 'send_state_client_render',
+                    'world': world_state['world'],
+                    'standings': world_state['standings'],
                     'inventory': inventory,
                     'vitals': vitals
                 })

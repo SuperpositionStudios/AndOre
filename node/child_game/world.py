@@ -214,3 +214,22 @@ class World:  # World is not really world, it's more Level
         row = random.randint(0, self.rows - 1)  # randint is inclusive
         col = random.randint(0, self.cols - 1)  # randint is inclusive
         return self.get_cell(row, col)
+
+    def client_side_render(self):
+        rendered_world = []
+        for row in range(self.rows):
+            current_row = []
+            for col in range(self.cols):
+                rendered = self.world[row][col].client_side_render()
+                current_row.append(rendered)
+            rendered_world.append(current_row)
+
+        standings = {}
+        for corp_id, corporation in self.corporations.items():
+            standings[corp_id] = corporation.standings
+
+        response = {
+            'world': rendered_world,
+            'standings': standings
+        }
+        return rendered_world

@@ -197,3 +197,52 @@ class Cell:
                 if obj.passable[obj_standing] is False:
                     return False
             return True
+
+    def client_side_render(self):
+        prepared_list = []
+        for object in self.contents:
+
+            object_ints = {
+                'Fence': 1,
+                'Hospital': 2,
+                'OreGenerator': 3,
+                'Pharmacy': 4,
+                'RespawnBeacon': 5,
+                'Door': 6,
+                'Player': 7,
+                'Loot': 8,
+                'SpikeTrap': 9,
+                'SentryTurret': 10,
+                'OreDeposit': 11,
+                'StarGate': 12
+            }
+
+            render_types = {
+                1: 1,
+                2: 1,
+                3: 1,
+                4: 1,
+                5: 1,
+                6: 1,
+                7: 2,
+                8: 3,
+                9: 1,
+                10: 1,
+                11: 3,
+                12: 4
+            }
+
+            object_int = object_ints.get(object.__class__.__name__, None)
+            render_type = render_types.get(object_int, None)
+
+            if object_int is not None and render_type is not None:
+                rendered_obj = [object_int]
+                if render_type == 1:
+                    rendered_obj.append(object.owner_corp)
+                elif render_type == 2:
+                    rendered_obj.append(object.aid)
+                    rendered_obj.append(object.corp.corp_id)
+                elif render_type == 4:
+                    rendered_obj.append(object.target_node)
+                prepared_list.append(rendered_obj)
+        return prepared_list

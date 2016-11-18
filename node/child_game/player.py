@@ -10,6 +10,7 @@ class Player(gameObject.GameObject):
         assert (_corp is not None)
 
         self.id = _id
+        self.aid = self.id
         self.obj_id = _id
         self.world = _world
         self.cell = _cell
