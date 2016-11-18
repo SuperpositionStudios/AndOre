@@ -59,10 +59,14 @@ class Node:
 
     async def send_state_to_all(self):
         world_state = self.world.client_side_render()
-        for aid, connected_client in self.connected_clients.items():
-            await self.send_state(aid, world_state=world_state)
+        aids = self.connected_clients.keys()
+        for aid in aids:
+            try:
+                await self.send_state(aid, world_state=world_state)
+            except:
+                pass
 
-    async def send_state(self, aid: str, world_state=None, send_ping=True) -> bool:
+    async def send_state(self, aid: str, world_state=None, send_ping=False) -> bool:
         try:
             connected_client = self.connected_clients.get(aid, None)
 
@@ -128,7 +132,10 @@ class Node:
                         }))
                     elif request.get('request', None) == 'action':
                         action = request.get('action', '')
-                        self.world.players[aid].action(action)
+                        try:
+                            self.world.players[aid].action(action)
+                        except Exception as e:
+                            print(e)
 
                         """
                         world_view = self.world.players[aid].world_state()
