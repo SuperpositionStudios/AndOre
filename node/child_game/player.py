@@ -248,21 +248,18 @@ class Player(gameObject.GameObject):
             _cell.deconstruct_first_possible_building_owned_by_corp(self.corp.corp_id)
 
     def try_using_inventory(self):
-        #print("tried to use inventory")
         #  Consumables
         chosen = self.corp.return_obj_selected_in_rendered_inventory(int(self.secondary_modifier_key))
         if chosen is None:
             return False
         else:
-            chosen()
-        #print(chosen)
+            chosen = chosen()
         if chosen.item_type == 'Consumable':
             effects = chosen.consume()
             self.take_effects(effects)
             self.corp.queue_inventory_delta(chosen.__class__.__name__, -1)
             return True
         else:
-            #print("Else")
             return False  # Not yet supported
 
     def take_effects(self, effects):

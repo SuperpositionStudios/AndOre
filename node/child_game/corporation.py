@@ -96,7 +96,8 @@ class Corporation:
             8: 7,
             9: 8,
         }
-        if ops.get(selected, 0) in self.usage_inventory:
+        if len(self.usage_inventory) >= ops.get(selected, 0):
+        #if ops.get(selected, 0) in self.usage_inventory:
             return self.usage_inventory[ops.get(selected, 0)]
         else:
             return None
