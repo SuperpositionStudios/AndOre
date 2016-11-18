@@ -60,6 +60,7 @@ View = function() {
 View.prototype = {
   worldView: null,
   inventoryView: null,
+  bengal: null,
   playerStatView: {
     currentHealth: null,
     healthCap: null,
@@ -88,6 +89,8 @@ View.prototype = {
   pollDelay: 333,
   SetupView : function(app, callback) {
     this.app = app;
+    this.bengal = new Bengal();
+    this.bengal.Init(this.app.authId, this.app.corpId);
     this.worldView = $(worldViewSelector);
     this.inventoryView = $(inventorySelector);
     this.infoView.modeMeaning = $("#infoModeMeaning");
@@ -167,6 +170,15 @@ View.prototype = {
     this.playerStatView.modifierKey.text(stats.modifier_key);
     this.infoView.modeMeaning.text(this.infoView.modeMeanings[stats.modifier_key] || 'Unknown');
     this.playerStatView.secondaryModifierKey.text(stats.secondary_modifier_key);
+  },
+  ClientSideDraw: function(data) {
+    var self = this;
+    
+    var rendered_world = self.bengal.RenderWorld(data.world);
+    self.DrawWorldView(rendered_world);
+    
+    self.DrawInventory(data.inventory);
+    self.DrawPlayerStats(data.vitals);
   },
   Draw: function(data){
     if (data.world != '') {
