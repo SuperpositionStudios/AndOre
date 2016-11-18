@@ -62,7 +62,7 @@ class Node:
         for aid, connected_client in self.connected_clients.items():
             await self.send_state(aid, world_state=world_state)
 
-    async def send_state(self, aid: str, world_state=None) -> bool:
+    async def send_state(self, aid: str, world_state=None, send_ping=True) -> bool:
         try:
             connected_client = self.connected_clients.get(aid, None)
 
@@ -70,18 +70,25 @@ class Node:
 
                 inventory = self.world.players[aid].corp.render_inventory()
                 vitals = self.world.players[aid].get_vitals()
+                corp_id = self.world.players[aid].corp.corp_id
 
                 if world_state is None:
                     world_state = self.world.client_side_render()
 
-                await connected_client.send_dict({
+                dict_being_sent = {
                     'authenticated': connected_client.is_authenticated(),
                     'request': 'send_state_client_render',
                     'world': world_state['world'],
                     'standings': world_state['standings'],
                     'inventory': inventory,
-                    'vitals': vitals
-                })
+                    'vitals': vitals,
+                    'corp_id': corp_id
+                }
+
+                if send_ping:
+                    dict_being_sent['time'] = datetime.datetime.utcnow().isoformat()
+
+                await connected_client.send_dict(dict_being_sent)
 
                 return True
         except:
@@ -122,6 +129,8 @@ class Node:
                     elif request.get('request', None) == 'action':
                         action = request.get('action', '')
                         self.world.players[aid].action(action)
+
+                        """
                         world_view = self.world.players[aid].world_state()
                         inventory = self.world.players[aid].corp.render_inventory()
                         vitals = self.world.players[aid].get_vitals()
@@ -134,6 +143,8 @@ class Node:
                             'vitals': vitals,
                             'time': datetime.datetime.utcnow().isoformat()
                         }))
+                        """
+                        await self.send_state(aid, send_ping=True)
                 else:
                     if request.get('request', None) == 'register':
                         aid = request.get('aid', '')

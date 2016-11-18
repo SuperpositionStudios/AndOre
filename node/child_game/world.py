@@ -232,4 +232,4 @@ class World:  # World is not really world, it's more Level
             'world': rendered_world,
             'standings': standings
         }
-        return rendered_world
+        return response

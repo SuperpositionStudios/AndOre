@@ -61,6 +61,7 @@ View.prototype = {
   worldView: null,
   inventoryView: null,
   bengal: null,
+  app: null,
   playerStatView: {
     currentHealth: null,
     healthCap: null,
@@ -90,7 +91,7 @@ View.prototype = {
   SetupView : function(app, callback) {
     this.app = app;
     this.bengal = new Bengal();
-    this.bengal.Init(this.app.authId, this.app.corpId);
+    this.bengal.Init(this.app.authId);
     this.worldView = $(worldViewSelector);
     this.inventoryView = $(inventorySelector);
     this.infoView.modeMeaning = $("#infoModeMeaning");
@@ -174,7 +175,7 @@ View.prototype = {
   ClientSideDraw: function(data) {
     var self = this;
     
-    var rendered_world = self.bengal.RenderWorld(data.world);
+    var rendered_world = self.bengal.RenderWorld(data);
     self.DrawWorldView(rendered_world);
     
     self.DrawInventory(data.inventory);

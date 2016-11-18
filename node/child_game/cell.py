@@ -199,7 +199,9 @@ class Cell:
             return True
 
     def client_side_render(self):
-        prepared_list = []
+        prepared_list = {
+            "contents": []
+        }
         for object in self.contents:
 
             object_ints = {
@@ -244,5 +246,5 @@ class Cell:
                     rendered_obj.append(object.corp.corp_id)
                 elif render_type == 4:
                     rendered_obj.append(object.target_node)
-                prepared_list.append(rendered_obj)
+                prepared_list["contents"].append(rendered_obj)
         return prepared_list

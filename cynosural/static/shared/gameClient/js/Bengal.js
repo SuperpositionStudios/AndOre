@@ -84,13 +84,15 @@ Bengal.prototype = {
 		7: {
 			"name": "Player",
 			"icons": {
+			  "S": "@",
 				"M": "M",
 				"A": "A",
 				"N": "N",
 				"E": "E"
 			},
-			"render_type": 1,
-			"owner": "undefined"
+			"render_type": 5,
+			"aid": "undefined",
+      "owner": "undefined"
 		},
 		8: {
 			"name": "Loot",
@@ -136,11 +138,11 @@ Bengal.prototype = {
 			"target_node": "undefined"
 		}
 	},
-	Init: function (aid, corp_id) {
+	Init: function (aid) {
 		var self = this;
 		console.log("Starting Bengal");
 		self.aid = aid;
-		self.corp_id = corp_id;
+    console.log(aid);
 	},
 	getStandingTowardsCorp: function (corp, towards_corp) {
 		var self = this;
@@ -183,7 +185,7 @@ Bengal.prototype = {
 				convertedObject.target_node = rawObject[1];
 			} else if (rawObjectType == 4) {
 				convertedObject.aid = rawObject[1];
-				convertedObject.corp_id = rawObject[2];
+				convertedObject.owner = rawObject[2];
 			}
 			convertedContents.push(convertedObject);
 		}
@@ -227,9 +229,22 @@ Bengal.prototype = {
 						// For StarGates
 						icon = current_object.icons[current_object.target_node] || "?";
 						color = self.colors["Nature"];
-						
-						return [icon, color];
-					}
+            return [icon, color];
+					} else if (current_object.render_type == 5) {
+					  // For Players
+            //console.log(self.corp_id);
+            if (current_object.aid == self.aid) {
+              icon = current_object.icons["S"];
+              color = self.colors["M"];
+              return [icon, color];
+            } else {
+              //console.log(self.aid + " != " + current_object.aid);
+              var standings_towards_owner_corp = self.getStandingTowardsCorp(self.corp_id, current_object.owner);
+              icon = current_object.icons[standings_towards_owner_corp];
+						  color = self.colors[standings_towards_owner_corp];
+              return [icon, color];
+            }
+          }
 				} else {
 					// Continue...
 				}
@@ -241,6 +256,7 @@ Bengal.prototype = {
 		var self = this;
 		self.currentServerResponse = newServerResponse;
 		self.standings = self.currentServerResponse.standings;
+		self.corp_id = self.currentServerResponse.corp_id;
 		
 		var world = self.currentServerResponse.world;
 		var rendered_world = [];

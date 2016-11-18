@@ -2,7 +2,7 @@
 //also uses rl.js -- http://cs.stanford.edu/people/karpathy/reinforcejs/
 
 /* Begin Settings */
-var use_dev_server = false; // Set back to false when comitting
+var use_dev_server = true; // Set back to false when comitting
 var use_ai_storage_server = true;
 var internetOff = false;  // Used for testing view.js with testData.js
 var useSecureHTTP = false;  // Set to true if using https
@@ -130,7 +130,7 @@ App.prototype = {
           self.ListenToStartAi(function() {
             self.view = new View();
             //self.view.SetupView(this, App.GetDisplay);
-            self.view.SetupView(this, null);
+            self.view.SetupView(self, null);
           });
         });
       });
@@ -331,6 +331,9 @@ App.prototype = {
         self.view.Draw(message);
       } else if (message.request == 'auth') {
         $('#currentNodeName').text(message.nodeName);
+      } else if (message.request == 'send_state_client_render') {
+        self.corpId = message.corp_id;
+        self.view.ClientSideDraw(message);
       }
     };
 
