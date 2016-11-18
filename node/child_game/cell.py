@@ -202,7 +202,7 @@ class Cell:
         prepared_list = {
             "contents": []
         }
-        for object in self.contents:
+        for obj in self.contents:
 
             object_ints = {
                 'Fence': 1,
@@ -234,17 +234,17 @@ class Cell:
                 12: 4
             }
 
-            object_int = object_ints.get(object.__class__.__name__, None)
+            object_int = object_ints.get(obj.__class__.__name__, None)
             render_type = render_types.get(object_int, None)
 
             if object_int is not None and render_type is not None:
                 rendered_obj = [object_int]
                 if render_type == 1:
-                    rendered_obj.append(object.owner_corp)
+                    rendered_obj.append(obj.owner_corp.corp_id)
                 elif render_type == 2:
-                    rendered_obj.append(object.aid)
-                    rendered_obj.append(object.corp.corp_id)
+                    rendered_obj.append(obj.aid)
+                    rendered_obj.append(obj.corp.corp_id)
                 elif render_type == 4:
-                    rendered_obj.append(object.target_node)
+                    rendered_obj.append(obj.target_node)
                 prepared_list["contents"].append(rendered_obj)
         return prepared_list
