@@ -1,27 +1,27 @@
 <html>
 	<head>
-        <link rel="apple-touch-icon-precomposed" sizes="57x57" href="static/favicons/apple-touch-icon-57x57.png" />
-        <link rel="apple-touch-icon-precomposed" sizes="114x114" href="static/favicons/apple-touch-icon-114x114.png" />
-        <link rel="apple-touch-icon-precomposed" sizes="72x72" href="static/favicons/apple-touch-icon-72x72.png" />
-        <link rel="apple-touch-icon-precomposed" sizes="144x144" href="static/favicons/apple-touch-icon-144x144.png" />
-        <link rel="apple-touch-icon-precomposed" sizes="60x60" href="static/favicons/apple-touch-icon-60x60.png" />
-        <link rel="apple-touch-icon-precomposed" sizes="120x120" href="static/favicons/apple-touch-icon-120x120.png" />
-        <link rel="apple-touch-icon-precomposed" sizes="76x76" href="static/favicons/apple-touch-icon-76x76.png" />
-        <link rel="apple-touch-icon-precomposed" sizes="152x152" href="static/favicons/apple-touch-icon-152x152.png" />
-        <link rel="icon" type="image/png" href="static/favicons/favicon-196x196.png" sizes="196x196" />
-        <link rel="icon" type="image/png" href="static/favicons/favicon-96x96.png" sizes="96x96" />
-        <link rel="icon" type="image/png" href="static/favicons/favicon-32x32.png" sizes="32x32" />
-        <link rel="icon" type="image/png" href="static/favicons/favicon-16x16.png" sizes="16x16" />
-        <link rel="icon" type="image/png" href="static/favicons/favicon-128.png" sizes="128x128" />
+        <link rel="apple-touch-icon-precomposed" sizes="57x57" href="{{ url_for('static', filename='favicons/apple-touch-icon-57x57.png') }}" />
+        <link rel="apple-touch-icon-precomposed" sizes="114x114" href="{{ url_for('static', filename='favicons/apple-touch-icon-114x114.png') }}" />
+        <link rel="apple-touch-icon-precomposed" sizes="72x72" href="{{ url_for('static', filename='favicons/apple-touch-icon-72x72.png') }}" />
+        <link rel="apple-touch-icon-precomposed" sizes="144x144" href="{{ url_for('static', filename='favicons/apple-touch-icon-144x144.png') }}" />
+        <link rel="apple-touch-icon-precomposed" sizes="60x60" href="{{ url_for('static', filename='favicons/apple-touch-icon-60x60.png') }}" />
+        <link rel="apple-touch-icon-precomposed" sizes="120x120" href="{{ url_for('static', filename='favicons/apple-touch-icon-120x120.png') }}" />
+        <link rel="apple-touch-icon-precomposed" sizes="76x76" href="{{ url_for('static', filename='favicons/apple-touch-icon-76x76.png') }}" />
+        <link rel="apple-touch-icon-precomposed" sizes="152x152" href="{{ url_for('static', filename='favicons/apple-touch-icon-152x152.png') }}" />
+        <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicons/favicon-196x196.png') }}" sizes="196x196" />
+        <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicons/favicon-96x96.png') }}" sizes="96x96" />
+        <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicons/favicon-32x32.png') }}" sizes="32x32" />
+        <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicons/favicon-16x16.png') }}" sizes="16x16" />
+        <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicons/favicon-128.png') }}" sizes="128x128" />
         <meta name="application-name" content="&nbsp;"/>
         <meta name="msapplication-TileColor" content="#FFFFFF" />
-        <meta name="msapplication-TileImage" content="static/favicons/mstile-144x144.png" />
-        <meta name="msapplication-square70x70logo" content="static/favicons/mstile-70x70.png" />
-        <meta name="msapplication-square150x150logo" content="static/favicons/mstile-150x150.png" />
-        <meta name="msapplication-wide310x150logo" content="static/favicons/mstile-310x150.png" />
-        <meta name="msapplication-square310x310logo" content="static/favicons/mstile-310x310.png" />
+        <meta name="msapplication-TileImage" content="{{ url_for('static', filename='favicons/mstile-144x144.png') }}" />
+        <meta name="msapplication-square70x70logo" content="{{ url_for('static', filename='favicons/mstile-70x70.png') }}" />
+        <meta name="msapplication-square150x150logo" content="{{ url_for('static', filename='favicons/mstile-150x150.png') }}" />
+        <meta name="msapplication-wide310x150logo" content="{{ url_for('static', filename='favicons/mstile-310x150.png') }}" />
+        <meta name="msapplication-square310x310logo" content="{{ url_for('static', filename='favicons/mstile-310x310.png') }}" />
 
-        <title>And/Ore</title>
+        <title>And/Ore - v1.5 Alpha</title>
 
 		<link href="https://fonts.googleapis.com/css?family=Ubuntu+Mono" rel="stylesheet">
 
@@ -34,6 +34,7 @@
 		<!--<script src="{{ url_for('static', filename='shared/gameClient/js/testData.js') }}"></script>-->
 		<script src="{{ url_for('static', filename='shared/external/js/rl.js') }}"></script>
 		<script src="{{ url_for('static', filename='shared/gameClient/js/ai.js') }}"></script>
+        <script src="{{ url_for('static', filename='shared/gameClient/js/Bengal.js') }}"></script>
 		<script src="{{ url_for('static', filename='shared/gameClient/js/view.js') }}"></script>
 		<script src="{{ url_for('static', filename='shared/gameClient/js/app.js') }}"></script>
 		<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='shared/gameClient/css/style.css') }}">
