@@ -19,4 +19,8 @@ def admin():
 def gameclient():
     return render_template("gameClient/index.html")
 
+@app.route('/bengal')
+def bengal():
+    return render_template("Bengal/index.html")
+
 app.run(debug=True, host='0.0.0.0', port=7002, threaded=True)
