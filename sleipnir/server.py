@@ -300,6 +300,7 @@ async def node_client(websocket, path):
                         client.set_public_address(request.get('public_address', ''))
                         nodes[request.get('name', '')] = client
                         authenticated = True
+                        print("Added {} to pool of nodes".format(client.name))
                     await websocket.send(dumps({
                         'authenticated': authenticated
                     }))
