@@ -2,28 +2,26 @@ Ore Generator
 =======
 
 * Icon: 🏭
+* Health: 225
 * Build with: `b,3, *`
 * Build Cost: `100 Ore`
 * Ore Dropped on Destruction: `33 Ore`
 
-#### Services Offered
+#### Abilities
 
-You can use Ore generators to obtain 3 ore pick tick, during the extraction of ore
+Ore Generators grant their owners 3 ore per tick, with each
+tick decreasing their health by one.
 
+#### Other
 
-#### Owner Information
-
-Corporation owned buildings that sell items/services for a cost  distribute the profits to the owner.
-
-#### Origin
-
-The ore generator is a structure from v1.1.
-
+The Ore Generated was originally introduced in v1.1, but has
+been continually modified.
 
 Contributors
 ============
 
 - Quinn Balsam
+- JCharante
 
-Page last edited on 10/14/16
+Page last edited on 11/20/16
 

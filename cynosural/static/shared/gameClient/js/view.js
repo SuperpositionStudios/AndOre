@@ -60,6 +60,8 @@ View = function() {
 View.prototype = {
   worldView: null,
   inventoryView: null,
+  bengal: null,
+  app: null,
   playerStatView: {
     currentHealth: null,
     healthCap: null,
@@ -88,6 +90,8 @@ View.prototype = {
   pollDelay: 333,
   SetupView : function(app, callback) {
     this.app = app;
+    this.bengal = new Bengal();
+    this.bengal.Init(this.app.authId);
     this.worldView = $(worldViewSelector);
     this.inventoryView = $(inventorySelector);
     this.infoView.modeMeaning = $("#infoModeMeaning");
@@ -102,7 +106,7 @@ View.prototype = {
     this.playerStatView.modifierKey = $("#statModifierKey");
     this.playerStatView.secondaryModifierKey = $("#statSecondaryModifierKey");
     this.SetupInput();
-    this.Poll();
+    //this.Poll();
     CallCallback(callback);
   },
   DrawInventory: function(inventory) {
@@ -168,6 +172,15 @@ View.prototype = {
     this.infoView.modeMeaning.text(this.infoView.modeMeanings[stats.modifier_key] || 'Unknown');
     this.playerStatView.secondaryModifierKey.text(stats.secondary_modifier_key);
   },
+  ClientSideDraw: function(data) {
+    var self = this;
+    
+    var rendered_world = self.bengal.RenderWorld(data);
+    self.DrawWorldView(rendered_world);
+    
+    self.DrawInventory(data.inventory);
+    self.DrawPlayerStats(data.vitals);
+  },
   Draw: function(data){
     if (data.world != '') {
       var world_json = copy(data.world);
@@ -178,7 +191,7 @@ View.prototype = {
 
     this.DrawInventory(data.inventory);
     this.DrawPlayerStats(data.vitals);
-  },
+  },/*
   Poll: function(){
     var self = this;
     setTimeout(function() {
@@ -187,7 +200,7 @@ View.prototype = {
         self.Poll();
       });
     }, self.pollDelay);
-  },
+  },*/
   SetupInput: function() {
     // For handling shift modifier
     var shiftCode = 16;

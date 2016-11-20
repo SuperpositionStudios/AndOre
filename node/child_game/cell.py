@@ -1,6 +1,6 @@
 import uuid
 from child_game import standing_colors, gameObject, world, corporation
-
+from typing import Tuple
 
 class Cell:
 
@@ -68,7 +68,7 @@ class Cell:
         a = gameObject.OreDeposit(self)
         self.contents.append(a)
 
-    def add_building(self, owner_corp: 'corporation.Corporation', building_type: str):
+    def add_corp_owned_building(self, owner_corp: 'corporation.Corporation', building_type: str):
         assert (owner_corp.__class__.__name__ == 'Corporation')
         a = None
         if building_type == 'SentryTurret':
@@ -89,13 +89,24 @@ class Cell:
             a = gameObject.Fence(self, owner_corp)
         self.add_game_object(a)
 
+    def add_structure(self, building_type: str, star_gate_target=''):
+        obj = None
+        if building_type == 'StarGate':
+            obj = gameObject.StarGate(self, star_gate_target)
+        self.add_game_object(obj)
+
     def remove_object(self, object_id: str):
         for i in range(0, len(self.contents)):
             if self.contents[i].obj_id == object_id:
                 del self.contents[i]
                 return
 
-    def contains_object_type(self, obj_type_name: str):
+    def contains_object_type(self, obj_type_name: str) -> Tuple[bool, any]:
+        """
+
+        :param obj_type_name: The class name, example: 'Cell'
+        :return: A tuple, [0] = a bool, true if cell contains obj_type_name. [1] = obj_id to first obj found of that class in the cell.
+        """
         # obj_type_name is the class name, example: 'Cell'
         # Returns a tuple, a boolean answering if the cell contains an object with the same class name as the input
         # and a string, if the boolean is true then it will return the object's obj_id
@@ -111,58 +122,50 @@ class Cell:
                 return True, obj
         return False, None
 
-    def render(self, **keyword_parameters):
+    #@profile
+    def render(self, player_id):
 
-        priority = ['Player', 'Loot', 'SentryTurret', 'SpikeTrap', 'OreDeposit', 'Hospital', 'Pharmacy', 'OreGenerator', 'Fence', 'Door', 'RespawnBeacon']
+        priority = ['Player', 'Loot', 'SentryTurret', 'SpikeTrap', 'OreDeposit', 'Hospital', 'Pharmacy', 'OreGenerator', 'Fence', 'Door', 'RespawnBeacon', 'StarGate']
+        player_obj = self.world.players[player_id]
 
-        if 'player_id' in keyword_parameters:
-            player_id = keyword_parameters['player_id']
-            player_obj = self.world.players[player_id]
+        for i in priority:
+            if self.contains_object_type(i)[0]:
+                for obj in self.contents:
+                    if obj.__class__.__name__ == i:
+                        obj_class_name = obj.__class__.__name__
 
-            for i in priority:
-                if self.contains_object_type(i)[0]:
-                    for obj in self.contents:
-                        if obj.__class__.__name__ == i:
-                            obj_class_name = obj.__class__.__name__
+                        types_of_rendering = {
+                            'Player': 'a',
+                            'SentryTurret': 'b',
+                            'SpikeTrap': 'b',
+                            'Fence': 'c',
+                            'Pharmacy': 'b',
+                            'Hospital': 'b',
+                            'Door': 'b',
+                            'RespawnBeacon': 'b',
+                            'OreGenerator': 'c',
+                            'OreDeposit': 'd',
+                            'StarGate': 'd',
+                            'Loot': 'd'
+                        }
 
-                            types_of_rendering = {
-                                'Player': 'a',
-                                'SentryTurret': 'b',
-                                'SpikeTrap': 'b',
-                                'Fence': 'c',
-                                'Pharmacy': 'b',
-                                'Hospital': 'b',
-                                'Door': 'b',
-                                'RespawnBeacon': 'b',
-                                'OreGenerator': 'c',
-                                'OreDeposit': 'd',
-                                'Loot': 'd'
-                            }
-
-                            if types_of_rendering[obj_class_name] == 'a':
-                                if player_obj.obj_id == obj.obj_id:
-                                    return obj.inner_icon
-                                else:
-                                    standings_towards_player = player_obj.corp.fetch_standing_for_player(obj.obj_id)
-                                    return obj.icons[standings_towards_player]
-                            elif types_of_rendering[obj_class_name] == 'b':
-                                owners = obj.owner_corp
-                                owner_standings_towards_us = owners.fetch_standing_for_player(player_id)
-                                return obj.icons[owner_standings_towards_us]
-                            elif types_of_rendering[obj_class_name] == 'c':
-                                generator_owners = obj.owner_corp
-                                corp_standing_to_generator_owner_corp = player_obj.corp.fetch_standing(generator_owners.corp_id)
-                                return obj.icons[corp_standing_to_generator_owner_corp]
+                        if types_of_rendering[obj_class_name] == 'a':
+                            if player_obj.obj_id == obj.obj_id:
+                                return obj.inner_icon
                             else:
-                                return obj.icon
-            return ['.', standing_colors.mane['N']]  # Returns Empty Space
-        else:
-            for i in priority:
-                if self.contains_object_type(i)[0]:
-                    for obj in self.contents:
-                        if obj.__class__.__name__ == i:
-                            return obj.icon
-            return ['.', standing_colors.mane['N']]  # Returns Empty Space
+                                standings_towards_player = player_obj.corp.fetch_standing_for_player(obj.obj_id)
+                                return obj.icons[standings_towards_player]
+                        elif types_of_rendering[obj_class_name] == 'b':
+                            owners = obj.owner_corp
+                            owner_standings_towards_us = owners.fetch_standing_for_player(player_id)
+                            return obj.icons[owner_standings_towards_us]
+                        elif types_of_rendering[obj_class_name] == 'c':
+                            generator_owners = obj.owner_corp
+                            corp_standing_to_generator_owner_corp = player_obj.corp.fetch_standing(generator_owners.corp_id)
+                            return obj.icons[corp_standing_to_generator_owner_corp]
+                        else:
+                            return [obj.icon, '#000000']
+        return ['.', standing_colors.mane['N']]  # Returns Empty Space
 
     def can_enter(self, player_obj=None):
         if player_obj is not None:
@@ -171,6 +174,7 @@ class Cell:
 
                 class_types = {
                     'OreDeposit': 0,
+                    'StarGate': 0,
                     'Fence': 0,
                     'Loot': 0,
                     'Player': 1
@@ -193,3 +197,54 @@ class Cell:
                 if obj.passable[obj_standing] is False:
                     return False
             return True
+
+    def client_side_render(self):
+        prepared_list = {
+            "contents": []
+        }
+        for obj in self.contents:
+
+            object_ints = {
+                'Fence': 1,
+                'Hospital': 2,
+                'OreGenerator': 3,
+                'Pharmacy': 4,
+                'RespawnBeacon': 5,
+                'Door': 6,
+                'Player': 7,
+                'Loot': 8,
+                'SpikeTrap': 9,
+                'SentryTurret': 10,
+                'OreDeposit': 11,
+                'StarGate': 12
+            }
+
+            render_types = {
+                1: 1,
+                2: 1,
+                3: 1,
+                4: 1,
+                5: 1,
+                6: 1,
+                7: 2,
+                8: 3,
+                9: 1,
+                10: 1,
+                11: 3,
+                12: 4
+            }
+
+            object_int = object_ints.get(obj.__class__.__name__, None)
+            render_type = render_types.get(object_int, None)
+
+            if object_int is not None and render_type is not None:
+                rendered_obj = [object_int]
+                if render_type == 1:
+                    rendered_obj.append(obj.owner_corp.corp_id)
+                elif render_type == 2:
+                    rendered_obj.append(obj.aid)
+                    rendered_obj.append(obj.corp.corp_id)
+                elif render_type == 4:
+                    rendered_obj.append(obj.target_node)
+                prepared_list["contents"].append(rendered_obj)
+        return prepared_list

@@ -4,22 +4,23 @@ from child_game.player import Player
 from child_game.corporation import Corporation
 import warnings
 from child_game import helper_functions
-import requests
-from typing import Dict, List
+from typing import Dict, List, Tuple
 import json
 
-def dumps(obj: dict):
+
+def dumps(obj: dict) -> str:
     try:
         return json.dumps(obj)
     except:
         return "{}"
 
 
-def loads(obj: str):
+def loads(obj: str) -> dict:
     try:
         return json.loads(obj)
     except:
         return {}
+
 
 class World:  # World is not really world, it's more Level
 
@@ -82,36 +83,25 @@ class World:  # World is not really world, it's more Level
         for corp_id, corp in self.corporations.items():
             corp.tick_buildings()
 
-    def render_world(self, **keyword_parameters):
-        if 'player_id' in keyword_parameters:
-            player_id = keyword_parameters['player_id']
-            rendered_world = []
-            for row in range(self.rows):
-                current_row = []
-                for col in range(self.cols):
-                    rendered = self.world[row][col].render(player_id=player_id)
-                    current_row.append(rendered)
-                rendered_world.append(current_row)
-        else:
-            rendered_world = []
-            for row in range(self.rows):
-                current_row = []
-                for col in range(self.cols):
-                    rendered = self.world[row][col].render()
-                    current_row.append(rendered)
-                rendered_world.append(current_row)
-        assert(len(rendered_world) == 31, "Age: {} Len: {} Full: {}".format(self.world_age, len(rendered_world), rendered_world))
+    #@profile
+    def render_world(self, player_id):
+        rendered_world = []
+        for row in range(self.rows):
+            current_row = []
+            for col in range(self.cols):
+                rendered = self.world[row][col].render(player_id=player_id)
+                current_row.append(rendered)
+            rendered_world.append(current_row)
         return rendered_world
 
-    def corp_exists(self, corp_id):
+    def corp_exists(self, corp_id) -> bool:
         return corp_id in self.corporations
 
     def active_aid(self, aid: str):
         return aid in self.players
 
     def new_player(self, player_id=None, corp_id=None, corp_ore_quantity=0):
-        spawn_location = self.random_can_enter_cell()
-        assert(spawn_location.__class__.__name__ == 'Cell')
+        spawn_location = self.random_can_enter_cell()  #
 
         # Player ID
         if player_id is None:
@@ -157,10 +147,10 @@ class World:  # World is not really world, it's more Level
             random_cell = self.get_random_cell()
             attempt += 1
             if attempt == max_tries:
-                return 'too many players'
+                return self.get_cell(0, 0)
         return random_cell
 
-    def new_corporation(self, corp_id=None):
+    def new_corporation(self, corp_id=None) -> Corporation:
         new_corp = Corporation(self, corp_id=corp_id)
         self.corporations[new_corp.corp_id] = new_corp
         print(self.corporations)
@@ -180,27 +170,9 @@ class World:  # World is not really world, it's more Level
                     return
             random_cell.add_ore_deposit()
 
-    def spawn_hospitals(self, num=1):
-        warnings.warn("Do not use this as this creates hospitals without an owner, which you cannot do", DeprecationWarning)
-        assert (num <= self.rows * self.cols)
-
-        for i in range(num):
-            random_cell = self.get_random_cell()
-            max_tries = self.rows * self.cols
-            attempt = 1
-            while random_cell.can_enter() is False:
-                random_cell = self.get_random_cell()
-                attempt += 1
-                if attempt == max_tries:
-                    return
-            random_cell.add_hospital()
-
-    def get_world(self, **keyword_parameters):
-        if 'player_id' in keyword_parameters:
-            player_id = keyword_parameters['player_id']
-            return self.render_world(player_id=player_id)
-        else:
-            return self.render_world()
+    #@profile
+    def get_world(self, player_id):
+        return self.render_world(player_id)
 
     def transfer_corp_assets(self, acquirer_id, acquiree_id):
         print("Transferring assets of {} to {}".format(acquiree_id, acquirer_id))
@@ -217,19 +189,47 @@ class World:  # World is not really world, it's more Level
         acquiree.buildings = []
         self.corporations.pop(acquiree_id, None)
 
-    def transfer_player_to_another_node(self, player: 'Player'):
-        pass
+    def transfer_player_to_random_node(self, player_aid: str):
+        self.message_master_node({
+            'request': 'abort_player',
+            'player_aid': player_aid
+        })
 
-    def valid_player_id(self, _id):
-        #helper_functions.drint("Trying to find player with id {}".format(_id))
+    def transfer_player_to_node(self, player_aid: str, target_node: str):
+        self.message_master_node({
+            'request': 'transfer_player_to_node',
+            'player_aid': player_aid,
+            'target_node': target_node
+        })
+
+    def valid_player_id(self, _id: str) -> bool:
         return _id in self.players
 
-    def get_cell(self, row, col):
+    def get_cell(self, row: int, col: int) -> Cell:
         if row < 0 or row >= self.rows or col < 0 or col >= self.cols:
-            return False
+            return self.world[0][0]
         return self.world[row][col]
 
-    def get_random_cell(self):
+    def get_random_cell(self) -> Cell:
         row = random.randint(0, self.rows - 1)  # randint is inclusive
         col = random.randint(0, self.cols - 1)  # randint is inclusive
         return self.get_cell(row, col)
+
+    def client_side_render(self):
+        rendered_world = []
+        for row in range(self.rows):
+            current_row = []
+            for col in range(self.cols):
+                rendered = self.world[row][col].client_side_render()
+                current_row.append(rendered)
+            rendered_world.append(current_row)
+
+        standings = {}
+        for corp_id, corporation in self.corporations.items():
+            standings[corp_id] = corporation.standings
+
+        response = {
+            'world': rendered_world,
+            'standings': standings
+        }
+        return response

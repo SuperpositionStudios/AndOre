@@ -39,6 +39,7 @@ def account_create():
 
 @app.route('/account/login', methods=['POST', 'OPTIONS'])
 def account_login():
+    #print(json.loads(str(request.data)))
     data = request.json
     response = dict()
     if request.method == 'OPTIONS':

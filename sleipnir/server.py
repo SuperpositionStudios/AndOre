@@ -33,9 +33,21 @@ sleipnir_key = d.get('sleipnir', '')
 
 # Other Stuff
 
+class PlayerConnection:
+
+    def __init__(self, websocket):
+        self.websocket = websocket
+
+    async def send_dict(self, obj):
+        await self.websocket.send(dumps(obj))
+
+    async def send_str(self, obj):
+        await self.websocket.send(obj)
+
+
 nodes = dict()  # type: Dict[str, Node]
 corporations = dict()  # type: Dict[str, game_classes.Corporation]
-players = dict()  # type: Dict[str, game_Classes.Player]
+players = dict()  # type: Dict[str, game_classes.Player]
 connected_players = dict()  # type: Dict[str, PlayerConnection]
 
 
@@ -72,12 +84,40 @@ def get_username(aid):
     return req
 
 
-def get_random_node_name():
-    return random.choice(list(nodes.keys()))
+def get_random_node_name(skip=None):
+    choice = random.choice(list(nodes.keys()))
+    while choice == skip:
+        choice = random.choice(list(nodes.keys()))
+    return choice
+
+
+async def transfer_player(aid: str, new_node_name: str) -> bool:
+    # Checking to see if node is in the pool
+    if new_node_name in nodes:
+        players[aid].assign_node(new_node_name)
+
+        # Tell new node about player
+        await nodes[new_node_name].connection.send(dumps({
+            'request': 'player_enter',
+            'coq': players[aid].corp.amount_of_ore(),
+            'aid': aid,
+            'cid': players[aid].corp.corp_id
+        }))
+
+        # Tell player to abandon their current node ws and make a new connection
+        if aid in connected_players:
+            await connected_players[aid].send_dict({
+                'request': 'update_node',
+                'node_name': new_node_name,
+                'node_address': nodes[new_node_name].public_address
+            })
+            return True
+    return False
 
 
 async def player(websocket, path):
     global players
+    global connected_players
     try:
         authenticated = False
         aid = 'None'
@@ -149,6 +189,7 @@ async def player(websocket, path):
                             aid = aid
                             username = erebus_response.get('username', 'None')
                             authenticated = True
+                            connected_players[aid] = PlayerConnection(websocket)
 
                             await websocket.send(dumps({
                                 'authenticated': authenticated
@@ -163,7 +204,7 @@ async def player(websocket, path):
                         }))
 
     finally:
-        pass
+        connected_players.pop(aid, None)
 
 
 async def node_client(websocket, path):
@@ -178,8 +219,10 @@ async def node_client(websocket, path):
             request = loads(request)
             #print("Node: {}".format(request))
 
+            request_type = request.get('request', None)
+
             if authenticated:
-                if request.get('request', None) == 'merge_corporations':
+                if request_type == 'merge_corporations':
                     acquirer_id = request.get('acquirer_id', '')
                     acquiree_id = request.get('acquiree_id', '')
                     if acquiree_id != '' and acquirer_id != '':
@@ -197,11 +240,11 @@ async def node_client(websocket, path):
                         for node_name in nodes:
                             await nodes[node_name].connection.send(dumps({
                                 'request': 'transfer_assets',
-                                'key': config.keys['master'],
+                                'key': sleipnir_key,
                                 'acquirer_id': acquirer_id,
                                 'acquiree_id': acquiree_id
                             }))
-                elif request.get('request', None) == 'update_values':
+                elif request_type == 'update_values':
                     #print("Updating values")
                     """
                     example_data = {
@@ -238,14 +281,26 @@ async def node_client(websocket, path):
                         'data': response,
                         'request': 'update_values'
                     }))
+                elif request_type == 'abort_player':
+                    player_aid = request.get('player_aid', '')
+                    if player_aid != '' and len(nodes) > 1:
+                        current_node = players[player_aid].get_current_node()
+                        new_node = get_random_node_name(skip=current_node)
+                        await transfer_player(player_aid, new_node)
+                elif request_type == 'transfer_player_to_node':
+                    target_node = request.get('target_node', '')
+                    player_aid = request.get('player_aid', '')
+                    if player_aid != '' and target_node != '':
+                        await transfer_player(player_aid, target_node)
 
             else:
-                if request.get('request', None) == 'register':
+                if request_type == 'register':
                     if request.get('name', None) is not None and request.get('public_address', None) is not None:
                         client.set_name(request.get('name', ''))
                         client.set_public_address(request.get('public_address', ''))
                         nodes[request.get('name', '')] = client
                         authenticated = True
+                        print("Added {} to pool of nodes".format(client.name))
                     await websocket.send(dumps({
                         'authenticated': authenticated
                     }))

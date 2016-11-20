@@ -129,7 +129,8 @@ App.prototype = {
         self.StartSleipnirWS(function() {
           self.ListenToStartAi(function() {
             self.view = new View();
-            self.view.SetupView(this, App.GetDisplay);
+            //self.view.SetupView(this, App.GetDisplay);
+            self.view.SetupView(self, null);
           });
         });
       });
@@ -310,6 +311,7 @@ App.prototype = {
     var self = this;
     Materialize.toast("Finding our world...", 1000, 'rounded');
     if (self.currentNodeWS != null) {
+      self.currentNodeWS.onclose = function() {};  // We reset the onclose function, or we get stuck in infinite loop.
       self.currentNodeWS.close()
     }
     self.currentNodeWS = new WebSocket(currentnodeURL);
@@ -329,6 +331,9 @@ App.prototype = {
         self.view.Draw(message);
       } else if (message.request == 'auth') {
         $('#currentNodeName').text(message.nodeName);
+      } else if (message.request == 'send_state_client_render') {
+        self.corpId = message.corp_id;
+        self.view.ClientSideDraw(message);
       }
     };
 
@@ -367,14 +372,14 @@ App.prototype = {
     });
     CallCallback(callback);
   },
-  GetDisplay: function(callback) {
+  /*GetDisplay: function(callback) {
     var self = this;
     var view = this.view;
     self.currentNodeWS.send(JSON.stringify({
       'request': 'send_state'
     }));
     CallCallback(callback);
-  },
+  },*/
   SendCommand: function(command){
     var self = this;
     var view = this.view;
