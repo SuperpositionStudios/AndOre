@@ -2,7 +2,7 @@
 //also uses rl.js -- http://cs.stanford.edu/people/karpathy/reinforcejs/
 
 /* Begin Settings */
-var use_dev_server = true; // Set back to false when comitting
+var use_dev_server = false; // Set back to false when comitting
 var use_ai_storage_server = true;
 var internetOff = false;  // Used for testing view.js with testData.js
 var useSecureHTTP = false;  // Set to true if using https
