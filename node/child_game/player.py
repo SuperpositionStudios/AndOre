@@ -202,6 +202,7 @@ class Player(gameObject.GameObject):
                         return True
                     except (exceptions.CellCannotBeEnteredException,
                         exceptions.CorporationHasInsufficientFundsException) as e:
+                        repr(e)
                         return False
                 elif self.secondary_modifier_key == '2':  # Player is trying to build a hospital
                     try:
@@ -209,6 +210,7 @@ class Player(gameObject.GameObject):
                         return True
                     except (exceptions.CellCannotBeEnteredException,
                             exceptions.CorporationHasInsufficientFundsException) as e:
+                        repr(e)
                         return False
                 elif self.secondary_modifier_key == '3':  # Player is trying to build an Ore Generator
                     try:
@@ -217,15 +219,24 @@ class Player(gameObject.GameObject):
                     except (exceptions.CellCannotBeEnteredException,
                             exceptions.CorporationHasInsufficientFundsException,
                             exceptions.CellIsNotAdjacentToOreDepositException) as e:
+                        repr(e)
                         return False
                 elif self.secondary_modifier_key == '4':  # Player is trying to build a Pharmacy
-                    return self.try_building_pharmacy(affected_cell)
+                    try:
+                        self.construct_pharmacy(affected_cell)
+                        return True
+                    except (exceptions.CellCannotBeEnteredException,
+                            exceptions.CorporationHasInsufficientFundsException,
+                            exceptions.CellIsNotAdjacentToOreDepositException) as e:
+                        repr(e)
+                        return False
                 elif self.secondary_modifier_key == '5':  # Player is trying to build a door
                     try:
                         self.construct_door(affected_cell)
                         return True
                     except (exceptions.CellCannotBeEnteredException,
                             exceptions.CorporationHasInsufficientFundsException) as e:
+                        repr(e)
                         return False
                 elif self.secondary_modifier_key == '6':
                     try:
@@ -233,11 +244,24 @@ class Player(gameObject.GameObject):
                         return True
                     except (exceptions.CellCannotBeEnteredException,
                             exceptions.CorporationHasInsufficientFundsException) as e:
+                        repr(e)
                         return False
                 elif self.secondary_modifier_key == '7':
-                    return self.try_building_sentry_turret(affected_cell)
+                    try:
+                        self.construct_sentry_turret(affected_cell)
+                        return True
+                    except (exceptions.CellCannotBeEnteredException,
+                            exceptions.CorporationHasInsufficientFundsException) as e:
+                        repr(e)
+                        return False
                 elif self.secondary_modifier_key == '8':
-                    return self.try_building_spike_trap(affected_cell)
+                    try:
+                        self.construct_spike_trap(affected_cell)
+                        return True
+                    except (exceptions.CellCannotBeEnteredException,
+                            exceptions.CorporationHasInsufficientFundsException) as e:
+                        repr(e)
+                        return False
                 else:
                     return False
             elif self.primary_modifier_key == '-':  # Player is trying to worsen their standings towards the target player's corp
@@ -317,34 +341,40 @@ class Player(gameObject.GameObject):
     def gain_health(self, amount):
         self.health = min(self.health_cap, self.health + amount)
 
-    def try_building_sentry_turret(self, _cell):
-        if _cell is not None and _cell.can_enter(player_obj=self):
+    def construct_sentry_turret(self, _cell: 'Cell') -> None:
+        if _cell.can_enter(player_obj=self):
             ore_cost = gameObject.SentryTurret.construction_cost
             if self.corp.amount_of_ore() >= ore_cost:
                 _cell.add_corp_owned_building(self.corp, 'SentryTurret')
                 self.lose_ore(ore_cost)
-                return True
-        return False
+            else:
+                raise exceptions.CorporationHasInsufficientFundsException(self.corp.corp_id)
+        else:
+            raise exceptions.CellCannotBeEnteredException()
 
-    def try_building_spike_trap(self, _cell):
-        if _cell is not None and _cell.can_enter(player_obj=self):
+    def construct_spike_trap(self, _cell: 'Cell') -> None:
+        if _cell.can_enter(player_obj=self):
             ore_cost = gameObject.SpikeTrap.construction_cost
             if self.corp.amount_of_ore() >= ore_cost:
                 _cell.add_corp_owned_building(self.corp, 'SpikeTrap')
                 self.lose_ore(ore_cost)
-                return True
-        return False
+            else:
+                raise exceptions.CorporationHasInsufficientFundsException(self.corp.corp_id)
+        else:
+            raise exceptions.CellCannotBeEnteredException()
 
-    def try_building_pharmacy(self, _cell):
-        if _cell is not None and _cell.can_enter(player_obj=self):
-            ore_cost = gameObject.Pharmacy.construction_price
+    def construct_pharmacy(self, _cell: 'Cell') -> None:
+        if _cell.can_enter(player_obj=self):
+            ore_cost = gameObject.Pharmacy.construction_cost
             if self.corp.amount_of_ore() >= ore_cost:
                 _cell.add_corp_owned_building(self.corp, 'Pharmacy')
                 self.lose_ore(ore_cost)
-                return True
-        return False
+            else:
+                raise exceptions.CorporationHasInsufficientFundsException(self.corp.corp_id)
+        else:
+            raise exceptions.CellCannotBeEnteredException()
 
-    def construct_respawn_beacon(self, _cell) -> None:
+    def construct_respawn_beacon(self, _cell: 'Cell') -> None:
         if _cell.can_enter(player_obj=self):
             ore_cost = gameObject.RespawnBeacon.construction_cost
             if self.corp.amount_of_ore() >= ore_cost:
