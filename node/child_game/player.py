@@ -228,7 +228,12 @@ class Player(gameObject.GameObject):
                             exceptions.CorporationHasInsufficientFundsException) as e:
                         return False
                 elif self.secondary_modifier_key == '6':
-                    return self.try_building_respawn_beacon(affected_cell)
+                    try:
+                        self.construct_respawn_beacon(affected_cell)
+                        return True
+                    except (exceptions.CellCannotBeEnteredException,
+                            exceptions.CorporationHasInsufficientFundsException) as e:
+                        return False
                 elif self.secondary_modifier_key == '7':
                     return self.try_building_sentry_turret(affected_cell)
                 elif self.secondary_modifier_key == '8':
@@ -339,14 +344,16 @@ class Player(gameObject.GameObject):
                 return True
         return False
 
-    def try_building_respawn_beacon(self, _cell):
-        if _cell is not None and _cell.can_enter(player_obj=self):
+    def construct_respawn_beacon(self, _cell) -> None:
+        if _cell.can_enter(player_obj=self):
             ore_cost = gameObject.RespawnBeacon.construction_cost
             if self.corp.amount_of_ore() >= ore_cost:
                 _cell.add_corp_owned_building(self.corp, 'RespawnBeacon')
                 self.lose_ore(ore_cost)
-                return True
-        return False
+            else:
+                raise exceptions.CorporationHasInsufficientFundsException(self.corp.corp_id)
+        else:
+            raise exceptions.CellCannotBeEnteredException()
 
     def construct_door(self, _cell: 'Cell') -> None:
         if _cell.can_enter(player_obj=self):
