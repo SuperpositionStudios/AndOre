@@ -160,13 +160,13 @@ class Player(gameObject.GameObject):
             self.died()
 
     def interact_with_cell(self, row_offset, col_offset):
-        affected_cell = self.try_get_cell_by_offset(row_offset, col_offset)
+        affected_cell = self.cell.try_get_cell_by_offset(row_offset, col_offset)
         if affected_cell is not None and affected_cell is not False:
             # TODO: Turn this into a dict
             if self.primary_modifier_key == 'm':  # Player is trying to move
                 if self.shiftKeyActive:
                     if self.try_move(affected_cell):
-                        affected_cell = self.try_get_cell_by_offset(row_offset, col_offset)
+                        affected_cell = self.cell.try_get_cell_by_offset(row_offset, col_offset)
                         if affected_cell is not None and affected_cell is not False:
                             if self.try_move(affected_cell):
                                 self.take_damage(self.health_loss_on_sprint)
@@ -607,12 +607,6 @@ class Player(gameObject.GameObject):
             else:
                 return False
         return False
-
-    def try_get_cell_by_offset(self, row_offset, col_offset):
-        try:
-            return self.cell.try_get_cell_by_offset(row_offset, col_offset)
-        except CellCoordinatesOutOfBoundsError:
-            return False
 
     def world_state(self):
         los = self.line_of_stats().ljust(self.world.rows)
