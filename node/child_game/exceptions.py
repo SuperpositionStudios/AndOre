@@ -14,3 +14,8 @@ class CellCannotBeEnteredException(Exception):
 class CorporationHasInsufficientFundsException(Exception):
     def __init__(self, corporation_id: str):
         self.message = "Corporation {} does not have enough funds".format(corporation_id)
+
+
+class CellIsNotAdjacentToOreDepositException(Exception):
+    def __init__(self):
+        self.message = "Cell is not Adjacent to Ore Deposit"

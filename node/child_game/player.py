@@ -199,21 +199,21 @@ class Player(gameObject.GameObject):
                 if self.secondary_modifier_key == '1':  # Player is trying to build a fence
                     try:
                         self.construct_fence(affected_cell)
-                    except exceptions.CellCannotBeEnteredException:
-                        return False
-                    except exceptions.CorporationHasInsufficientFundsException:
+                    except (exceptions.CellCannotBeEnteredException,
+                        exceptions.CorporationHasInsufficientFundsException) as e:
                         return False
                 elif self.secondary_modifier_key == '2':  # Player is trying to build a hospital
                     try:
                         self.construct_hospital(affected_cell)
-                    except exceptions.CellCannotBeEnteredException:
-                        return False
-                    except exceptions.CorporationHasInsufficientFundsException:
+                    except (exceptions.CellCannotBeEnteredException,
+                            exceptions.CorporationHasInsufficientFundsException) as e:
                         return False
                 elif self.secondary_modifier_key == '3':  # Player is trying to build an Ore Generator
-                    if self.try_building_ore_generator(affected_cell):
-                        return True
-                    else:
+                    try:
+                        self.construct_ore_generator(affected_cell)
+                    except (exceptions.CellCannotBeEnteredException,
+                            exceptions.CorporationHasInsufficientFundsException,
+                            exceptions.CellIsNotAdjacentToOreDepositException) as e:
                         return False
                 elif self.secondary_modifier_key == '4':  # Player is trying to build a Pharmacy
                     return self.try_building_pharmacy(affected_cell)
@@ -349,14 +349,19 @@ class Player(gameObject.GameObject):
                 return True
         return False
 
-    def try_building_ore_generator(self, _cell):
-        if _cell is not None and _cell.can_enter(player_obj=self) and _cell.next_to_ore_deposit():
-            ore_cost = gameObject.OreGenerator.construction_cost
-            if self.corp.amount_of_ore() >= ore_cost:
-                _cell.add_corp_owned_building(self.corp, 'OreGenerator')
-                self.lose_ore(ore_cost)
-                return True
-        return False
+    def construct_ore_generator(self, _cell: 'Cell') -> None:
+        if _cell.can_enter(player_obj=self):
+            if _cell.next_to_ore_deposit():
+                ore_cost = gameObject.OreGenerator.construction_cost
+                if self.corp.amount_of_ore() >= ore_cost:
+                    _cell.add_corp_owned_building(self.corp, 'OreGenerator')
+                    self.lose_ore(ore_cost)
+                else:
+                    raise exceptions.CorporationHasInsufficientFundsException(self.corp.corp_id)
+            else:
+                raise exceptions.CellIsNotAdjacentToOreDepositException()
+        else:
+            raise exceptions.CellCannotBeEnteredException()
 
     def construct_hospital(self, _cell: 'Cell') -> None:
         if _cell.can_enter(player_obj=self):
