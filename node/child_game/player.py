@@ -204,9 +204,11 @@ class Player(gameObject.GameObject):
                     except exceptions.CorporationHasInsufficientFundsException:
                         return False
                 elif self.secondary_modifier_key == '2':  # Player is trying to build a hospital
-                    if self.try_building_hospital(affected_cell):
-                        return True
-                    else:
+                    try:
+                        self.construct_hospital(affected_cell)
+                    except exceptions.CellCannotBeEnteredException:
+                        return False
+                    except exceptions.CorporationHasInsufficientFundsException:
                         return False
                 elif self.secondary_modifier_key == '3':  # Player is trying to build an Ore Generator
                     if self.try_building_ore_generator(affected_cell):
@@ -356,14 +358,16 @@ class Player(gameObject.GameObject):
                 return True
         return False
 
-    def try_building_hospital(self, _cell):
-        if _cell is not None and _cell.can_enter(player_obj=self):
+    def construct_hospital(self, _cell: 'Cell'):
+        if _cell.can_enter(player_obj=self):
             ore_cost = gameObject.Hospital.construction_cost
             if self.corp.amount_of_ore() >= ore_cost:
                 _cell.add_corp_owned_building(self.corp, 'Hospital')
                 self.lose_ore(ore_cost)
-                return True
-        return False
+            else:
+                raise exceptions.CorporationHasInsufficientFundsException(self.corp.corp_id)
+        else:
+            raise exceptions.CellCannotBeEnteredException()
 
     def construct_fence(self, _cell: 'Cell') -> bool:
         if _cell.can_enter(player_obj=self):
