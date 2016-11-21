@@ -358,7 +358,7 @@ class Player(gameObject.GameObject):
                 return True
         return False
 
-    def construct_hospital(self, _cell: 'Cell'):
+    def construct_hospital(self, _cell: 'Cell') -> None:
         if _cell.can_enter(player_obj=self):
             ore_cost = gameObject.Hospital.construction_cost
             if self.corp.amount_of_ore() >= ore_cost:
@@ -369,7 +369,7 @@ class Player(gameObject.GameObject):
         else:
             raise exceptions.CellCannotBeEnteredException()
 
-    def construct_fence(self, _cell: 'Cell') -> bool:
+    def construct_fence(self, _cell: 'Cell') -> None:
         if _cell.can_enter(player_obj=self):
             ore_cost = gameObject.Fence.construction_cost
             if self.corp.amount_of_ore() >= ore_cost:
