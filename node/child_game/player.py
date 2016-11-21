@@ -199,18 +199,21 @@ class Player(gameObject.GameObject):
                 if self.secondary_modifier_key == '1':  # Player is trying to build a fence
                     try:
                         self.construct_fence(affected_cell)
+                        return True
                     except (exceptions.CellCannotBeEnteredException,
                         exceptions.CorporationHasInsufficientFundsException) as e:
                         return False
                 elif self.secondary_modifier_key == '2':  # Player is trying to build a hospital
                     try:
                         self.construct_hospital(affected_cell)
+                        return True
                     except (exceptions.CellCannotBeEnteredException,
                             exceptions.CorporationHasInsufficientFundsException) as e:
                         return False
                 elif self.secondary_modifier_key == '3':  # Player is trying to build an Ore Generator
                     try:
                         self.construct_ore_generator(affected_cell)
+                        return True
                     except (exceptions.CellCannotBeEnteredException,
                             exceptions.CorporationHasInsufficientFundsException,
                             exceptions.CellIsNotAdjacentToOreDepositException) as e:
@@ -218,7 +221,12 @@ class Player(gameObject.GameObject):
                 elif self.secondary_modifier_key == '4':  # Player is trying to build a Pharmacy
                     return self.try_building_pharmacy(affected_cell)
                 elif self.secondary_modifier_key == '5':  # Player is trying to build a door
-                    return self.try_building_door(affected_cell)
+                    try:
+                        self.construct_door(affected_cell)
+                        return True
+                    except (exceptions.CellCannotBeEnteredException,
+                            exceptions.CorporationHasInsufficientFundsException) as e:
+                        return False
                 elif self.secondary_modifier_key == '6':
                     return self.try_building_respawn_beacon(affected_cell)
                 elif self.secondary_modifier_key == '7':
@@ -340,14 +348,16 @@ class Player(gameObject.GameObject):
                 return True
         return False
 
-    def try_building_door(self, _cell):
-        if _cell is not None and _cell.can_enter(player_obj=self):
-            ore_cost = gameObject.Door.construction_price
+    def construct_door(self, _cell: 'Cell') -> None:
+        if _cell.can_enter(player_obj=self):
+            ore_cost = gameObject.Door.construction_cost
             if self.corp.amount_of_ore() >= ore_cost:
                 _cell.add_corp_owned_building(self.corp, 'Door')
                 self.lose_ore(ore_cost)
-                return True
-        return False
+            else:
+                raise exceptions.CorporationHasInsufficientFundsException(self.corp.corp_id)
+        else:
+            raise exceptions.CellCannotBeEnteredException()
 
     def construct_ore_generator(self, _cell: 'Cell') -> None:
         if _cell.can_enter(player_obj=self):
