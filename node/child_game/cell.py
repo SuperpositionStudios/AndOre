@@ -1,6 +1,7 @@
 import uuid
 from child_game import standing_colors, gameObject, world, corporation
 from typing import Tuple
+from child_game.exceptions import CellCoordinatesOutOfBoundsError
 
 class Cell:
 
@@ -12,17 +13,17 @@ class Cell:
         self.contents = []
 
     def try_get_cell_by_offset(self, row_offset: int, col_offset: int):
-        fetched_cell = self.world.get_cell(self.row + row_offset, self.col + col_offset)
-        if fetched_cell is False or fetched_cell is None:
-            return False
-        else:
+        try:
+            fetched_cell = self.world.get_cell(self.row + row_offset, self.col + col_offset)
             return fetched_cell
+        except CellCoordinatesOutOfBoundsError:
+            raise CellCoordinatesOutOfBoundsError(self.row + row_offset, self.col + col_offset)
 
     def next_to_ore_deposit(self):
         directions = [[-1, 0], [-1, 1], [0, 1], [1, 1], [1, 0], [1, -1], [0, -1], [-1, -1]]
         for tup in directions:
-            _cell = self.try_get_cell_by_offset(tup[0], tup[1])
-            if _cell is not False:
+            try:
+                _cell = self.try_get_cell_by_offset(tup[0], tup[1])
                 struct = _cell.contains_object_type('OreDeposit')
                 if struct[0]:
                     od = _cell.get_game_object_by_obj_id(struct[1])
@@ -30,6 +31,8 @@ class Cell:
                         od_obj = od[1]
                         assert (od_obj.__class__.__name__ == 'OreDeposit')
                         return True
+            except CellCoordinatesOutOfBoundsError:
+                pass
         return False
 
     def damage_first_player(self, attacking_corp: 'corporation.Corporation', damage):

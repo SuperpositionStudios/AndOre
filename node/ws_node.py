@@ -62,7 +62,7 @@ class Node:
         aids = self.connected_clients.keys()
         for aid in aids:
             try:
-                await self.send_state(aid, world_state=world_state)
+                await self.send_state(aid, world_state=world_state, send_ping=True)
             except:
                 pass
 

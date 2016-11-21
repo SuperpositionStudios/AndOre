@@ -1,6 +1,7 @@
 import uuid, random
 from child_game import gameObject, standing_colors, corporation, cell
 import child_game
+from child_game.exceptions import CellCoordinatesOutOfBoundsError
 
 
 class Player(gameObject.GameObject):
@@ -608,11 +609,10 @@ class Player(gameObject.GameObject):
         return False
 
     def try_get_cell_by_offset(self, row_offset, col_offset):
-        fetched_cell = self.world.get_cell(self.row + row_offset, self.col + col_offset)
-        if fetched_cell is False or fetched_cell is None:
+        try:
+            return self.cell.try_get_cell_by_offset(row_offset, col_offset)
+        except CellCoordinatesOutOfBoundsError:
             return False
-        else:
-            return fetched_cell
 
     def world_state(self):
         los = self.line_of_stats().ljust(self.world.rows)

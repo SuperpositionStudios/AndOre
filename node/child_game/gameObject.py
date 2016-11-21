@@ -1,6 +1,7 @@
 import uuid
 from child_game import standing_colors, cell, corporation
 import child_game
+from child_game.exceptions import CellCoordinatesOutOfBoundsError
 
 
 class GameObject:
@@ -461,9 +462,11 @@ class SentryTurret(CorpOwnedBuilding):
 
         self.nearby_cells = []
         for tup in [[-1, 0], [-1, 1], [0, 1], [1, 1], [1, 0], [1, -1], [0, -1], [-1, -1]]:
-            _cell = self.cell.try_get_cell_by_offset(tup[0], tup[1])
-            if _cell is not False:
+            try:
+                _cell = self.cell.try_get_cell_by_offset(tup[0], tup[1])
                 self.nearby_cells.append(_cell)
+            except CellCoordinatesOutOfBoundsError:
+                pass
 
     def tick(self):
         # Attacks 1 non-friendly player in a nearby cell

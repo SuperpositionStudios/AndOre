@@ -4,6 +4,7 @@ from child_game.player import Player
 from child_game.corporation import Corporation
 import warnings
 from child_game import helper_functions
+from child_game.exceptions import CellCoordinatesOutOfBoundsError
 from typing import Dict, List, Tuple
 import json
 
@@ -207,7 +208,7 @@ class World:  # World is not really world, it's more Level
 
     def get_cell(self, row: int, col: int) -> Cell:
         if row < 0 or row >= self.rows or col < 0 or col >= self.cols:
-            return self.world[0][0]
+            raise CellCoordinatesOutOfBoundsError(row, col)
         return self.world[row][col]
 
     def get_random_cell(self) -> Cell:
@@ -216,6 +217,7 @@ class World:  # World is not really world, it's more Level
         return self.get_cell(row, col)
 
     def client_side_render(self):
+
         rendered_world = []
         for row in range(self.rows):
             current_row = []
