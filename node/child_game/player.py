@@ -160,16 +160,18 @@ class Player(gameObject.GameObject):
             self.died()
 
     def interact_with_cell(self, row_offset, col_offset):
-        affected_cell = self.cell.try_get_cell_by_offset(row_offset, col_offset)
-        if affected_cell is not None and affected_cell is not False:
+        try:
+            affected_cell = self.cell.get_cell_by_offset(row_offset, col_offset)
             # TODO: Turn this into a dict
             if self.primary_modifier_key == 'm':  # Player is trying to move
                 if self.shiftKeyActive:
                     if self.try_move(affected_cell):
-                        affected_cell = self.cell.try_get_cell_by_offset(row_offset, col_offset)
-                        if affected_cell is not None and affected_cell is not False:
+                        try:
+                            affected_cell = self.cell.get_cell_by_offset(row_offset, col_offset)
                             if self.try_move(affected_cell):
                                 self.take_damage(self.health_loss_on_sprint)
+                        except CellCoordinatesOutOfBoundsError:
+                            pass
                     return False
                 else:
                     return self.try_move(affected_cell)
@@ -231,7 +233,7 @@ class Player(gameObject.GameObject):
                 return self.try_deconstructing(affected_cell)
             else:
                 return False
-        else:
+        except CellCoordinatesOutOfBoundsError:
             return False
 
     def try_activating_star_gate(self, _cell):

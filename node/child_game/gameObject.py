@@ -463,7 +463,7 @@ class SentryTurret(CorpOwnedBuilding):
         self.nearby_cells = []
         for tup in [[-1, 0], [-1, 1], [0, 1], [1, 1], [1, 0], [1, -1], [0, -1], [-1, -1]]:
             try:
-                _cell = self.cell.try_get_cell_by_offset(tup[0], tup[1])
+                _cell = self.cell.get_cell_by_offset(tup[0], tup[1])
                 self.nearby_cells.append(_cell)
             except CellCoordinatesOutOfBoundsError:
                 pass

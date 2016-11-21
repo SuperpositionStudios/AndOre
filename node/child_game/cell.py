@@ -3,6 +3,7 @@ from child_game import standing_colors, gameObject, world, corporation
 from typing import Tuple
 from child_game.exceptions import CellCoordinatesOutOfBoundsError
 
+
 class Cell:
 
     def __init__(self, _world: 'world.World', _row: int, _col: int):
@@ -12,7 +13,7 @@ class Cell:
         self.col = _col  # type: int
         self.contents = []
 
-    def try_get_cell_by_offset(self, row_offset: int, col_offset: int):
+    def get_cell_by_offset(self, row_offset: int, col_offset: int) -> 'Cell':
         try:
             fetched_cell = self.world.get_cell(self.row + row_offset, self.col + col_offset)
             return fetched_cell
@@ -23,7 +24,7 @@ class Cell:
         directions = [[-1, 0], [-1, 1], [0, 1], [1, 1], [1, 0], [1, -1], [0, -1], [-1, -1]]
         for tup in directions:
             try:
-                _cell = self.try_get_cell_by_offset(tup[0], tup[1])
+                _cell = self.get_cell_by_offset(tup[0], tup[1])
                 struct = _cell.contains_object_type('OreDeposit')
                 if struct[0]:
                     od = _cell.get_game_object_by_obj_id(struct[1])
