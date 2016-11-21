@@ -1,7 +1,7 @@
 import uuid, random
 from child_game import gameObject, standing_colors, corporation, cell
 import child_game
-from child_game.exceptions import CellCoordinatesOutOfBoundsError
+from child_game import exceptions
 
 
 class Player(gameObject.GameObject):
@@ -170,7 +170,7 @@ class Player(gameObject.GameObject):
                             affected_cell = self.cell.get_cell_by_offset(row_offset, col_offset)
                             if self.try_move(affected_cell):
                                 self.take_damage(self.health_loss_on_sprint)
-                        except CellCoordinatesOutOfBoundsError:
+                        except exceptions.CellCoordinatesOutOfBoundsError:
                             pass
                     return False
                 else:
@@ -197,9 +197,11 @@ class Player(gameObject.GameObject):
                     return False
             elif self.primary_modifier_key == 'b':  # Player is in build mode
                 if self.secondary_modifier_key == '1':  # Player is trying to build a fence
-                    if self.try_building_fence(affected_cell):
-                        return True
-                    else:
+                    try:
+                        self.construct_fence(affected_cell)
+                    except exceptions.CellCannotBeEnteredException:
+                        return False
+                    except exceptions.CorporationHasInsufficientFundsException:
                         return False
                 elif self.secondary_modifier_key == '2':  # Player is trying to build a hospital
                     if self.try_building_hospital(affected_cell):
@@ -233,7 +235,7 @@ class Player(gameObject.GameObject):
                 return self.try_deconstructing(affected_cell)
             else:
                 return False
-        except CellCoordinatesOutOfBoundsError:
+        except exceptions.CellCoordinatesOutOfBoundsError:
             return False
 
     def try_activating_star_gate(self, _cell):
@@ -363,14 +365,16 @@ class Player(gameObject.GameObject):
                 return True
         return False
 
-    def try_building_fence(self, _cell):
-        if _cell is not None and _cell.can_enter(player_obj=self):
+    def construct_fence(self, _cell: 'Cell') -> bool:
+        if _cell.can_enter(player_obj=self):
             ore_cost = gameObject.Fence.construction_cost
             if self.corp.amount_of_ore() >= ore_cost:
                 _cell.add_corp_owned_building(self.corp, 'Fence')
                 self.lose_ore(ore_cost)
-                return True
-        return False
+            else:
+                raise exceptions.CorporationHasInsufficientFundsException(self.corp.corp_id)
+        else:
+            raise exceptions.CellCannotBeEnteredException()
 
     def try_merge_corp(self, _cell):
         if _cell is not None:
