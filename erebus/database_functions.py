@@ -13,7 +13,7 @@ DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
 
-def create_user(username, password):
+def create_user(username: str, password: str) -> Tuple[bool, str]:
     if session.query(User).filter(User.username == username).first() is not None:
         return False, "Username taken"
     aid = str(uuid.uuid4())
@@ -28,7 +28,7 @@ def create_user(username, password):
     return True, aid
 
 
-def login(username, password):
+def login(username: str, password: str) -> Tuple[bool, str]:
     stored_user = session.query(User).filter(User.username == username).first()
     if stored_user is None:
         return False, "username doesn't exist"
@@ -40,7 +40,7 @@ def login(username, password):
         return False, "wrong password"
 
 
-def valid_aid(aid):
+def valid_aid(aid: str) -> bool:
     stored_user = session.query(User).filter(User.aid == aid).first()
     return stored_user is not None
 
@@ -53,7 +53,7 @@ def get_username_from_aid(aid: str) -> Tuple[bool, str]:
         return False, ''
 
 
-def update_last_login(aid):
+def update_last_login(aid: str) -> None:
     user = session.query(User).filter(User.aid == aid).first()
     if user is not None:
         user.last_login = datetime.now()

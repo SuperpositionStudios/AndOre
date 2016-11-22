@@ -16,7 +16,7 @@ def home_cor(obj):
 
 @app.errorhandler(401)
 def custom_401(error):
-    return home_cor(Response('Invalid Credentials', 401, {'Erebus':'error="Invalid Credentials"'}))
+    return home_cor(Response('Invalid Credentials', 401, {'Erebus': 'error="Invalid Credentials"'}))
 
 
 @app.route('/account/create', methods=['POST', 'OPTIONS'])
