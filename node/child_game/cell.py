@@ -1,6 +1,9 @@
 import uuid
 from child_game import standing_colors, gameObject, world, corporation
 from typing import Tuple
+from child_game.exceptions import CellCoordinatesOutOfBoundsError
+from child_game import exceptions
+
 
 class Cell:
 
@@ -11,18 +14,18 @@ class Cell:
         self.col = _col  # type: int
         self.contents = []
 
-    def try_get_cell_by_offset(self, row_offset: int, col_offset: int):
-        fetched_cell = self.world.get_cell(self.row + row_offset, self.col + col_offset)
-        if fetched_cell is False or fetched_cell is None:
-            return False
-        else:
+    def get_cell_by_offset(self, row_offset: int, col_offset: int) -> 'Cell':
+        try:
+            fetched_cell = self.world.get_cell(self.row + row_offset, self.col + col_offset)
             return fetched_cell
+        except CellCoordinatesOutOfBoundsError:
+            raise CellCoordinatesOutOfBoundsError(self.row + row_offset, self.col + col_offset)
 
     def next_to_ore_deposit(self):
         directions = [[-1, 0], [-1, 1], [0, 1], [1, 1], [1, 0], [1, -1], [0, -1], [-1, -1]]
         for tup in directions:
-            _cell = self.try_get_cell_by_offset(tup[0], tup[1])
-            if _cell is not False:
+            try:
+                _cell = self.get_cell_by_offset(tup[0], tup[1])
                 struct = _cell.contains_object_type('OreDeposit')
                 if struct[0]:
                     od = _cell.get_game_object_by_obj_id(struct[1])
@@ -30,6 +33,8 @@ class Cell:
                         od_obj = od[1]
                         assert (od_obj.__class__.__name__ == 'OreDeposit')
                         return True
+            except CellCoordinatesOutOfBoundsError:
+                pass
         return False
 
     def damage_first_player(self, attacking_corp: 'corporation.Corporation', damage):
@@ -116,11 +121,29 @@ class Cell:
                 return True, obj.obj_id
         return False, ''
 
+    def get_object_id_of_first_game_object_found(self, obj_type_name: str) -> str:
+        """
+
+        :param obj_type_name: The class name, if you want to find a Hospital in the cell, then input is 'Hospital'
+        :return: The game object's id.
+        """
+        for obj in self.contents:
+            if obj.__class__.__name__ == obj_type_name:
+                return obj.obj_id
+        raise exceptions.NoGameObjectOfThatClassFoundException(obj_type_name)
+
     def get_game_object_by_obj_id(self, obj_id: str):
         for obj in self.contents:
             if obj.obj_id == obj_id:
                 return True, obj
         return False, None
+
+    def new_get_game_object_by_obj_id(self, obj_id: str) -> any:
+        for obj in self.contents:
+            if obj.obj_id == obj_id:
+                return obj
+        raise exceptions.NoGameObjectByThatObjectIDFoundException()
+
 
     #@profile
     def render(self, player_id):

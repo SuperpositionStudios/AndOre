@@ -1,6 +1,7 @@
 import uuid, random
 from child_game import gameObject, standing_colors, corporation, cell
 import child_game
+from child_game import exceptions
 
 
 class Player(gameObject.GameObject):
@@ -159,21 +160,25 @@ class Player(gameObject.GameObject):
             self.died()
 
     def interact_with_cell(self, row_offset, col_offset):
-        affected_cell = self.try_get_cell_by_offset(row_offset, col_offset)
-        if affected_cell is not None and affected_cell is not False:
+        try:
+            affected_cell = self.cell.get_cell_by_offset(row_offset, col_offset)
             # TODO: Turn this into a dict
             if self.primary_modifier_key == 'm':  # Player is trying to move
-                if self.shiftKeyActive:
-                    if self.try_move(affected_cell):
-                        affected_cell = self.try_get_cell_by_offset(row_offset, col_offset)
-                        if affected_cell is not None and affected_cell is not False:
-                            if self.try_move(affected_cell):
-                                self.take_damage(self.health_loss_on_sprint)
-                    return False
-                else:
-                    return self.try_move(affected_cell)
+                try:
+                    self.move(affected_cell)
+                    if self.shiftKeyActive:
+                        try:
+                            new_cell = self.cell.get_cell_by_offset(row_offset, col_offset)
+                            self.move(new_cell)
+                            return True
+                        except (exceptions.CellCoordinatesOutOfBoundsError,
+                                exceptions.CellCannotBeEnteredException):
+                            pass
+                except exceptions.CellCannotBeEnteredException:
+                    pass
+                return False
             elif self.primary_modifier_key == 'k':  # Player is trying to attack something
-                return self.try_attacking(affected_cell)
+                return self.attack(affected_cell)
             elif self.primary_modifier_key == 'l':  # Player is trying to collect/loot something
                 if self.try_mining(affected_cell):
                     return True
@@ -194,30 +199,71 @@ class Player(gameObject.GameObject):
                     return False
             elif self.primary_modifier_key == 'b':  # Player is in build mode
                 if self.secondary_modifier_key == '1':  # Player is trying to build a fence
-                    if self.try_building_fence(affected_cell):
+                    try:
+                        self.construct_fence(affected_cell)
                         return True
-                    else:
+                    except (exceptions.CellCannotBeEnteredException,
+                        exceptions.CorporationHasInsufficientFundsException) as e:
+                        repr(e)
                         return False
                 elif self.secondary_modifier_key == '2':  # Player is trying to build a hospital
-                    if self.try_building_hospital(affected_cell):
+                    try:
+                        self.construct_hospital(affected_cell)
                         return True
-                    else:
+                    except (exceptions.CellCannotBeEnteredException,
+                            exceptions.CorporationHasInsufficientFundsException) as e:
+                        repr(e)
                         return False
                 elif self.secondary_modifier_key == '3':  # Player is trying to build an Ore Generator
-                    if self.try_building_ore_generator(affected_cell):
+                    try:
+                        self.construct_ore_generator(affected_cell)
                         return True
-                    else:
+                    except (exceptions.CellCannotBeEnteredException,
+                            exceptions.CorporationHasInsufficientFundsException,
+                            exceptions.CellIsNotAdjacentToOreDepositException) as e:
+                        repr(e)
                         return False
                 elif self.secondary_modifier_key == '4':  # Player is trying to build a Pharmacy
-                    return self.try_building_pharmacy(affected_cell)
+                    try:
+                        self.construct_pharmacy(affected_cell)
+                        return True
+                    except (exceptions.CellCannotBeEnteredException,
+                            exceptions.CorporationHasInsufficientFundsException,
+                            exceptions.CellIsNotAdjacentToOreDepositException) as e:
+                        repr(e)
+                        return False
                 elif self.secondary_modifier_key == '5':  # Player is trying to build a door
-                    return self.try_building_door(affected_cell)
+                    try:
+                        self.construct_door(affected_cell)
+                        return True
+                    except (exceptions.CellCannotBeEnteredException,
+                            exceptions.CorporationHasInsufficientFundsException) as e:
+                        repr(e)
+                        return False
                 elif self.secondary_modifier_key == '6':
-                    return self.try_building_respawn_beacon(affected_cell)
+                    try:
+                        self.construct_respawn_beacon(affected_cell)
+                        return True
+                    except (exceptions.CellCannotBeEnteredException,
+                            exceptions.CorporationHasInsufficientFundsException) as e:
+                        repr(e)
+                        return False
                 elif self.secondary_modifier_key == '7':
-                    return self.try_building_sentry_turret(affected_cell)
+                    try:
+                        self.construct_sentry_turret(affected_cell)
+                        return True
+                    except (exceptions.CellCannotBeEnteredException,
+                            exceptions.CorporationHasInsufficientFundsException) as e:
+                        repr(e)
+                        return False
                 elif self.secondary_modifier_key == '8':
-                    return self.try_building_spike_trap(affected_cell)
+                    try:
+                        self.construct_spike_trap(affected_cell)
+                        return True
+                    except (exceptions.CellCannotBeEnteredException,
+                            exceptions.CorporationHasInsufficientFundsException) as e:
+                        repr(e)
+                        return False
                 else:
                     return False
             elif self.primary_modifier_key == '-':  # Player is trying to worsen their standings towards the target player's corp
@@ -230,7 +276,7 @@ class Player(gameObject.GameObject):
                 return self.try_deconstructing(affected_cell)
             else:
                 return False
-        else:
+        except exceptions.CellCoordinatesOutOfBoundsError:
             return False
 
     def try_activating_star_gate(self, _cell):
@@ -297,77 +343,96 @@ class Player(gameObject.GameObject):
     def gain_health(self, amount):
         self.health = min(self.health_cap, self.health + amount)
 
-    def try_building_sentry_turret(self, _cell):
-        if _cell is not None and _cell.can_enter(player_obj=self):
+    def construct_sentry_turret(self, _cell: 'Cell') -> None:
+        if _cell.can_enter(player_obj=self):
             ore_cost = gameObject.SentryTurret.construction_cost
             if self.corp.amount_of_ore() >= ore_cost:
                 _cell.add_corp_owned_building(self.corp, 'SentryTurret')
                 self.lose_ore(ore_cost)
-                return True
-        return False
+            else:
+                raise exceptions.CorporationHasInsufficientFundsException(self.corp.corp_id)
+        else:
+            raise exceptions.CellCannotBeEnteredException()
 
-    def try_building_spike_trap(self, _cell):
-        if _cell is not None and _cell.can_enter(player_obj=self):
+    def construct_spike_trap(self, _cell: 'Cell') -> None:
+        if _cell.can_enter(player_obj=self):
             ore_cost = gameObject.SpikeTrap.construction_cost
             if self.corp.amount_of_ore() >= ore_cost:
                 _cell.add_corp_owned_building(self.corp, 'SpikeTrap')
                 self.lose_ore(ore_cost)
-                return True
-        return False
+            else:
+                raise exceptions.CorporationHasInsufficientFundsException(self.corp.corp_id)
+        else:
+            raise exceptions.CellCannotBeEnteredException()
 
-    def try_building_pharmacy(self, _cell):
-        if _cell is not None and _cell.can_enter(player_obj=self):
-            ore_cost = gameObject.Pharmacy.construction_price
+    def construct_pharmacy(self, _cell: 'Cell') -> None:
+        if _cell.can_enter(player_obj=self):
+            ore_cost = gameObject.Pharmacy.construction_cost
             if self.corp.amount_of_ore() >= ore_cost:
                 _cell.add_corp_owned_building(self.corp, 'Pharmacy')
                 self.lose_ore(ore_cost)
-                return True
-        return False
+            else:
+                raise exceptions.CorporationHasInsufficientFundsException(self.corp.corp_id)
+        else:
+            raise exceptions.CellCannotBeEnteredException()
 
-    def try_building_respawn_beacon(self, _cell):
-        if _cell is not None and _cell.can_enter(player_obj=self):
+    def construct_respawn_beacon(self, _cell: 'Cell') -> None:
+        if _cell.can_enter(player_obj=self):
             ore_cost = gameObject.RespawnBeacon.construction_cost
             if self.corp.amount_of_ore() >= ore_cost:
                 _cell.add_corp_owned_building(self.corp, 'RespawnBeacon')
                 self.lose_ore(ore_cost)
-                return True
-        return False
+            else:
+                raise exceptions.CorporationHasInsufficientFundsException(self.corp.corp_id)
+        else:
+            raise exceptions.CellCannotBeEnteredException()
 
-    def try_building_door(self, _cell):
-        if _cell is not None and _cell.can_enter(player_obj=self):
-            ore_cost = gameObject.Door.construction_price
+    def construct_door(self, _cell: 'Cell') -> None:
+        if _cell.can_enter(player_obj=self):
+            ore_cost = gameObject.Door.construction_cost
             if self.corp.amount_of_ore() >= ore_cost:
                 _cell.add_corp_owned_building(self.corp, 'Door')
                 self.lose_ore(ore_cost)
-                return True
-        return False
+            else:
+                raise exceptions.CorporationHasInsufficientFundsException(self.corp.corp_id)
+        else:
+            raise exceptions.CellCannotBeEnteredException()
 
-    def try_building_ore_generator(self, _cell):
-        if _cell is not None and _cell.can_enter(player_obj=self) and _cell.next_to_ore_deposit():
-            ore_cost = gameObject.OreGenerator.construction_cost
-            if self.corp.amount_of_ore() >= ore_cost:
-                _cell.add_corp_owned_building(self.corp, 'OreGenerator')
-                self.lose_ore(ore_cost)
-                return True
-        return False
+    def construct_ore_generator(self, _cell: 'Cell') -> None:
+        if _cell.can_enter(player_obj=self):
+            if _cell.next_to_ore_deposit():
+                ore_cost = gameObject.OreGenerator.construction_cost
+                if self.corp.amount_of_ore() >= ore_cost:
+                    _cell.add_corp_owned_building(self.corp, 'OreGenerator')
+                    self.lose_ore(ore_cost)
+                else:
+                    raise exceptions.CorporationHasInsufficientFundsException(self.corp.corp_id)
+            else:
+                raise exceptions.CellIsNotAdjacentToOreDepositException()
+        else:
+            raise exceptions.CellCannotBeEnteredException()
 
-    def try_building_hospital(self, _cell):
-        if _cell is not None and _cell.can_enter(player_obj=self):
+    def construct_hospital(self, _cell: 'Cell') -> None:
+        if _cell.can_enter(player_obj=self):
             ore_cost = gameObject.Hospital.construction_cost
             if self.corp.amount_of_ore() >= ore_cost:
                 _cell.add_corp_owned_building(self.corp, 'Hospital')
                 self.lose_ore(ore_cost)
-                return True
-        return False
+            else:
+                raise exceptions.CorporationHasInsufficientFundsException(self.corp.corp_id)
+        else:
+            raise exceptions.CellCannotBeEnteredException()
 
-    def try_building_fence(self, _cell):
-        if _cell is not None and _cell.can_enter(player_obj=self):
+    def construct_fence(self, _cell: 'Cell') -> None:
+        if _cell.can_enter(player_obj=self):
             ore_cost = gameObject.Fence.construction_cost
             if self.corp.amount_of_ore() >= ore_cost:
                 _cell.add_corp_owned_building(self.corp, 'Fence')
                 self.lose_ore(ore_cost)
-                return True
-        return False
+            else:
+                raise exceptions.CorporationHasInsufficientFundsException(self.corp.corp_id)
+        else:
+            raise exceptions.CellCannotBeEnteredException()
 
     def try_merge_corp(self, _cell):
         if _cell is not None:
@@ -432,111 +497,40 @@ class Player(gameObject.GameObject):
         else:
             return False
 
-    def try_attacking(self, _cell):
-        if _cell is not None:
-            if _cell.contains_object_type('Player')[0]:
-                #print("It's a player")
-                struct = _cell.contains_object_type('Player')
-                other_player = _cell.get_game_object_by_obj_id(struct[1])
-                if other_player[0]:
-                    corp_standing_to_other_players_corp = self.corp.fetch_standing(other_player[1].corp.corp_id)
-                    if self.corp.check_if_in_corp(struct[1]):
-                        return False  # You cannot attack another player in your corp
-                    elif corp_standing_to_other_players_corp == 'A':
-                        return False  # You cannot attack members of corporations that your corporation considers allies
-                    else:
-                        # Attacking someone not in your corp
-                        other_player[1].take_damage(self.attack_power)
-                        # Worsening their corp's standings towards your corp
-                        other_player[1].corp.worsen_standing(self.corp.corp_id)
-                        # Worsening your corp's standings towards their corp
-                        self.corp.worsen_standing(other_player[1].corp.corp_id)
-                        return True
-            elif _cell.contains_object_type('Fence')[0]:
-                struct = _cell.contains_object_type('Fence')
-                fence = _cell.get_game_object_by_obj_id(struct[1])
-                if fence[0]:
-                    fence[1].take_damage(self.attack_power, self.corp)
+    def attack(self, _cell):
+        try:
+            target_player_id = _cell.get_object_id_of_first_game_object_found('Player')
+            target_player = _cell.new_get_game_object_by_obj_id(target_player_id)
+            standing_to_target_player = self.corp.fetch_standing(target_player.corp.corp_id)
+            if standing_to_target_player in ['N', 'E']:
+                # You can attack a Neutral or Enemy
+                target_player.take_damage(self.attack_power)
+                target_player.corp.worsen_standing(self.corp.corp_id)
+                self.corp.worsen_standing(target_player.corp.corp_id)
+                return True
+            else:
+                # You cannot attack a Corporation Member, or an Ally
+                return False
+        except (exceptions.NoGameObjectOfThatClassFoundException, exceptions.NoGameObjectByThatObjectIDFoundException):
+            pass
+
+        game_object_class_names = ['Fence', 'Hospital', 'OreGenerator', 'Pharmacy',
+                       'Door', 'SentryTurret', 'SpikeTrap', 'RespawnBeacon']
+
+        for game_object_class_name in game_object_class_names:
+            try:
+                target_id = _cell.get_object_id_of_first_game_object_found(game_object_class_name)
+                target = _cell.new_get_game_object_by_obj_id(target_id)
+                standing_towards_target = self.corp.fetch_standing(target.owner_corp.corp_id)
+                if standing_towards_target in ['N', 'E']:
+                    target.take_damage(self.attack_power, self.corp)
                     return True
-            elif _cell.contains_object_type('Hospital')[0]:
-                struct = _cell.contains_object_type('Hospital')
-                hospital = _cell.get_game_object_by_obj_id(struct[1])
-                if hospital[0]:
-                    hospital_obj = hospital[1]
-                    corp_standing_to_hospital_owner_corp = self.corp.fetch_standing(hospital_obj.owner_corp.corp_id)
-                    if corp_standing_to_hospital_owner_corp == 'M' or corp_standing_to_hospital_owner_corp == 'A':
-                        return False  # You cannot attack a hospital that is owned by a corp that we are friendly to
-                    else:
-                        hospital_obj.take_damage(self.attack_power, self.corp)
-                        return True
-            elif _cell.contains_object_type('OreGenerator')[0]:
-                struct = _cell.contains_object_type('OreGenerator')
-                ore_generator = _cell.get_game_object_by_obj_id(struct[1])
-                if ore_generator[0]:
-                    ore_generator_obj = ore_generator[1]
-                    corp_standing_to_ore_generator_owner_corp = self.corp.fetch_standing(
-                        ore_generator_obj.owner_corp.corp_id)
-                    if corp_standing_to_ore_generator_owner_corp == 'M' or corp_standing_to_ore_generator_owner_corp == 'A':
-                        return False  # You cannot attack an ore generator that is owned by a corp that we are friendly to
-                    else:
-                        ore_generator_obj.take_damage(self.attack_power, self.corp)
-                        return True
-            elif _cell.contains_object_type('Pharmacy')[0]:
-                struct = _cell.contains_object_type('Pharmacy')
-                pharmacy = _cell.get_game_object_by_obj_id(struct[1])
-                if pharmacy[0]:
-                    pharmacy_obj = pharmacy[1]
-                    corp_standing_to_obj_owner_corp = self.corp.fetch_standing(
-                        pharmacy_obj.owner_corp.corp_id)
-                    if corp_standing_to_obj_owner_corp == 'M' or corp_standing_to_obj_owner_corp == 'A':
-                        return False  # Your standings to the owner corp forbid you from attacking this structure
-                    else:
-                        pharmacy_obj.take_damage(self.attack_power, self.corp)
-                        return True
-            elif _cell.contains_object_type('Door')[0]:
-                struct = _cell.contains_object_type('Door')
-                door = _cell.get_game_object_by_obj_id(struct[1])
-                if door[0]:
-                    door_obj = door[1]
-                    corp_standings_to_obj_owner_corp = self.corp.fetch_standing(door_obj.owner_corp.corp_id)
-                    if corp_standings_to_obj_owner_corp == 'M' or corp_standings_to_obj_owner_corp == 'A':
-                        return False
-                    else:
-                        door_obj.take_damage(self.attack_power, self.corp)
-                        return True
-            elif _cell.contains_object_type('SentryTurret')[0]:
-                struct = _cell.contains_object_type('SentryTurret')
-                a = _cell.get_game_object_by_obj_id(struct[1])
-                if a[0]:
-                    a_obj = a[1]
-                    corp_standings_to_obj_owner_corp = self.corp.fetch_standing(a_obj.owner_corp.corp_id)
-                    if corp_standings_to_obj_owner_corp == 'M' or corp_standings_to_obj_owner_corp == 'A':
-                        return False
-                    else:
-                        a_obj.take_damage(self.attack_power, self.corp)
-                        return True
-            elif _cell.contains_object_type('SpikeTrap')[0]:
-                struct = _cell.contains_object_type('SpikeTrap')
-                a = _cell.get_game_object_by_obj_id(struct[1])
-                if a[0]:
-                    a_obj = a[1]
-                    corp_standings_to_obj_owner_corp = self.corp.fetch_standing(a_obj.owner_corp.corp_id)
-                    if corp_standings_to_obj_owner_corp == 'M' or corp_standings_to_obj_owner_corp == 'A':
-                        return False
-                    else:
-                        a_obj.take_damage(self.attack_power, self.corp)
-                        return True
-            elif _cell.contains_object_type('RespawnBeacon')[0]:
-                struct = _cell.contains_object_type('RespawnBeacon')
-                respawn_beacon = _cell.get_game_object_by_obj_id(struct[1])
-                if respawn_beacon[0]:
-                    respawn_beacon_obj = respawn_beacon[1]
-                    corp_standings_to_obj_owner_corp = self.corp.fetch_standing(respawn_beacon_obj.owner_corp.corp_id)
-                    if corp_standings_to_obj_owner_corp == 'M' or corp_standings_to_obj_owner_corp == 'A':
-                        return False
-                    else:
-                        respawn_beacon_obj.take_damage(self.attack_power, self.corp)
-                        return True
+                else:
+                    return False
+            except (exceptions.NoGameObjectOfThatClassFoundException,
+                    exceptions.NoGameObjectByThatObjectIDFoundException):
+                pass
+
         return False
 
     def gain_ore(self, amount):
@@ -598,21 +592,11 @@ class Player(gameObject.GameObject):
                         return True
         return False
 
-    def try_move(self, _cell):
-        if _cell is not None:
-            if _cell.can_enter(player_obj=self):
-                self.change_cell(_cell)
-                return True
-            else:
-                return False
-        return False
-
-    def try_get_cell_by_offset(self, row_offset, col_offset):
-        fetched_cell = self.world.get_cell(self.row + row_offset, self.col + col_offset)
-        if fetched_cell is False or fetched_cell is None:
-            return False
+    def move(self, _cell: 'cell.Cell') -> None:
+        if _cell.can_enter(player_obj=self):
+            self.change_cell(_cell)
         else:
-            return fetched_cell
+            raise exceptions.CellCannotBeEnteredException()
 
     def world_state(self):
         los = self.line_of_stats().ljust(self.world.rows)
@@ -625,10 +609,7 @@ class Player(gameObject.GameObject):
         return worldmap
 
     def check_if_dead(self):
-        if self.health <= 0:
-            return True
-        else:
-            return False
+        return self.health <= 0
 
     def died(self):
         if self.health <= 0:
