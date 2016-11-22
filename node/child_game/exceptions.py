@@ -19,3 +19,13 @@ class CorporationHasInsufficientFundsException(Exception):
 class CellIsNotAdjacentToOreDepositException(Exception):
     def __init__(self):
         self.message = "Cell is not Adjacent to Ore Deposit"
+
+
+class NoGameObjectOfThatClassFoundException(Exception):
+    def __init__(self, base_class: str):
+        self.message = "Did not find a game object whose base class is {}".format(base_class)
+
+
+class NoGameObjectByThatObjectIDFoundException(Exception):
+    def __init(self):
+        self.message = "Could not find a game object with the specified object id"
