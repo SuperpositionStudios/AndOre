@@ -680,10 +680,7 @@ class Player(gameObject.GameObject):
         return worldmap
 
     def check_if_dead(self):
-        if self.health <= 0:
-            return True
-        else:
-            return False
+        return self.health <= 0
 
     def died(self):
         if self.health <= 0:
