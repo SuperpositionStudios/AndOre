@@ -164,17 +164,19 @@ class Player(gameObject.GameObject):
             affected_cell = self.cell.get_cell_by_offset(row_offset, col_offset)
             # TODO: Turn this into a dict
             if self.primary_modifier_key == 'm':  # Player is trying to move
-                if self.shiftKeyActive:
-                    if self.try_move(affected_cell):
+                try:
+                    self.move(affected_cell)
+                    if self.shiftKeyActive:
                         try:
-                            affected_cell = self.cell.get_cell_by_offset(row_offset, col_offset)
-                            if self.try_move(affected_cell):
-                                self.take_damage(self.health_loss_on_sprint)
-                        except exceptions.CellCoordinatesOutOfBoundsError:
+                            new_cell = self.cell.get_cell_by_offset(row_offset, col_offset)
+                            self.move(new_cell)
+                            return True
+                        except (exceptions.CellCoordinatesOutOfBoundsError,
+                                exceptions.CellCannotBeEnteredException):
                             pass
-                    return False
-                else:
-                    return self.try_move(affected_cell)
+                except exceptions.CellCannotBeEnteredException:
+                    pass
+                return False
             elif self.primary_modifier_key == 'k':  # Player is trying to attack something
                 return self.try_attacking(affected_cell)
             elif self.primary_modifier_key == 'l':  # Player is trying to collect/loot something
@@ -661,14 +663,11 @@ class Player(gameObject.GameObject):
                         return True
         return False
 
-    def try_move(self, _cell):
-        if _cell is not None:
-            if _cell.can_enter(player_obj=self):
-                self.change_cell(_cell)
-                return True
-            else:
-                return False
-        return False
+    def move(self, _cell: 'cell.Cell') -> None:
+        if _cell.can_enter(player_obj=self):
+            self.change_cell(_cell)
+        else:
+            raise exceptions.CellCannotBeEnteredException()
 
     def world_state(self):
         los = self.line_of_stats().ljust(self.world.rows)
