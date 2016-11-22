@@ -180,7 +180,7 @@ class Player(gameObject.GameObject):
             elif self.primary_modifier_key == 'k':  # Player is trying to attack something
                 return self.attack(affected_cell)
             elif self.primary_modifier_key == 'l':  # Player is trying to collect/loot something
-                if self.try_mining(affected_cell):
+                if self.mine(affected_cell):
                     return True
                 elif self.try_going_to_hospital(affected_cell):
                     return True
@@ -465,15 +465,15 @@ class Player(gameObject.GameObject):
                     return True
         return False
 
-    def try_mining(self, _cell):
-        if _cell is not None:
-            struct = _cell.contains_object_type('OreDeposit')
-            if struct[0]:
-                ore_deposit = _cell.get_game_object_by_obj_id(struct[1])
-                if ore_deposit[0]:
-                    self.gain_ore(ore_deposit[1].ore_per_turn * self.ore_multiplier)
-                    return True
-        return False
+    def mine(self, _cell):
+        try:
+            target_id = _cell.get_object_id_of_first_game_object_found('OreDeposit')
+            target = _cell.new_get_game_object_by_obj_id(target_id)
+            self.gain_ore(target.ore_per_turn * self.ore_multiplier)
+            return True
+        except (exceptions.NoGameObjectOfThatClassFoundException,
+                exceptions.NoGameObjectByThatObjectIDFoundException):
+            return False
 
     def try_worsening_standing(self, _cell):
         if _cell is not None:
