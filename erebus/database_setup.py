@@ -11,7 +11,6 @@ class User(Base):
     __tablename__ = 'Users'
     pk = Column(Integer, primary_key=True)
     aid = Column(String())
-    game_id = Column(String())
     username = Column(String())
     hashed_password = Column(String())
     last_login = Column(DateTime)

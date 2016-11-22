@@ -19,7 +19,6 @@ def create_user(username, password):
     aid = str(uuid.uuid4())
     hashed_password = helper_functions.encrypt_new_password(password)
     session.add(User(aid=aid,
-                     game_id='',
                      username=username,
                      hashed_password=hashed_password,
                      last_login=datetime.now(),
@@ -44,22 +43,6 @@ def login(username, password):
 def valid_aid(aid):
     stored_user = session.query(User).filter(User.aid == aid).first()
     return stored_user is not None
-
-
-def update_game_id(aid, new_game_id):
-    stored_user = session.query(User).filter(User.aid == aid).first()
-    if stored_user is None:
-        return False, "aid doesn't exist"
-    stored_user.game_id = new_game_id
-    session.commit()
-    return True, "game_id updated"
-
-
-def get_game_id(aid):
-    stored_user = session.query(User).filter(User.aid == aid).first()
-    if stored_user is None:
-        return False, "aid doesn't exist"
-    return True, stored_user.game_id
 
 
 def get_username_from_aid(aid: str) -> Tuple[bool, str]:
