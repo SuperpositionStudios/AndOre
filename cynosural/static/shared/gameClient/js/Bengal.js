@@ -132,7 +132,11 @@ Bengal.prototype = {
 				'Panagoul': 'Ⓟ',
 				'Ulysses': 'Ⓤ',
 				'Toivo': 'Ⓣ',
-				'Pedals': 'Ⓑ'
+				'Pedals': 'ⓟ',
+				'Wojtek': 'Ⓦ',
+				'Siwash': 'Ⓢ',
+				'Scipio': 'ⓢ',
+				'Voytek': 'Ⓥ'
 			},
 			"render_type": 4,
 			"target_node": "undefined"
