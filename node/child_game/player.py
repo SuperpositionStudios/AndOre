@@ -392,38 +392,6 @@ class Player(gameObject.GameObject):
 
         self.attack_power = self.starting_attack_power + deltas.get('Attack Power Delta', 0)
 
-    def take_effects(self, effects):
-        if effects.get('Health Delta') > 0:
-            self.gain_health(effects.get('Health Delta', 0))
-        else:
-            self.take_damage(effects.get('Health Delta', 0))
-
-        self.gain_ore(effects.get('Ore Delta', 0))
-
-        self.ore_multiplier += effects.get('Ore Multiplier Delta', 0)
-
-        if effects.get('Attack Power Delta', 0) > 0:
-            apd = effects.get('Attack Power Delta', 0)
-            apd = apd / (self.attack_power / self.starting_attack_power)
-            #print(apd)
-            self.attack_power += apd
-
-        if effects.get('Health Cap Delta', 0) > 0:
-            a = effects.get('Health Cap Delta', 0)
-            if self.health_cap == self.starting_health_cap:
-                hc = a
-            else:
-                hc = a / ((self.health_cap - self.starting_health_cap) / a)
-            #print(hc)
-            self.health_cap += hc
-
-        if effects.get('Ore Multiplier Multiplier Delta', 0) > 0:
-            omm = effects.get('Ore Multiplier Multiplier Delta', 0)
-            omm = omm / self.ore_multiplier
-            omm += 1
-            #print(omm)
-            self.ore_multiplier *= omm
-
     def gain_health(self, amount):
         self.health = min(self.health_cap, self.health + amount)
 
