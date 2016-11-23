@@ -1,5 +1,5 @@
 import uuid
-from child_game import standing_colors, gameObject, world, corporation
+from child_game import gameObject, world, corporation
 from typing import Tuple
 from child_game.exceptions import CellCoordinatesOutOfBoundsError
 from child_game import exceptions
@@ -143,52 +143,6 @@ class Cell:
             if obj.obj_id == obj_id:
                 return obj
         raise exceptions.NoGameObjectByThatObjectIDFoundException()
-
-
-    #@profile
-    def render(self, player_id):
-
-        priority = ['Player', 'Loot', 'SentryTurret', 'SpikeTrap', 'OreDeposit', 'Hospital', 'Pharmacy', 'OreGenerator', 'Fence', 'Door', 'RespawnBeacon', 'StarGate']
-        player_obj = self.world.players[player_id]
-
-        for i in priority:
-            if self.contains_object_type(i)[0]:
-                for obj in self.contents:
-                    if obj.__class__.__name__ == i:
-                        obj_class_name = obj.__class__.__name__
-
-                        types_of_rendering = {
-                            'Player': 'a',
-                            'SentryTurret': 'b',
-                            'SpikeTrap': 'b',
-                            'Fence': 'c',
-                            'Pharmacy': 'b',
-                            'Hospital': 'b',
-                            'Door': 'b',
-                            'RespawnBeacon': 'b',
-                            'OreGenerator': 'c',
-                            'OreDeposit': 'd',
-                            'StarGate': 'd',
-                            'Loot': 'd'
-                        }
-
-                        if types_of_rendering[obj_class_name] == 'a':
-                            if player_obj.obj_id == obj.obj_id:
-                                return obj.inner_icon
-                            else:
-                                standings_towards_player = player_obj.corp.fetch_standing_for_player(obj.obj_id)
-                                return obj.icons[standings_towards_player]
-                        elif types_of_rendering[obj_class_name] == 'b':
-                            owners = obj.owner_corp
-                            owner_standings_towards_us = owners.fetch_standing_for_player(player_id)
-                            return obj.icons[owner_standings_towards_us]
-                        elif types_of_rendering[obj_class_name] == 'c':
-                            generator_owners = obj.owner_corp
-                            corp_standing_to_generator_owner_corp = player_obj.corp.fetch_standing(generator_owners.corp_id)
-                            return obj.icons[corp_standing_to_generator_owner_corp]
-                        else:
-                            return [obj.icon, '#000000']
-        return ['.', standing_colors.mane['N']]  # Returns Empty Space
 
     def can_enter(self, player_obj=None):
         if player_obj is not None:
