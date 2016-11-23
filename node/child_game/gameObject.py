@@ -1,5 +1,5 @@
 import uuid
-from child_game import standing_colors, cell, corporation
+from child_game import cell, corporation
 import child_game
 from child_game.exceptions import CellCoordinatesOutOfBoundsError
 
@@ -45,13 +45,6 @@ class StarGate(GameObject):
     def __init__(self, _cell: 'cell.Cell', target_node_name: str):
         super().__init__(_cell)
         self.target_node = target_node_name
-        self.node_icons = {
-            'Panagoul': 'Ⓟ',
-            'Ulysses': 'Ⓤ',
-            'Toivo': 'Ⓣ',
-            'Pedals': 'Ⓑ'
-        }
-        self.icon = self.node_icons.get(target_node_name, '⎊')
         self.passable = {
             'M': False,
             'A': False,
@@ -60,8 +53,7 @@ class StarGate(GameObject):
         }
 
     def use(self, activator: 'child_game.player.Player'):
-        if self.target_node in self.node_icons:
-            self.cell.world.transfer_player_to_node(activator.id, self.target_node)
+        self.cell.world.transfer_player_to_node(activator.id, self.target_node)
 
 
 class CorpOwnedBuilding(GameObject):
@@ -130,13 +122,6 @@ class Fence(CorpOwnedBuilding):
     def __init__(self, _cell: 'cell.Cell', owner: 'corporation.Corporation'):
         super().__init__(_cell, owner)
         self.health = 60
-        self.icon = '#'
-        self.icons = {
-            'M': ['#', standing_colors.mane['M']],
-            'A': ['#', standing_colors.mane['A']],
-            'N': ['#', standing_colors.mane['N']],
-            'E': ['#', standing_colors.mane['E']]
-        }
         self.ore_cost_to_deploy = 30
         self.passable = {
             'M': False,
@@ -150,7 +135,6 @@ class OreDeposit(GameObject):
 
     def __init__(self, _cell: 'cell.Cell'):
         super().__init__(_cell)
-        self.icon = '$'
         self.cell = _cell
         self.passable = {
             'M': False,
@@ -171,14 +155,6 @@ class OreGenerator(CorpOwnedBuilding):
         assert(_corp.__class__.__name__ == 'Corporation')
 
         super().__init__(_cell, _corp)
-        self.icon = '🏭'
-        self.icons = {
-            'M': ['🏭', standing_colors.mane['M']],
-            'A': ['🏭', standing_colors.mane['A']],
-            'N': ['🏭', standing_colors.mane['N']],
-            'E': ['🏭', standing_colors.mane['E']]
-        }
-
         self.passable = {
             'M': False,
             'A': False,
@@ -203,16 +179,6 @@ class CorpOwnedStore(CorpOwnedBuilding):
         assert(_corp.__class__.__name__ == 'Corporation')
 
         super().__init__(_cell, _corp)
-
-        self.icon = '|'
-
-        self.icons = {
-            'M': ['|', standing_colors.mane['M']],
-            'A': ['|', standing_colors.mane['A']],
-            'N': ['|', standing_colors.mane['N']],
-            'E': ['|', standing_colors.mane['E']]
-        }
-
         self.products = dict()
 
     def add_product(self, item, profits):
@@ -298,13 +264,6 @@ class Pharmacy(CorpOwnedStore):
         """
 
         self.health = 180
-
-        self.icons = {
-            'M': ['🏥', standing_colors.mane['M']],
-            'A': ['🏥', standing_colors.mane['A']],
-            'N': ['🏥', standing_colors.mane['N']],
-            'E': ['🏥', standing_colors.mane['E']]
-        }
         self.passable = {
             'M': False,
             'A': False,
@@ -380,15 +339,7 @@ class RespawnBeacon(CorpOwnedBuilding):
 
         super().__init__(_cell, _corp)
 
-        self.icon = '𝌩'
         self.health = 1000
-
-        self.icons = {
-            'M': ['𝌩', standing_colors.mane['M']],
-            'A': ['𝌩', standing_colors.mane['A']],
-            'N': ['𝌩', standing_colors.mane['N']],
-            'E': ['𝌩', standing_colors.mane['E']]
-        }
 
         self.passable = {
             'M': True,
@@ -411,15 +362,7 @@ class Door(CorpOwnedBuilding):
 
         super().__init__(_cell, _corp)
 
-        self.icon = 'D'  # Deprecated
         self.health = 250
-
-        self.icons = {
-            'M': ['=', standing_colors.mane['M']],
-            'A': ['=', standing_colors.mane['A']],
-            'N': ['=', standing_colors.mane['N']],
-            'E': ['=', standing_colors.mane['E']]
-        }
 
         self.passable = {
             'M': True,
@@ -440,13 +383,6 @@ class SentryTurret(CorpOwnedBuilding):
         super().__init__(_cell, _corp)
 
         self.health = 80
-
-        self.icons = {
-            'M': ['T', standing_colors.mane['M']],
-            'A': ['T', standing_colors.mane['A']],
-            'N': ['T', standing_colors.mane['N']],
-            'E': ['T', standing_colors.mane['E']]
-        }
 
         self.passable = {
             'M': False,
@@ -484,13 +420,6 @@ class SpikeTrap(CorpOwnedBuilding):
 
         self.health = 40
 
-        self.icons = {
-            'M': ['S', standing_colors.mane['M']],
-            'A': ['S', standing_colors.mane['A']],
-            'N': ['S', standing_colors.mane['N']],
-            'E': ['S', standing_colors.mane['E']]
-        }
-
         self.passable = {
             'M': True,
             'A': True,
@@ -514,15 +443,6 @@ class Hospital(CorpOwnedBuilding):
         assert(_corp.__class__.__name__ == 'Corporation')
 
         super().__init__(_cell, _corp)
-
-        self.icon = '+'  # Deprecated
-
-        self.icons = {
-            'M': ['⚕', standing_colors.mane['M']],
-            'A': ['⚕', standing_colors.mane['A']],
-            'N': ['⚕', standing_colors.mane['N']],
-            'E': ['⚕', standing_colors.mane['E']]
-        }
 
         self.prices_to_use = {
             'M': 5,
@@ -558,7 +478,6 @@ class Loot(GameObject):
 
     def __init__(self, _cell):
         super().__init__(_cell)
-        self.icon = '%'
         self.passable = {
             'M': False,
             'A': False,
@@ -572,4 +491,3 @@ class HealthPack(Loot):
     def __init__(self, _cell):
         super().__init__(_cell)
         self.health_quantity = 0
-        self.icon = '⨮'

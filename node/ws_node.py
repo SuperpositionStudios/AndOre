@@ -135,22 +135,8 @@ class Node:
                         try:
                             self.world.players[aid].action(action)
                         except Exception as e:
-                            print(e)
+                            repr(e)
 
-                        """
-                        world_view = self.world.players[aid].world_state()
-                        inventory = self.world.players[aid].corp.render_inventory()
-                        vitals = self.world.players[aid].get_vitals()
-
-                        await websocket.send(dumps({
-                            'authenticated': authenticated,
-                            'request': 'sendState',
-                            'world': world_view,
-                            'inventory': inventory,
-                            'vitals': vitals,
-                            'time': datetime.datetime.utcnow().isoformat()
-                        }))
-                        """
                         await self.send_state(aid, send_ping=True)
                 else:
                     if request.get('request', None) == 'register':

@@ -84,17 +84,6 @@ class World:  # World is not really world, it's more Level
         for corp_id, corp in self.corporations.items():
             corp.tick_buildings()
 
-    #@profile
-    def render_world(self, player_id):
-        rendered_world = []
-        for row in range(self.rows):
-            current_row = []
-            for col in range(self.cols):
-                rendered = self.world[row][col].render(player_id=player_id)
-                current_row.append(rendered)
-            rendered_world.append(current_row)
-        return rendered_world
-
     def corp_exists(self, corp_id) -> bool:
         return corp_id in self.corporations
 
@@ -170,10 +159,6 @@ class World:  # World is not really world, it's more Level
                 if attempt == max_tries:
                     return
             random_cell.add_ore_deposit()
-
-    #@profile
-    def get_world(self, player_id):
-        return self.render_world(player_id)
 
     def transfer_corp_assets(self, acquirer_id, acquiree_id):
         print("Transferring assets of {} to {}".format(acquiree_id, acquirer_id))
