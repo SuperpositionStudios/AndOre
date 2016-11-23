@@ -1,5 +1,5 @@
 import uuid, random
-from child_game import gameObject, standing_colors, corporation, cell
+from child_game import gameObject, corporation, cell
 import child_game
 from child_game import exceptions
 import math
@@ -34,14 +34,6 @@ class Player(gameObject.GameObject):
         self.ore_multiplier = float(self.starting_ore_multiplier)
 
         self.delta_ore = 0  # The ore lost/gained in the last tick
-        self.inner_icon = ['@', standing_colors.mane['M']]
-        self.icons = {
-            'M': ['M', standing_colors.mane['M']],
-            'A': ['A', standing_colors.mane['A']],
-            'N': ['N', standing_colors.mane['N']],
-            'E': ['E', standing_colors.mane['E']]
-        }
-        self.icon = '!'
         self.row = self.cell.row
         self.col = self.cell.col
         self.shiftKeyActive = False
@@ -649,16 +641,6 @@ class Player(gameObject.GameObject):
             self.change_cell(_cell)
         else:
             raise exceptions.CellCannotBeEnteredException()
-
-    def world_state(self):
-        los = self.line_of_stats().ljust(self.world.rows)
-        los = list(los)
-        inventory = self.corp.render_inventory()
-        inventory = list(inventory)
-        worldmap = self.world.get_world(player_id=self.id)
-        worldmap.append(los)
-        worldmap.append(inventory)
-        return worldmap
 
     def check_if_dead(self):
         return self.health <= 0

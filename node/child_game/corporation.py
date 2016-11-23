@@ -1,7 +1,6 @@
 import uuid
 import config
 from child_game import gameObject
-import warnings
 
 
 class Corporation:
