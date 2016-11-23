@@ -329,6 +329,14 @@ class Player(gameObject.GameObject):
             return False  # Not yet supported
 
     def recalculate_potion_effects(self):
+        deltas = {
+            'Health Delta': 0,
+            'Ore Delta': 0,
+            'Ore Multiplier Delta': 0,
+            'Health Cap Delta': 0,
+            'Attack Power Delta': 0
+        }
+
         for potion_name, values in self.potions_taken.items():
             if values.get('taken', 0) > 0:
 
@@ -337,46 +345,52 @@ class Player(gameObject.GameObject):
                 # Instant Bonuses
                 if values.get('taken', 0) > values.get('applied', 0):
 
-                    # Health Restore
+                    # Health Delta
+                    deltas['Health Delta'] = deltas.get('Health Delta', 0) + effects.get('Health Delta', 0)
 
-                    if effects.get('Health Delta', 0) > 0:
-                        self.gain_health(effects.get('Health Delta', 0))
-                    elif effects.get('Health Delta', 0) < 0:
-                        self.take_damage(effects.get('Health Delta', 0))
-
-                    # Ore Gain
-                    self.gain_ore(effects.get('Ore Delta'))
-
+                    # Ore Gain/Lose
+                    deltas['Ore Delta'] = deltas.get('Ore Delta', 0) + effects.get('Ore Delta', 0)
 
                     # Now that we've applied the instant bonuses, we can increase the applied value.
-                    values['applied'] = values.get('applied', 0)
+                    values['applied'] = values.get('applied', 0) + 1
 
                 ### Now we can apply the multipliers ###
 
                 # Ore Multiplier #
-                self.ore_multiplier = self.starting_ore_multiplier + (
+                deltas['Ore Multiplier Delta'] = deltas.get('Ore Multiplier Delta', 0) + (
                     effects.get('Ore Multiplier Delta', 0) * (
                         1 + math.log(values.get('taken', 0), 2)
                     )
                 )
 
                 # Health Cap #
-                new_health_cap = self.starting_health_cap + (
+                deltas['Health Cap Delta'] = deltas.get('Health Cap Delta', 0) + (
                     effects.get('Health Cap Delta', 0) * (
                         1 + math.log(values.get('taken', 0), 2)
                     )
                 )
 
-                self.health_cap = new_health_cap
-
                 # Attack Power #
-                self.attack_power = self.starting_attack_power + (
+                deltas['Attack Power Delta'] = deltas.get('Attack Power Delta', 0) + (
                     effects.get('Attack Power Delta', 0) * (
                         1 + math.log(values.get('taken', 0), 2)
                     )
                 )
             else:
                 continue
+
+        if deltas.get('Health Delta', 0) > 0:
+            self.gain_health(deltas.get('Health Delta', 0))
+        elif deltas.get('Health Delta', 0) < 0:
+            self.take_damage(deltas.get('Health Delta', 0))
+
+        self.gain_ore(deltas.get('Ore Delta', 0))
+
+        self.ore_multiplier = self.starting_ore_multiplier + deltas.get('Ore Multiplier Delta', 0)
+
+        self.health_cap = self.starting_health_cap + deltas.get('Health Cap Delta', 0)
+
+        self.attack_power = self.starting_attack_power + deltas.get('Attack Power Delta', 0)
 
     def take_effects(self, effects):
         if effects.get('Health Delta') > 0:
