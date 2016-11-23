@@ -330,9 +330,6 @@ class Consumable:
             'Ore Multiplier Multiplier Delta': 0  # Multiplies the player's ore multiplier by this + 1.
         }
 
-    def consume(self):
-        return self.effects
-
 
 class HealthCapPotion(Consumable):
 

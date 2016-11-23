@@ -2,6 +2,7 @@ import uuid, random
 from child_game import gameObject, standing_colors, corporation, cell
 import child_game
 from child_game import exceptions
+import math
 
 
 class Player(gameObject.GameObject):
@@ -55,6 +56,20 @@ class Player(gameObject.GameObject):
         }
         self.last_action_at_world_age = 0
         self.corp = _corp
+        self.potions_taken = {
+            'HealthPotion': {
+                'taken': 0,
+                'applied': 0
+            },
+            'HealthCapPotion': {
+                'taken': 0,
+                'applied': 0
+            },
+            'AttackPowerPotion': {
+                'taken': 0,
+                'applied': 0
+            },
+        }
 
     # Called when being removed from the node
     def despawn(self):
@@ -295,50 +310,87 @@ class Player(gameObject.GameObject):
 
     def try_using_inventory(self):
         #  Consumables
-        chosen = self.corp.return_obj_selected_in_rendered_inventory(int(self.secondary_modifier_key))
-        if chosen is None:
+        chosen_potion = self.corp.return_obj_selected_in_rendered_inventory(int(self.secondary_modifier_key))
+        if chosen_potion is None:
             return False
         else:
-            chosen = chosen()
-        if chosen.item_type == 'Consumable':
-            effects = chosen.consume()
-            self.take_effects(effects)
-            self.corp.queue_inventory_delta(chosen.__class__.__name__, -1)
+            chosen_potion = chosen_potion()
+        if chosen_potion.item_type == 'Consumable':
+            potion_name = chosen_potion.__class__.__name__
+            self.corp.queue_inventory_delta(potion_name, -1)
+            self.potions_taken[potion_name] = {
+                'taken': self.potions_taken.get(potion_name, {}).get('taken', 0) + 1,
+                'applied': self.potions_taken.get(potion_name, {}).get('applied', 0),
+                'effects': chosen_potion.effects
+            }
+            self.recalculate_potion_effects()
             return True
         else:
             return False  # Not yet supported
 
-    def take_effects(self, effects):
-        if effects.get('Health Delta') > 0:
-            self.gain_health(effects.get('Health Delta', 0))
-        else:
-            self.take_damage(effects.get('Health Delta', 0))
+    def recalculate_potion_effects(self):
+        deltas = {
+            'Health Delta': 0,
+            'Ore Delta': 0,
+            'Ore Multiplier Delta': 0,
+            'Health Cap Delta': 0,
+            'Attack Power Delta': 0
+        }
 
-        self.gain_ore(effects.get('Ore Delta', 0))
+        for potion_name, values in self.potions_taken.items():
+            if values.get('taken', 0) > 0:
 
-        self.ore_multiplier += effects.get('Ore Multiplier Delta', 0)
+                effects = values.get('effects', {})
 
-        if effects.get('Attack Power Delta', 0) > 0:
-            apd = effects.get('Attack Power Delta', 0)
-            apd = apd / (self.attack_power / self.starting_attack_power)
-            #print(apd)
-            self.attack_power += apd
+                # Instant Bonuses
+                if values.get('taken', 0) > values.get('applied', 0):
 
-        if effects.get('Health Cap Delta', 0) > 0:
-            a = effects.get('Health Cap Delta', 0)
-            if self.health_cap == self.starting_health_cap:
-                hc = a
+                    # Health Delta
+                    deltas['Health Delta'] = deltas.get('Health Delta', 0) + effects.get('Health Delta', 0)
+
+                    # Ore Gain/Lose
+                    deltas['Ore Delta'] = deltas.get('Ore Delta', 0) + effects.get('Ore Delta', 0)
+
+                    # Now that we've applied the instant bonuses, we can increase the applied value.
+                    values['applied'] = values.get('applied', 0) + 1
+
+                ### Now we can apply the multipliers ###
+
+                # Ore Multiplier #
+                deltas['Ore Multiplier Delta'] = deltas.get('Ore Multiplier Delta', 0) + (
+                    effects.get('Ore Multiplier Delta', 0) * (
+                        1 + math.log(values.get('taken', 0), 2)
+                    )
+                )
+
+                # Health Cap #
+                deltas['Health Cap Delta'] = deltas.get('Health Cap Delta', 0) + (
+                    effects.get('Health Cap Delta', 0) * (
+                        1 + math.log(values.get('taken', 0), 2)
+                    )
+                )
+
+                # Attack Power #
+                deltas['Attack Power Delta'] = deltas.get('Attack Power Delta', 0) + (
+                    effects.get('Attack Power Delta', 0) * (
+                        1 + math.log(values.get('taken', 0), 2)
+                    )
+                )
             else:
-                hc = a / ((self.health_cap - self.starting_health_cap) / a)
-            #print(hc)
-            self.health_cap += hc
+                continue
 
-        if effects.get('Ore Multiplier Multiplier Delta', 0) > 0:
-            omm = effects.get('Ore Multiplier Multiplier Delta', 0)
-            omm = omm / self.ore_multiplier
-            omm += 1
-            #print(omm)
-            self.ore_multiplier *= omm
+        if deltas.get('Health Delta', 0) > 0:
+            self.gain_health(deltas.get('Health Delta', 0))
+        elif deltas.get('Health Delta', 0) < 0:
+            self.take_damage(deltas.get('Health Delta', 0))
+
+        self.gain_ore(deltas.get('Ore Delta', 0))
+
+        self.ore_multiplier = self.starting_ore_multiplier + deltas.get('Ore Multiplier Delta', 0)
+
+        self.health_cap = self.starting_health_cap + deltas.get('Health Cap Delta', 0)
+
+        self.attack_power = self.starting_attack_power + deltas.get('Attack Power Delta', 0)
 
     def gain_health(self, amount):
         self.health = min(self.health_cap, self.health + amount)
@@ -533,10 +585,10 @@ class Player(gameObject.GameObject):
 
         return False
 
-    def gain_ore(self, amount):
+    def gain_ore(self, amount: float) -> None:
         self.corp.gain_ore(amount)
 
-    def lose_ore(self, amount):
+    def lose_ore(self, amount: float) -> None:
         self.corp.lose_ore(amount)
 
     def drop_ore(self):
