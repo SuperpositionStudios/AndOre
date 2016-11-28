@@ -351,7 +351,7 @@ App.prototype = {
       }
     };
     self.currentNodeWS.onclose = function () {
-        AlertCloseNode();
+        self.AlertCloseNode();
       self.FindCurrentNode(null);
     };
 
@@ -361,16 +361,16 @@ App.prototype = {
 
   },
   AlertConnectNode: function() {
-    window.alert("You have connected to Node");
+    $('#box_node').css('background-color', 'green');
   },
   AlertCloseNode: function() {
-    window.alert("You have disconnected from Node");
+    $('#box_node').css('background-color', 'red');
   },
   AlertConnectSlepnir: function() {
-    window.alert("You have connected to Slepnir")
+    $('#box_sleipnir').css('background-color', 'green');
   },
   AlertCloseSlepnir: function() {
-    window.alert("You have disconnected from Slepnir")
+    $('#box_sleipnir').css('background-color', 'red');
   },
   ListenToStartAi:function(callback) {
     var self = this;

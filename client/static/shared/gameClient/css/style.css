@@ -32,8 +32,18 @@
   height: 8em;
 }
 
-#box {
-  background-color: #ff1400;
-  height: 100px;
-  width: 100px;
+#box_sleipnir {
+  background-color: black;
+  height: 30px;
+  width: 30px;
+  border: solid 1px black;
+  display: inline-block;
+}
+
+#box_node {
+  background-color: black;
+  height: 30px;
+  width: 30px;
+  border: solid 1px black;
+  display: inline-block;
 }
