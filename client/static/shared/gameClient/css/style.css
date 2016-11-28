@@ -31,3 +31,9 @@
 #chatBoxContent {
   height: 8em;
 }
+
+#box {
+  background-color: #ff1400;
+  height: 100px;
+  width: 100px;
+}
