@@ -77,6 +77,7 @@ function App() {
 
 
 }
+
 App.prototype = {
   delay: 300,
   hasActed: false,
@@ -136,11 +137,15 @@ App.prototype = {
       });
     });
   },
+
+
   Ping: function() {
     // Requests the current node to send a Pong; Not used very frequently because it usually sends one by itself.
     var self = this;
     self.currentNodeWS.send(JSON.stringify({
       'request': 'ping'
+
+
     }));
   },
   StartChat: function(callback) {
@@ -272,17 +277,27 @@ App.prototype = {
       });
     });
   },
+  
   StartSleipnirWS: function (callback) {
     var self = this;
     var authenticated = false;
     self.sleipnirWS = new WebSocket(sleipnirURL);
     console.log(self.authId);
     self.sleipnirWS.onopen = function () {
+        self.AlertConnectSlepnir();
       self.sleipnirWS.send(JSON.stringify({
         'request': 'register',
         'aid': self.authId
       }))
     };
+
+
+    self.sleipnirWS.onclose = function () {
+        self.AlertCloseSlepnir();
+    };
+
+
+
     self.sleipnirWS.onmessage = function (message) {
       message = JSON.parse(message.data);
       console.log(message);
@@ -315,7 +330,6 @@ App.prototype = {
       self.currentNodeWS.close()
     }
     self.currentNodeWS = new WebSocket(currentnodeURL);
-
     self.currentNodeWS.onmessage = function(message) {
       message = JSON.parse(message.data);
       //console.log(message);
@@ -340,10 +354,12 @@ App.prototype = {
     self.currentNodeWS.onclose = function () {
       delete self.view;
       self.view = null;
+      self.AlertCloseNode();
       self.FindCurrentNode(null);
     };
 
     self.currentNodeWS.onopen = function () {
+      self.AlertConnectNode();
       self.currentNodeWS.send(JSON.stringify({
         'request': 'register',
         'aid': self.authId
@@ -353,7 +369,18 @@ App.prototype = {
       console.log("(Re)Started View.");
       CallCallback(callback);  // callback always starts listening to AI & restarts view.
     };
-
+  },
+  AlertConnectNode: function() {
+    $('#box_node').css('background-color', 'green');
+  },
+  AlertCloseNode: function() {
+    $('#box_node').css('background-color', 'red');
+  },
+  AlertConnectSlepnir: function() {
+    $('#box_sleipnir').css('background-color', 'green');
+  },
+  AlertCloseSlepnir: function() {
+    $('#box_sleipnir').css('background-color', 'red');
   },
   ListenToStartAi:function(callback) {
     var self = this;

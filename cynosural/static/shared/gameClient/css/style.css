@@ -31,3 +31,19 @@
 #chatBoxContent {
   height: 8em;
 }
+
+#box_sleipnir {
+  background-color: black;
+  height: 30px;
+  width: 30px;
+  border: solid 1px black;
+  display: inline-block;
+}
+
+#box_node {
+  background-color: black;
+  height: 30px;
+  width: 30px;
+  border: solid 1px black;
+  display: inline-block;
+}
