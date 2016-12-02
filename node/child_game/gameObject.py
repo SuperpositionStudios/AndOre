@@ -407,7 +407,7 @@ class SentryTurret(CorpOwnedBuilding):
             if cell.damage_first_player(self.owner_corp, self.attack_power):
                 return True
 
-
+'''''
 class SpikeTrap(CorpOwnedBuilding):
 
     construction_cost = 150
@@ -432,7 +432,7 @@ class SpikeTrap(CorpOwnedBuilding):
     def tick(self):
         # Attacks 1 non-friendly player in the cell the Spiketrap is residing in
         self.cell.damage_first_player(self.owner_corp, self.attack_power)
-
+'''
 
 class Hospital(CorpOwnedBuilding):
 
