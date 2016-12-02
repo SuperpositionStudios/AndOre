@@ -1,5 +1,5 @@
-function Bengal () {
-	
+function Bengal() {
+
 }
 
 Bengal.prototype = {
@@ -8,11 +8,11 @@ Bengal.prototype = {
 	corp_id: null,
 	standings: null,
 	colors: {
-			"M": "#147614",
-			"A": "#04227C",
-			"N": "#8C8A8C",
-			"E": "#940604",
-			"Nature": "#000000"
+		"M": "#147614",
+		"A": "#04227C",
+		"N": "#8C8A8C",
+		"E": "#940604",
+		"Nature": "#000000"
 	},
 	gameObjects: {
 		1: {
@@ -84,7 +84,7 @@ Bengal.prototype = {
 		7: {
 			"name": "Player",
 			"icons": {
-			  "S": "@",
+				"S": "@",
 				"M": "M",
 				"A": "A",
 				"N": "N",
@@ -92,7 +92,7 @@ Bengal.prototype = {
 			},
 			"render_type": 5,
 			"aid": "undefined",
-      "owner": "undefined"
+			"owner": "undefined"
 		},
 		8: {
 			"name": "Loot",
@@ -146,11 +146,11 @@ Bengal.prototype = {
 		var self = this;
 		console.log("Starting Bengal");
 		self.aid = aid;
-    console.log(aid);
+		console.log(aid);
 	},
 	getStandingTowardsCorp: function (corp, towards_corp) {
 		var self = this;
-		
+
 		if (corp == towards_corp) {
 			return "M";
 		} else {
@@ -159,7 +159,7 @@ Bengal.prototype = {
 	},
 	convertRawContentsToGameObjects: function (rawContents) {
 		var self = this;
-		
+
 		var convertedContents = [];
 		var object_types = {
 			1: 1, // Fence
@@ -178,9 +178,9 @@ Bengal.prototype = {
 		for (var i = 0; i < rawContents.length; i++) {
 			var rawObject = rawContents[i];
 			var rawObjectType = object_types[rawObject[0]] || null;
-			
+
 			var convertedObject = self.gameObjects[rawObject[0]];
-			
+
 			if (rawObjectType == 1) {
 				convertedObject.owner = rawObject[1];
 			} else if (rawObjectType == 2) {
@@ -197,12 +197,12 @@ Bengal.prototype = {
 	},
 	render_cell: function (contents) {
 		var self = this;
-		
-		
+
+
 		var render_priority = ['Player', 'Loot', 'SentryTurret', 'SpikeTrap', 'OreDeposit', 'Hospital', 'Pharmacy', 'OreGenerator', 'Fence', 'Door', 'RespawnBeacon', 'StarGate'];
 		var icon;
 		var color;
-		
+
 		for (var render_priority_i = 0; render_priority_i < render_priority.length; render_priority_i++) {
 			var current_priority = render_priority[render_priority_i];
 			for (var current_object_i = 0; current_object_i < contents.length; current_object_i++) {
@@ -214,41 +214,41 @@ Bengal.prototype = {
 						var standings_towards_owner_corp = self.getStandingTowardsCorp(self.corp_id, current_object.owner);
 						icon = current_object.icons[standings_towards_owner_corp];
 						color = self.colors[standings_towards_owner_corp];
-						
+
 						return [icon, color];
 					} else if (current_object.render_type == 2) {
 						// For objects where the color is the standings of the object owner towards you
 						var owner_standings_towards_you = self.getStandingTowardsCorp(current_object.owner, self.corp_id);
 						icon = current_object.icons[owner_standings_towards_you];
 						color = self.colors[owner_standings_towards_you];
-						
+
 						return [icon, color];
 					} else if (current_object.render_type == 3) {
 						// For items that don't have an owner (like Ore Deposits)
 						icon = current_object.icon;
 						color = self.colors["Nature"];
-						
+
 						return [icon, color];
 					} else if (current_object.render_type == 4) {
 						// For StarGates
 						icon = current_object.icons[current_object.target_node] || "?";
 						color = self.colors["Nature"];
-            return [icon, color];
+						return [icon, color];
 					} else if (current_object.render_type == 5) {
-					  // For Players
-            //console.log(self.corp_id);
-            if (current_object.aid == self.aid) {
-              icon = current_object.icons["S"];
-              color = self.colors["M"];
-              return [icon, color];
-            } else {
-              //console.log(self.aid + " != " + current_object.aid);
-              var standings_towards_owner_corp = self.getStandingTowardsCorp(self.corp_id, current_object.owner);
-              icon = current_object.icons[standings_towards_owner_corp];
-						  color = self.colors[standings_towards_owner_corp];
-              return [icon, color];
-            }
-          }
+						// For Players
+						//console.log(self.corp_id);
+						if (current_object.aid == self.aid) {
+							icon = current_object.icons["S"];
+							color = self.colors["M"];
+							return [icon, color];
+						} else {
+							//console.log(self.aid + " != " + current_object.aid);
+							var standings_towards_owner_corp = self.getStandingTowardsCorp(self.corp_id, current_object.owner);
+							icon = current_object.icons[standings_towards_owner_corp];
+							color = self.colors[standings_towards_owner_corp];
+							return [icon, color];
+						}
+					}
 				} else {
 					// Continue...
 				}
@@ -261,7 +261,7 @@ Bengal.prototype = {
 		self.currentServerResponse = newServerResponse;
 		self.standings = self.currentServerResponse.standings;
 		self.corp_id = self.currentServerResponse.corp_id;
-		
+
 		var world = self.currentServerResponse.world;
 		var rendered_world = [];
 		for (var rowNum = 0; rowNum < world.length; rowNum++) {
@@ -279,94 +279,94 @@ Bengal.prototype = {
 };
 
 /*
-bengal = new Bengal();
-bengal.Init("bill", "a");
+ bengal = new Bengal();
+ bengal.Init("bill", "a");
 
-var server_response = {
-	"standings": {
-		"a": {
-			"b": "E",
-			"c": "A"
-		},
-		"b": {
-			"a": "E",
-			"c": "A"
-		},
-		"c": {
-			"a": "A",
-			"b": "A"
-		}
-	},
-	"world": [
-		[
-			{
-				"contents": [
-					[1, "c"]
-				]
-			},
-			{
-				"contents": [
-					[2, "b"]
-				]
-			},
-			{
-				"contents": [
-					[3, "c"]
-				]
-			}
-		],
-		[
-			{
-				"contents": [
-					[4, "c"]
-				]
-			},
-			{
-				"contents": [
-				  [5, "a"]
-				]
-			},
-			{
-				"contents": [
-					[6, "c"]
-				]
-			}
-		],
-		[
-			{
-				"contents": [
-					[7, "aid", "c"]
-				]
-			},
-			{
-				"contents": [
-				  [8, "a"]
-				]
-			},
-			{
-				"contents": [
-					[9, "c"]
-				]
-			}
-		],
-		[
-			{
-				"contents": [
-					[10, "c"]
-				]
-			},
-			{
-				"contents": [
-				  [11]
-				]
-			},
-			{
-				"contents": [
-					[12, "Panagoul"]
-				]
-			}
-		]
-	]
-};
-console.log(bengal.RenderWorld(server_response));
-*/
+ var server_response = {
+ "standings": {
+ "a": {
+ "b": "E",
+ "c": "A"
+ },
+ "b": {
+ "a": "E",
+ "c": "A"
+ },
+ "c": {
+ "a": "A",
+ "b": "A"
+ }
+ },
+ "world": [
+ [
+ {
+ "contents": [
+ [1, "c"]
+ ]
+ },
+ {
+ "contents": [
+ [2, "b"]
+ ]
+ },
+ {
+ "contents": [
+ [3, "c"]
+ ]
+ }
+ ],
+ [
+ {
+ "contents": [
+ [4, "c"]
+ ]
+ },
+ {
+ "contents": [
+ [5, "a"]
+ ]
+ },
+ {
+ "contents": [
+ [6, "c"]
+ ]
+ }
+ ],
+ [
+ {
+ "contents": [
+ [7, "aid", "c"]
+ ]
+ },
+ {
+ "contents": [
+ [8, "a"]
+ ]
+ },
+ {
+ "contents": [
+ [9, "c"]
+ ]
+ }
+ ],
+ [
+ {
+ "contents": [
+ [10, "c"]
+ ]
+ },
+ {
+ "contents": [
+ [11]
+ ]
+ },
+ {
+ "contents": [
+ [12, "Panagoul"]
+ ]
+ }
+ ]
+ ]
+ };
+ console.log(bengal.RenderWorld(server_response));
+ */
