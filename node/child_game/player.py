@@ -281,7 +281,12 @@ class Player(gameObject.GameObject):
 			elif self.primary_modifier_key == 'u':  # Player is trying to use something in their corp inventory
 				return self.try_using_inventory()
 			elif self.primary_modifier_key == 'c':  # Player is trying to cancel a building's existence
-				return self.try_deconstructing(affected_cell)
+				try:
+					self.deconstruct(affected_cell)
+					return True
+				except exceptions.CellIsNoneException as e:
+					repr(e)
+					return False
 			else:
 				return False
 		except exceptions.CellCoordinatesOutOfBoundsError:
@@ -297,17 +302,20 @@ class Player(gameObject.GameObject):
 					return True
 		return False
 
-	def try_deconstructing(self, _cell):
+	def deconstruct(self, _cell: 'cell.Cell') -> None:
 		if _cell is not None:
 			_cell.deconstruct_first_possible_building_owned_by_corp(self.corp.corp_id)
+		else:
+			raise exceptions.CellIsNoneException()
 
 	def try_using_inventory(self):
+		chosen_potion = self.corp.return_obj_selected_in_rendered_inventory(int(self.secondary_modifier_key))
 		#  Consumables
 		if chosen_potion is None:
 			return False
 		else:
 			chosen_potion = chosen_potion()
-		chosen_potion = self.corp.return_obj_selected_in_rendered_inventory(int(self.secondary_modifier_key))
+
 		if chosen_potion.item_type == 'Consumable':
 			potion_name = chosen_potion.__class__.__name__
 			self.corp.queue_inventory_delta(potion_name, -1)

@@ -27,5 +27,9 @@ class NoGameObjectOfThatClassFoundException(Exception):
 
 
 class NoGameObjectByThatObjectIDFoundException(Exception):
-	def __init(self):
+	def __init__(self):
 		self.message = "Could not find a game object with the specified object id"
+
+class CellIsNoneException(Exception):
+	def __init__(self):
+		self.message = "Cell is None"
