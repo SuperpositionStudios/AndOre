@@ -180,6 +180,11 @@ async def player(websocket, path):
 							'node_name': node_obj.name,
 							'node_address': node_obj.public_address
 						}))
+				elif request.get('request', None) == 'numConnectedPlayers':
+					await websocket.send(dumps({
+						'authenticated': authenticated,
+						'numConnectedPlayers': len(connected_players)
+					}))
 			else:
 				if request.get('request', None) == 'register':
 					aid = request.get('aid', 'None')
