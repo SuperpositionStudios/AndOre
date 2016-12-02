@@ -264,13 +264,22 @@ class Player(gameObject.GameObject):
                         repr(e)
                         return False
                 elif self.secondary_modifier_key == '8':
-                    try:
+                '''''    try:
                         self.construct_spike_trap(affected_cell)
                         return True
                     except (exceptions.CellCannotBeEnteredException,
                             exceptions.CorporationHasInsufficientFundsException) as e:
                         repr(e)
+                        return Falseelif self.secondary_modifier_key == '8':
+                    try:
+                        self.construct_spike_trap(affected_cell)
+                        return True
+                    '''except (exceptions.CellCannotBeEnteredException,
+                            exceptions.CorporationHasInsufficientFundsException) as e:
+                        repr(e)
                         return False
+                else:
+                    return False
                 else:
                     return False
             elif self.primary_modifier_key == '-':  # Player is trying to worsen their standings towards the target player's corp
