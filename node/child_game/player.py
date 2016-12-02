@@ -302,12 +302,13 @@ class Player(gameObject.GameObject):
 			_cell.deconstruct_first_possible_building_owned_by_corp(self.corp.corp_id)
 
 	def try_using_inventory(self):
+		chosen_potion = self.corp.return_obj_selected_in_rendered_inventory(int(self.secondary_modifier_key))
 		#  Consumables
 		if chosen_potion is None:
 			return False
 		else:
 			chosen_potion = chosen_potion()
-		chosen_potion = self.corp.return_obj_selected_in_rendered_inventory(int(self.secondary_modifier_key))
+
 		if chosen_potion.item_type == 'Consumable':
 			potion_name = chosen_potion.__class__.__name__
 			self.corp.queue_inventory_delta(potion_name, -1)
