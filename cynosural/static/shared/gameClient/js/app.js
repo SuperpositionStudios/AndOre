@@ -167,7 +167,7 @@ App.prototype = {
 		self.synergyWS.onmessage = function (message) {
 			try {
 				var json = JSON.parse(message.data);
-				console.log(json);
+				console.log("Synergy: ", json);
 			} catch (e) {
 				console.log('This doesn\'t look like a valid JSON: ', message.data);
 				return;
@@ -300,17 +300,21 @@ App.prototype = {
 
 		self.sleipnirWS.onmessage = function (message) {
 			message = JSON.parse(message.data);
-			console.log(message);
+			console.log("Sleipnir: ", message);
+
 			if (authenticated) {
 				if (message.request == 'update_node') {
 					currentnodeURL = message.node_address;
 					self.EstablishCurrentNodeWS(callback);
+				} else if (message.request = 'numConnectedPlayers') {
+					$('#number-of-players-online').text(message.numConnectedPlayers);
 				}
 			} else {
 				if (message.authenticated == true) {
 					authenticated = true;
-					// Join game
-					self.FindCurrentNode(null);
+					self.FindCurrentNode(null);  // Join Game
+				} else if (message.request = 'numConnectedPlayers') {
+					$('#number-of-players-online').text(message.numConnectedPlayers);
 				}
 			}
 		}
