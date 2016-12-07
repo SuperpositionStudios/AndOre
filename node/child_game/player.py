@@ -266,7 +266,7 @@ class Player(gameObject.GameObject):
 						return False
 				elif self.secondary_modifier_key == '8':
 					try:
-						self.construct_spike_trap(affected_cell)
+						#self.construct_spike_trap(affected_cell)
 						return True
 					except (exceptions.CellCannotBeEnteredException,
 							exceptions.CorporationHasInsufficientFundsException) as e:
