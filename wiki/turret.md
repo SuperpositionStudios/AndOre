@@ -18,7 +18,7 @@ Allies (A), Corporation Members (M), and the creator of the turret (@) will not 
 
 #### Origin
 
-The Turret was added in version 1.3 of the game.
+The Turret was added in version 1.3.
 
 Contributors
 ============
