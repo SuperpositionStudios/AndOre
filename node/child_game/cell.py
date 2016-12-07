@@ -68,7 +68,6 @@ class Cell:
 
 		return False
 
-
 	def damage_first_player(self, attacking_corp: 'corporation.Corporation', damage):
 		struct = self.contains_object_type('Player')
 		if struct[0]:
