@@ -6,6 +6,7 @@ from typing import Dict, List
 import game_classes
 import random
 import os
+import util
 
 
 # Loading settings from json files
@@ -133,6 +134,13 @@ async def send_number_of_connected_players(send_to_all: bool, target_player_aid=
 			})
 
 
+async def send_meta_data(client: PlayerConnection):
+	await client.send_dict({
+		'request': 'git_version',
+		'git_version': util.get_git_revision_short_hash()
+	})
+
+
 async def player(websocket, path):
 	global players
 	global connected_players
@@ -214,10 +222,11 @@ async def player(websocket, path):
 							username = erebus_response.get('username', 'None')
 							authenticated = True
 							connected_players[aid] = PlayerConnection(websocket)
-							await send_number_of_connected_players(True)
 							await websocket.send(dumps({
 								'authenticated': authenticated
 							}))
+							await send_meta_data(connected_players[aid])
+							await send_number_of_connected_players(True)
 						else:
 							await websocket.send(dumps({
 								'authenticated': authenticated
