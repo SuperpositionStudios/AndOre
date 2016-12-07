@@ -417,6 +417,7 @@ class Player(gameObject.GameObject):
 		else:
 			raise exceptions.CellCannotBeEnteredException()'''
 
+
 	def construct_pharmacy(self, _cell: 'Cell') -> None:
 		if _cell.can_enter(player_obj=self):
 			ore_cost = gameObject.Pharmacy.construction_cost
