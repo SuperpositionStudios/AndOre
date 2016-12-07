@@ -6,6 +6,7 @@ from typing import Dict, List
 import game_classes
 import random
 import os
+import util
 
 
 # Loading settings from json files
@@ -40,7 +41,10 @@ class PlayerConnection:
 		self.websocket = websocket
 
 	async def send_dict(self, obj):
-		await self.websocket.send(dumps(obj))
+		try:
+			await self.websocket.send(dumps(obj))
+		except Exception as e:
+			repr(e)
 
 	async def send_str(self, obj):
 		await self.websocket.send(obj)
@@ -114,6 +118,28 @@ async def transfer_player(aid: str, new_node_name: str) -> bool:
 			return True
 	return False
 
+async def send_number_of_connected_players(send_to_all: bool, target_player_aid=''):
+	if send_to_all:
+		for connected_player_aid, connected_player in connected_players.items():
+
+			await connected_player.send_dict({
+				'request': 'numConnectedPlayers',
+				'numConnectedPlayers': len(connected_players)
+			})
+	else:
+		if target_player_aid in connected_players:
+			await connected_players[target_player_aid].send_dict({
+				'request': 'numConnectedPlayers',
+				'numConnectedPlayers': len(connected_players)
+			})
+
+
+async def send_meta_data(client: PlayerConnection):
+	await client.send_dict({
+		'request': 'git_version',
+		'git_version': util.get_git_revision_short_hash()
+	})
+
 
 async def player(websocket, path):
 	global players
@@ -182,6 +208,7 @@ async def player(websocket, path):
 						}))
 				elif request.get('request', None) == 'numConnectedPlayers':
 					await websocket.send(dumps({
+						'request': 'numConnectedPlayers',
 						'authenticated': authenticated,
 						'numConnectedPlayers': len(connected_players)
 					}))
@@ -195,10 +222,11 @@ async def player(websocket, path):
 							username = erebus_response.get('username', 'None')
 							authenticated = True
 							connected_players[aid] = PlayerConnection(websocket)
-
 							await websocket.send(dumps({
 								'authenticated': authenticated
 							}))
+							await send_meta_data(connected_players[aid])
+							await send_number_of_connected_players(True)
 						else:
 							await websocket.send(dumps({
 								'authenticated': authenticated
@@ -210,6 +238,7 @@ async def player(websocket, path):
 
 	finally:
 		connected_players.pop(aid, None)
+		await send_number_of_connected_players(True)
 
 
 async def node_client(websocket, path):

@@ -1,4 +1,5 @@
 from child_game import world as world_py
+from child_game import helper_functions
 import asyncio
 import json
 import requests
@@ -112,6 +113,12 @@ class Node:
 			asyncio.get_event_loop().create_task(self.send_state_to_all())
 		asyncio.get_event_loop().call_later(self.world.seconds_per_tick, self.tick_server_if_needed)
 
+	async def send_meta_data(self, client: ConnectedClient):
+		await client.send_dict({
+			'request': 'git_version',
+			'git_version': helper_functions.get_git_revision_short_hash()
+		})
+
 	async def game_client(self, websocket, path):
 		# Register.
 		try:
@@ -142,14 +149,18 @@ class Node:
 						aid = request.get('aid', '')
 						erebus_response = self.get_username(aid)
 						if erebus_response.get('valid_aid', False):
+
 							username = erebus_response.get('username', '')
 							authenticated = True
 							self.connected_clients[aid] = ConnectedClient(websocket)
+
 							await websocket.send(dumps({
 								'request': 'auth',
 								'authenticated': authenticated,
 								'nodeName': self.name
 							}))
+
+							await self.send_meta_data(self.connected_clients[aid])
 						else:
 							await websocket.send(dumps({
 								'authenticated': authenticated,
