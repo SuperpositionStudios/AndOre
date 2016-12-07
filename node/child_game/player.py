@@ -406,7 +406,7 @@ class Player(gameObject.GameObject):
 		else:
 			raise exceptions.CellCannotBeEnteredException()
 
-	def construct_spike_trap(self, _cell: 'Cell') -> None:
+	'''def construct_spike_trap(self, _cell: 'Cell') -> None:
 		if _cell.can_enter(player_obj=self):
 			ore_cost = gameObject.SpikeTrap.construction_cost
 			if self.corp.amount_of_ore() >= ore_cost:
@@ -415,7 +415,7 @@ class Player(gameObject.GameObject):
 			else:
 				raise exceptions.CorporationHasInsufficientFundsException(self.corp.corp_id)
 		else:
-			raise exceptions.CellCannotBeEnteredException()
+			raise exceptions.CellCannotBeEnteredException()'''
 
 	def construct_pharmacy(self, _cell: 'Cell') -> None:
 		if _cell.can_enter(player_obj=self):
