@@ -283,7 +283,7 @@ App.prototype = {
 		var self = this;
 		var authenticated = false;
 		self.sleipnirWS = new WebSocket(sleipnirURL);
-		console.log(self.authId);
+		console.log("aid: ", self.authId);
 		self.sleipnirWS.onopen = function () {
 			self.AlertConnectSlepnir();
 			self.sleipnirWS.send(JSON.stringify({
@@ -302,21 +302,18 @@ App.prototype = {
 			message = JSON.parse(message.data);
 			console.log("Sleipnir: ", message);
 
-			if (authenticated) {
-				if (message.request == 'update_node') {
-					currentnodeURL = message.node_address;
-					self.EstablishCurrentNodeWS(callback);
-				} else if (message.request = 'numConnectedPlayers') {
-					$('#number-of-players-online').text(message.numConnectedPlayers);
-				}
-			} else {
-				if (message.authenticated == true) {
-					authenticated = true;
-					self.FindCurrentNode(null);  // Join Game
-				} else if (message.request = 'numConnectedPlayers') {
-					$('#number-of-players-online').text(message.numConnectedPlayers);
-				}
+			if (!authenticated && message.authenticated) {
+				authenticated = true;
+				self.FindCurrentNode(null);  // Join Game
+			} else if (message.request == 'git_version') {
+				$('#sleipnir-git-version').text(message.git_version);
+			} else if (message.request == 'update_node') {
+				currentnodeURL = message.node_address;
+				self.EstablishCurrentNodeWS(callback);
+			} else if (message.request = 'numConnectedPlayers') {
+				$('#number-of-players-online').text(message.numConnectedPlayers);
 			}
+
 		}
 	},
 	FindCurrentNode: function (callback) {
@@ -337,7 +334,7 @@ App.prototype = {
 		self.currentNodeWS = new WebSocket(currentnodeURL);
 		self.currentNodeWS.onmessage = function (message) {
 			message = JSON.parse(message.data);
-			//console.log(message);
+			console.log("Region Node: ", message);
 
 			if ('time' in message) {
 				var sentTime = new Date(message.time);
@@ -353,6 +350,8 @@ App.prototype = {
 			} else if (message.request == 'send_state_client_render') {
 				self.corpId = message.corp_id;
 				self.view.ClientSideDraw(message);
+			} else if (message.request == 'git_version') {
+				$('#region-git-version').text(message.git_version);
 			}
 		};
 

@@ -144,9 +144,9 @@ Bengal.prototype = {
 	},
 	Init: function (aid) {
 		var self = this;
-		console.log("Starting Bengal");
+		console.log("Bengal: ", "Initializing...");
 		self.aid = aid;
-		console.log(aid);
+		console.log("Bengal: ", "aid: ", aid);
 	},
 	getStandingTowardsCorp: function (corp, towards_corp) {
 		var self = this;
