@@ -10,7 +10,8 @@ var useSecureWS = false;  // Set to true if using wss
 /* End Settings */
 
 /* URL Settings */
-var productionDomain = "iwanttorule.space";
+
+var productionDomain = "andore.online";
 var productionSleipnirSubdomain = "player.ws.sleipnir.";
 var productionAbsolutionSubdomain = "absolution.";
 var productionErebusSubdomain = "erebus.";
