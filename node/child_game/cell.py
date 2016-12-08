@@ -1,6 +1,6 @@
 import uuid
 from child_game import gameObject, world, corporation
-from typing import Tuple
+from typing import Tuple, List
 from child_game.exceptions import CellCoordinatesOutOfBoundsError
 from child_game import exceptions
 
@@ -20,7 +20,7 @@ class Cell:
 		except CellCoordinatesOutOfBoundsError:
 			raise CellCoordinatesOutOfBoundsError(self.row + row_offset, self.col + col_offset)
 
-	def next_to_ore_deposit(self):
+	def is_next_to_ore_deposit(self) -> bool:
 		directions = [[-1, 0], [-1, 1], [0, 1], [1, 1], [1, 0], [1, -1], [0, -1], [-1, -1]]
 		for tup in directions:
 			try:
@@ -34,6 +34,38 @@ class Cell:
 						return True
 			except CellCoordinatesOutOfBoundsError:
 				pass
+		return False
+
+	def is_adjacent_to_sentry_turret(self, check_horizontally=True, check_vertically=True, check_diagonally=False,
+									 check_self=False):
+
+		directions_checked = []  # type: List[Tuple[int, int]]
+		if check_self:
+			directions_checked.append((0, 0))
+		if check_horizontally:
+			directions_checked.append((0, -1))
+			directions_checked.append((0, 1))
+		if check_vertically:
+			directions_checked.append((-1, 0))
+			directions_checked.append((1, 0))
+		if check_diagonally:
+			directions_checked.append((-1, -1))
+			directions_checked.append((-1, 1))
+			directions_checked.append((1, 1))
+			directions_checked.append((1, -1))
+
+		for offset_tuple in directions_checked:
+			try:
+				_cell = self.get_cell_by_offset(offset_tuple[0], offset_tuple[1])
+				try:
+					turret_id = _cell.get_object_id_of_first_game_object_found('SentryTurret')
+					return True
+				except exceptions.NoGameObjectOfThatClassFoundException:
+					pass
+
+			except CellCoordinatesOutOfBoundsError:
+				pass
+
 		return False
 
 	def damage_first_player(self, attacking_corp: 'corporation.Corporation', damage):
