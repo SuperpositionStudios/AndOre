@@ -18,4 +18,4 @@ Contributors
 - Alexander Pape
 - Ryan Courbron
 
-##### Page last edited on 12/8/2016 (Version 1.5, THe Benovelant Bearded Dragon)
+##### Page last edited on 12/8/2016 (Version 1.5, The Benovolent Bearded Dragon)
