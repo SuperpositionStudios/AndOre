@@ -4,11 +4,16 @@ Fence
 * Build with: `b, 1, *`
 * Build Cost: `30 Ore`
 * Ore Dropped on Destruction: `10 Ore`
-#### Services Offered
-Fences block any player from moving through or onto its location.
-#### Origin
-The Hospital is one of the original structures from v1.0.
+* Health: '30'
+
+#### Uses
+
+Fences are a low cost building that can be used to create a low health wall. Players will often use fences to mark the edge of their territory. 
+
+
 Contributors
 ============
 - Graphyte
-##### Page last edited on 10/07/16
+- Ryan Courbron
+
+##### Page last edited on 12/8/16 (Version 1.5, The Benovolent Bearded Dragon)
