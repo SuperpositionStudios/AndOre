@@ -7,7 +7,7 @@ Hospital
 * Ore Dropped on Destruction: `66 Ore`
 * Health: `200`
 
-#### Services Offered
+#### Uses
 
 The hospital is a building which allows anyone who uses to heal 5 health, up to the player's max health.
 
