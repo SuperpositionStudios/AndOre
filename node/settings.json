@@ -1,6 +1,6 @@
 {
   "inProduction": true,
-  "productionErebusAddress": "http://erebus.iwanttorule.space",
+  "productionErebusAddress": "http://erebus.andore.online",
   "developmentErebusAddress": "http://localhost:7004",
   "productionSleipnirAddress": "ws://10.136.36.14",
   "developmentSleipnirAddress": "ws://localhost:7100"
