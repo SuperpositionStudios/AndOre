@@ -87,6 +87,7 @@ App.prototype = {
 	synergyWS: null,
 	sleipnirWS: null,
 	currentNodeWS: null,
+	shiftKeyActive: false,
 	startAiKey: '~',
 	AiStarted: false,
 	oldBrain: '',
@@ -421,6 +422,7 @@ App.prototype = {
 		self.currentNodeWS.send(JSON.stringify({
 			'request': 'action',
 			'action': command,
+			'shift_key_down': self.shiftKeyActive,
 			'sendState': true
 		}));
 	}

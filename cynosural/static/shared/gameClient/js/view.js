@@ -204,24 +204,20 @@ View.prototype = {
 	SetupInput: function () {
 		// For handling shift modifier
 		var shiftCode = 16;
-		$(document).on("keyup keydown", function (e) {
-			switch (e.type) {
-				case "keydown" :
-					if (e.keyCode == shiftCode) {
-						app.SendCommand("shiftDown");
-					}
-					break;
-				case "keyup" :
-					if (e.keyCode == shiftCode) {
-						app.SendCommand("shiftUp");
-					}
-					break;
+
+		$('#worldview').on("keydown", function (e) {
+			if (e.keyCode == shiftCode) {
+				app.shiftKeyActive = true;
 			}
 		});
-		// For handling dir & mod keys
+
 		$("#worldview").on("keyup", function (e) {
-			command = String.fromCharCode(e.which).toLowerCase();
-			app.SendCommand(command);
+			if (e.keyCode == shiftCode) {
+				app.shiftKeyActive = false;
+			} else {
+				command = String.fromCharCode(e.which).toLowerCase();
+				app.SendCommand(command);
+			}
 		});
 
 	},

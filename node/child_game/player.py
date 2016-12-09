@@ -70,7 +70,7 @@ class Player(gameObject.GameObject):
 		self.corp.remove_member(self)
 		self.delete()
 
-	def action(self, key_pressed):
+	def action(self, key_pressed: str, shift_status: bool):
 		direction_keys = ['w', 'a', 's', 'd']
 		primary_modifier_keys = {
 			'k': "for attacking/killing",
@@ -98,11 +98,9 @@ class Player(gameObject.GameObject):
 
 		self.dir_key = ''
 
-		if key_pressed == 'shiftDown':
-			self.shiftKeyActive = True
-		elif key_pressed == 'shiftUp':
-			self.shiftKeyActive = False
-		elif key_pressed in direction_keys:
+		self.shiftKeyActive = shift_status
+
+		if key_pressed in direction_keys:
 			self.dir_key = key_pressed
 			return self.tick_if_allowed()
 		elif key_pressed in primary_modifier_keys:

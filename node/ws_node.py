@@ -138,8 +138,9 @@ class Node:
 						}))
 					elif request.get('request', None) == 'action':
 						action = request.get('action', '')
+						shift_key_down = request.get('shift_key_down', False)
 						try:
-							self.world.players[aid].action(action)
+							self.world.players[aid].action(action, shift_key_down)
 						except Exception as e:
 							repr(e)
 
