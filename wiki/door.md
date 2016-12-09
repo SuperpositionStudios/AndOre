@@ -5,25 +5,17 @@ Door
 * Build with: `b, 5, *`
 * Build Cost: `1000 Ore`
 * Ore Dropped on Destruction: `333 Ore`
+* Health: `250`
 
-#### Services Offered
+#### Uses
 
-You can use the Door once per turn.
+The door is a high health building that will allow the owner and their friends to pass through, but not their enemies.
 
-The owner or corp member can travels through the door.
-
-#### Owner Information
-
-The Door only allows the owner or corp members to pass through.  
-
-The standing (Ally, Neutral, or Enemy) of the owner determines whether a player can pass through the door.
-
-#### Origin
-
-The Door is one of the original structures from v1.0.
+More specifically, the member's of the owner's corp can pass through as well as the Allies of the owner, but not neutral or enemy players.
 
 Contributors
 ============
 - Alexander Pape
+- Ryan Courbron
 
-##### Page last edited on 10/14/16
+##### Page last edited on 12/8/2016 (Version 1.5, THe Benovelant Bearded Dragon)
