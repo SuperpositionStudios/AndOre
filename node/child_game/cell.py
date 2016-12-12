@@ -36,8 +36,8 @@ class Cell:
 				pass
 		return False
 
-	def is_adjacent_to_sentry_turret(self, check_horizontally=True, check_vertically=True, check_diagonally=False,
-									 check_self=False):
+	def is_adjacent_to_game_object(self, game_object: str, check_horizontally=True, check_vertically=True,
+								   check_diagonally=False, check_self=False):
 
 		directions_checked = []  # type: List[Tuple[int, int]]
 		if check_self:
@@ -58,7 +58,7 @@ class Cell:
 			try:
 				_cell = self.get_cell_by_offset(offset_tuple[0], offset_tuple[1])
 				try:
-					turret_id = _cell.get_object_id_of_first_game_object_found('SentryTurret')
+					_cell.get_object_id_of_first_game_object_found(game_object)
 					return True
 				except exceptions.NoGameObjectOfThatClassFoundException:
 					pass

@@ -394,10 +394,11 @@ class Player(gameObject.GameObject):
 		self.health = min(self.health_cap, self.health + amount)
 
 	def construct_sentry_turret(self, _cell: 'Cell') -> None:
-		if _cell.can_enter(player_obj=self) and _cell.is_adjacent_to_sentry_turret(check_diagonally=True,
-																				   check_horizontally=True,
-																				   check_vertically=True,
-																				   check_self=True) is False:
+		if _cell.can_enter(player_obj=self) and _cell.is_adjacent_to_game_object('SentryTurret',
+																				 check_diagonally=True,
+																				 check_horizontally=True,
+																				 check_vertically=True,
+																				 check_self=True) is False:
 			ore_cost = gameObject.SentryTurret.construction_cost
 			if self.corp.amount_of_ore() >= ore_cost:
 				_cell.add_corp_owned_building(self.corp, 'SentryTurret')
