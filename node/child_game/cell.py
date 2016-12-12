@@ -20,24 +20,8 @@ class Cell:
 		except CellCoordinatesOutOfBoundsError:
 			raise CellCoordinatesOutOfBoundsError(self.row + row_offset, self.col + col_offset)
 
-	def is_next_to_ore_deposit(self) -> bool:
-		directions = [[-1, 0], [-1, 1], [0, 1], [1, 1], [1, 0], [1, -1], [0, -1], [-1, -1]]
-		for tup in directions:
-			try:
-				_cell = self.get_cell_by_offset(tup[0], tup[1])
-				struct = _cell.contains_object_type('OreDeposit')
-				if struct[0]:
-					od = _cell.get_game_object_by_obj_id(struct[1])
-					if od[0]:
-						od_obj = od[1]
-						assert (od_obj.__class__.__name__ == 'OreDeposit')
-						return True
-			except CellCoordinatesOutOfBoundsError:
-				pass
-		return False
-
-	def is_adjacent_to_sentry_turret(self, check_horizontally=True, check_vertically=True, check_diagonally=False,
-									 check_self=False):
+	def is_adjacent_to_game_object(self, game_object: str, check_horizontally=True, check_vertically=True,
+								   check_diagonally=False, check_self=False):
 
 		directions_checked = []  # type: List[Tuple[int, int]]
 		if check_self:
@@ -58,7 +42,7 @@ class Cell:
 			try:
 				_cell = self.get_cell_by_offset(offset_tuple[0], offset_tuple[1])
 				try:
-					turret_id = _cell.get_object_id_of_first_game_object_found('SentryTurret')
+					_cell.get_object_id_of_first_game_object_found(game_object)
 					return True
 				except exceptions.NoGameObjectOfThatClassFoundException:
 					pass
@@ -68,17 +52,73 @@ class Cell:
 
 		return False
 
+	def get_list_of_adjacent_cells(self, check_vertically=False, check_horizontally=False,
+								   check_diagonally=False, check_self=False) -> List['Cell']:
+
+		directions_checked = []  # type: List[Tuple[int, int]]
+		if check_self:
+			directions_checked.append((0, 0))
+		if check_horizontally:
+			directions_checked.append((0, -1))
+			directions_checked.append((0, 1))
+		if check_vertically:
+			directions_checked.append((-1, 0))
+			directions_checked.append((1, 0))
+		if check_diagonally:
+			directions_checked.append((-1, -1))
+			directions_checked.append((-1, 1))
+			directions_checked.append((1, 1))
+			directions_checked.append((1, -1))
+
+		cells = []  # type: List[Cell]
+
+		for offset_tuple in directions_checked:
+			try:
+				_cell = self.get_cell_by_offset(offset_tuple[0], offset_tuple[1])
+				cells.append(_cell)
+
+			except CellCoordinatesOutOfBoundsError:
+				pass
+
+		return cells
+
 	def damage_first_player(self, attacking_corp: 'corporation.Corporation', damage):
-		struct = self.contains_object_type('Player')
-		if struct[0]:
-			player = self.get_game_object_by_obj_id(struct[1])
-			if player[0]:
-				player_obj = player[1]
-				standing = attacking_corp.fetch_standing(player_obj.corp.corp_id)
-				if standing == 'N' or standing == 'E':
-					player_obj.take_damage(damage)
-					return True
-		return False
+		try:
+			target_id = self.get_object_id_of_first_game_object_found('Player')  # type: str
+			target_obj = self.new_get_game_object_by_obj_id(target_id)  # type: 'player.Player'
+			standing_towards_target = attacking_corp.fetch_standing(target_obj.corp.corp_id)
+			if standing_towards_target in ['N', 'E']:
+				target_obj.take_damage(damage)
+		except (exceptions.NoGameObjectOfThatClassFoundException, exceptions.NoGameObjectByThatObjectIDFoundException):
+			raise exceptions.NoPlayerFoundException()
+
+	def damage_players_with_standing(self, attacking_corp: 'corporation.Corporation', damage: float,
+									 standings: List[str], max_attacked_players=1) -> None:
+
+		player_ids_in_cell = self.get_object_id_of_game_objects_in_cell('Player')
+
+		if len(player_ids_in_cell) == 0:
+			raise exceptions.NoPlayersToAttackException()
+
+		players_in_cell = []  # type: List['Player']
+		attackable_players_in_cell = []  # type: List['Player']
+
+		for player_id in player_ids_in_cell:
+			try:
+				players_in_cell.append(self.new_get_game_object_by_obj_id(player_id))
+			except exceptions.NoGameObjectByThatObjectIDFoundException:
+				pass
+
+		for player in players_in_cell:
+			if attacking_corp.fetch_standing(player.corp.corp_id) in standings:
+				attackable_players_in_cell.append(player)
+
+		if len(attackable_players_in_cell) == 0:
+			raise exceptions.NoPlayersToAttackException()
+
+		for i in range(max_attacked_players):
+			if len(attackable_players_in_cell) >= i + 1:
+				attackable_players_in_cell[i].take_damage(damage)
 
 	def deconstruct_first_possible_building_owned_by_corp(self, corp_id):
 		for building in self.contents:
@@ -94,11 +134,6 @@ class Cell:
 
 	def add_game_object(self, x):
 		self.contents.append(x)
-
-	def add_fence(self):
-		a = gameObject.Fence(self)
-		self.add_game_object(a)
-		return a.ore_cost_to_deploy
 
 	def add_ore_deposit(self):
 		a = gameObject.OreDeposit(self)
@@ -162,6 +197,15 @@ class Cell:
 			if obj.__class__.__name__ == obj_type_name:
 				return obj.obj_id
 		raise exceptions.NoGameObjectOfThatClassFoundException(obj_type_name)
+
+	def get_object_id_of_game_objects_in_cell(self, game_object_class: str) -> List[str]:
+		object_ids = []
+
+		for obj in self.contents:
+			if obj.__class__.__name__ == game_object_class:
+				object_ids.append(obj.obj_id)
+
+		return object_ids
 
 	def get_game_object_by_obj_id(self, obj_id: str):
 		for obj in self.contents:

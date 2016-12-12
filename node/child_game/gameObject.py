@@ -1,7 +1,8 @@
 import uuid
 from child_game import cell, corporation
 import child_game
-from child_game.exceptions import CellCoordinatesOutOfBoundsError
+from child_game import exceptions
+from typing import List
 
 
 class GameObject:
@@ -370,9 +371,7 @@ class Door(CorpOwnedBuilding):
 class SentryTurret(CorpOwnedBuilding):
 	construction_cost = 500
 
-	def __init__(self, _cell, _corp):
-		assert (_cell.__class__.__name__ == 'Cell')
-		assert (_corp.__class__.__name__ == 'Corporation')
+	def __init__(self, _cell: 'cell.Cell', _corp: 'corporation.Corporation'):
 
 		super().__init__(_cell, _corp)
 
@@ -386,20 +385,22 @@ class SentryTurret(CorpOwnedBuilding):
 		}
 
 		self.attack_power = 5
+		self.cell = _cell
 
-		self.nearby_cells = []
-		for tup in [[-1, 0], [-1, 1], [0, 1], [1, 1], [1, 0], [1, -1], [0, -1], [-1, -1]]:
-			try:
-				_cell = self.cell.get_cell_by_offset(tup[0], tup[1])
-				self.nearby_cells.append(_cell)
-			except CellCoordinatesOutOfBoundsError:
-				pass
+		self.nearby_cells = self.cell.get_list_of_adjacent_cells(check_diagonally=True, check_horizontally=True,
+																 check_vertically=True)
 
-	def tick(self):
+		print(len(self.nearby_cells))
+
+	def tick(self) -> None:
 		# Attacks 1 non-friendly player in a nearby cell
-		for cell in self.nearby_cells:
-			if cell.damage_first_player(self.owner_corp, self.attack_power):
-				return True
+		for _cell in self.nearby_cells:
+			try:
+				_cell.damage_players_with_standing(self.owner_corp, self.attack_power, ['N', 'E'],
+												   max_attacked_players=1)
+				return None
+			except exceptions.NoPlayersToAttackException:
+				pass
 
 
 class SpikeTrap(CorpOwnedBuilding):
@@ -424,7 +425,10 @@ class SpikeTrap(CorpOwnedBuilding):
 
 	def tick(self):
 		# Attacks 1 non-friendly player in the cell the Spiketrap is residing in
-		self.cell.damage_first_player(self.owner_corp, self.attack_power)
+		try:
+			self.cell.damage_first_player(self.owner_corp, self.attack_power)
+		except exceptions.NoPlayerFoundException:
+			pass
 
 
 class Hospital(CorpOwnedBuilding):

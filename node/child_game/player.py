@@ -194,10 +194,12 @@ class Player(gameObject.GameObject):
 					return True
 				elif self.try_buying_from_pharmacy(affected_cell):
 					return True
-				elif self.try_activating_star_gate(affected_cell):
-					return True
 				else:
-					return False
+					try:
+						self.activate_star_gate(affected_cell)
+						return True
+					except exceptions.NoStarGatePresentException:
+						return False
 			elif self.primary_modifier_key == 'i':  # Player/Corp is trying to merge corps with another player
 				if self.try_merge_corp(affected_cell):
 					return True
@@ -290,15 +292,17 @@ class Player(gameObject.GameObject):
 		except exceptions.CellCoordinatesOutOfBoundsError:
 			return False
 
-	def try_activating_star_gate(self, _cell):
+	def activate_star_gate(self, _cell):
 		if _cell is not None:
-			struct = _cell.contains_object_type('StarGate')
-			if struct[0]:
-				obj = _cell.get_game_object_by_obj_id(struct[1])
-				if obj[0]:
-					obj[1].use(self)
-					return True
-		return False
+			try:
+				stargate_id = _cell.get_object_id_of_first_game_object_found('StarGate')  # type: str
+				stargate_obj = _cell.new_get_game_object_by_obj_id(stargate_id)  # type: gameObject.StarGate
+				stargate_obj.use(self)
+			except (exceptions.NoGameObjectOfThatClassFoundException,
+					exceptions.NoGameObjectByThatObjectIDFoundException):
+				raise exceptions.NoStarGatePresentException()
+		else:
+			raise exceptions.CellIsNoneException()
 
 	def deconstruct(self, _cell: 'cell.Cell') -> None:
 		if _cell is not None:
@@ -394,10 +398,11 @@ class Player(gameObject.GameObject):
 		self.health = min(self.health_cap, self.health + amount)
 
 	def construct_sentry_turret(self, _cell: 'Cell') -> None:
-		if _cell.can_enter(player_obj=self) and _cell.is_adjacent_to_sentry_turret(check_diagonally=True,
-																				   check_horizontally=True,
-																				   check_vertically=True,
-																				   check_self=True) is False:
+		if _cell.can_enter(player_obj=self) and _cell.is_adjacent_to_game_object('SentryTurret',
+																				 check_diagonally=True,
+																				 check_horizontally=True,
+																				 check_vertically=True,
+																				 check_self=True) is False:
 			ore_cost = gameObject.SentryTurret.construction_cost
 			if self.corp.amount_of_ore() >= ore_cost:
 				_cell.add_corp_owned_building(self.corp, 'SentryTurret')
@@ -454,7 +459,8 @@ class Player(gameObject.GameObject):
 
 	def construct_ore_generator(self, _cell: 'Cell') -> None:
 		if _cell.can_enter(player_obj=self):
-			if _cell.is_next_to_ore_deposit():
+			if _cell.is_adjacent_to_game_object('OreDeposit', check_diagonally=True, check_horizontally=True,
+												check_vertically=True):
 				ore_cost = gameObject.OreGenerator.construction_cost
 				if self.corp.amount_of_ore() >= ore_cost:
 					_cell.add_corp_owned_building(self.corp, 'OreGenerator')
