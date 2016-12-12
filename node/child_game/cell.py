@@ -95,11 +95,6 @@ class Cell:
 	def add_game_object(self, x):
 		self.contents.append(x)
 
-	def add_fence(self):
-		a = gameObject.Fence(self)
-		self.add_game_object(a)
-		return a.ore_cost_to_deploy
-
 	def add_ore_deposit(self):
 		a = gameObject.OreDeposit(self)
 		self.contents.append(a)
