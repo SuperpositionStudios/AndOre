@@ -1,3 +1,21 @@
+html, body {
+    height: 100%;
+    margin: 0; padding: 0;  /* to avoid scrollbars */
+}
+
+#wrapper {
+    display: flex;  /* use the flex model */
+    min-height: 100%;
+    min-width: 100%;
+    flex-direction: column;  /* learn more: http://philipwalton.github.io/solved-by-flexbox/demos/sticky-footer/ */
+}
+
+#game-view {
+    flex: 1;
+    margin: 0px;
+    height: 100;
+}
+
 #worldview {
     /*#display: block;*/
     font-family: 'Ubuntu Mono', monospace;
@@ -5,21 +23,36 @@
     /*margin: 1em 0;*/
 }
 
+.modal-footer {
+    font-size: 9px;
+}
+
 .walls {
     border-width: 2px;
     border-style: inset;
 }
 
+
 .cell {
     display: inline-block;
     width: 1.8%;
-    height: 3.22%;
+    /*height: 3.22%;*/
+    height: 5%;
     text-align: center;
     vertical-align: middle;
     margin-top: 0em;
     margin-bottom: 0em;
     margin-left: 0em;
     margin-right: 0em;
+}
+
+#bottom-stats {
+    margin: 0px;
+}
+
+#right-column {
+    overflow: auto;
+    height: 100%;
 }
 
 #chatBox {
