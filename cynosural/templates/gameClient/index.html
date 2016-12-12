@@ -31,148 +31,157 @@
 		<script src="{{ url_for('static', filename='shared/external/js/materialize.min.js') }}"></script>
 
         <script src="{{ url_for('static', filename='shared/external/js/googleAnalytics.js') }}"></script>
-		<!--<script src="{{ url_for('static', filename='shared/gameClient/js/testData.js') }}"></script>-->
+		<!--<script src="{{ url_for('static', filename='shared/internal/gameClient/js/testData.js') }}"></script>-->
 		<script src="{{ url_for('static', filename='shared/external/js/rl.js') }}"></script>
-		<script src="{{ url_for('static', filename='shared/gameClient/js/ai.js') }}"></script>
-        <script src="{{ url_for('static', filename='shared/gameClient/js/Bengal.js') }}"></script>
-		<script src="{{ url_for('static', filename='shared/gameClient/js/view.js') }}"></script>
-		<script src="{{ url_for('static', filename='shared/gameClient/js/app.js') }}"></script>
-		<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='shared/gameClient/css/style.css') }}">
+		<script src="{{ url_for('static', filename='shared/internal/gameClient/js/ai.js') }}"></script>
+        <script src="{{ url_for('static', filename='shared/internal/gameClient/js/Bengal.js') }}"></script>
+		<script src="{{ url_for('static', filename='shared/internal/gameClient/js/view.js') }}"></script>
+		<script src="{{ url_for('static', filename='shared/internal/gameClient/js/app.js') }}"></script>
+		<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='shared/internal/gameClient/css/style.css') }}">
 
         <script async defer src="https://buttons.github.io/buttons.js"></script>
 
 	</head>
 	<body>
-        <!-- Modal Structure -->
-        <div id="modal1" class="modal">
-            <div class="modal-content">
-                <div class="row">
-                    <h4>Welcome to And/Ore</h4>
-                    <hr>
-                    <div class="col s12">
-                        <div class="row">
-                            <div class="col s6">
-                                <div class="input-field col s12">
-                                    <input placeholder="JCharante" id="username" type="text" class="validate">
-                                    <label for="username">Username</label>
-                                </div>
-                            </div>
-                            <div class="col s6">
-                                <a class="waves-effect waves-light btn col s4" id="login">Login</a>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col s6">
-                                <div class="input-field col s12">
-                                    <input placeholder="hunter2" id="password" type="password" class="validate">
-                                    <label for="password">Password</label>
-                                </div>
-                            </div>
-                            <div class="col s6">
-                                <a class="waves-effect waves-light btn col s4" id="signup">Signup</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <p style="font-size: 9px" class="center">
+		<div id="wrapper">
+			<!-- Modals -->
+			<div>
+				<!-- Modal Structure -->
+				<div id="modal1" class="modal">
+					<div class="modal-content">
+						<div class="row">
+							<h4>Welcome to And/Ore</h4>
+							<hr>
+							<div class="col s12">
+								<div class="row">
+									<div class="col s6">
+										<div class="input-field col s12">
+											<input placeholder="JCharante" id="username" type="text" class="validate">
+											<label for="username">Username</label>
+										</div>
+									</div>
+									<div class="col s6">
+										<a class="waves-effect waves-light btn col s4" id="login">Login</a>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col s6">
+										<div class="input-field col s12">
+											<input placeholder="hunter2" id="password" type="password" class="validate">
+											<label for="password">Password</label>
+										</div>
+									</div>
+									<div class="col s6">
+										<a class="waves-effect waves-light btn col s4" id="signup">Signup</a>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<p class="center">
 
-                </p>
-            </div>
-        </div>
-        <!-- Modal Structure -->
-        <div id="modal2" class="modal">
-            <div class="modal-content">
-                <div class="row">
-                    <h4>Welcome to And/Ore</h4>
-                    <hr>
-                    <div class="col s6">
-                        <a class="waves-effect waves-light btn" id="rejoin_game">ReJoin Game</a>
-                    </div>
-                    <div class="col s6">
-                        <a class="waves-effect waves-light btn" id="start_anew">Start Anew</a>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <p style="font-size: 9px" class="center">
-
-                </p>
-            </div>
-        </div>
-        <div class="row">
-            <div id="worldview" class="col s10 walls" tabindex="1">
-
-            </div>
-            <div class="col s2">
-                <div class="walls">
-                    <p><b>System: <span id="currentNodeName">Connecting...</span></b></p>
-                </div>
-				<div class="walls">
-                    <div class="tooltipped" data-position="bottom" data-delay="50" data-tooltip="Region Connection Status" id="box_node"></div>
-                    <div class="tooltipped" data-position="bottom" data-delay="50" data-tooltip="Sleipnir Connection Status" id="box_sleipnir"></div>
-                </div>
-                <div class="walls">
-                    <p><b>RTL: <span id="rtl">-0</span>ms</b></p>
-
-					<hr>
-
-					<p><span id="number-of-players-online">?</span> Players Online!</p>
-
-                    <hr>
-
-                    <p>You are in <b><span id="infoModeMeaning">move</span></b> mode</p>
-
-                    <hr>
-
-                    <p>Found a bug? Have an idea for a feature? Please create an issue</p>
-                    <a class="github-button" href="https://github.com/baxter-oop/AndOre/issues" data-icon="octicon-issue-opened" data-style="mega" data-count-api="/repos/baxter-oop/AndOre#open_issues_count" data-count-aria-label="# issues on GitHub" aria-label="Issue baxter-oop/AndOre on GitHub">Issue</a>
-
-					<hr>
-
-					<a class="github-button" href="https://github.com/baxter-oop/AndOre/fork" data-icon="octicon-repo-forked" data-style="mega" data-count-href="/baxter-oop/AndOre/network" data-count-api="/repos/baxter-oop/AndOre#forks_count" data-count-aria-label="# forks on GitHub" aria-label="Fork baxter-oop/AndOre on GitHub">Help Develop: Fork</a>
-
-					<hr>
-
-					<p>Region Version: <span id="region-git-version">??????</span></p>
-					<p>Sleipnir Version: <span id="sleipnir-git-version">??????</span></p>
+						</p>
+					</div>
 				</div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col s4 walls">
-                <b>Inventory</b>
-                <hr>
-                <p id="inventory"></p>
-            </div>
-            <div id="playerStatsDiv" class="col s4 walls">
-                <b>Player Stats</b>
-                <hr>
-                <div class="row">
-                    <div class="col s6">
-                        <p>Health: <span id="statHealth">0</span>/<span id="statHealthCap">100</span></p>
-                        <p>Attack Power: <span id="statAttackPower">10</span></p>
-                        <p>Row: <span id="statRow">0</span> Column: <span id="statCol">0</span></p>
-                        <p>Modifier Key: <span id="statModifierKey">m</span></p>
-                    </div>
-                    <div class="col s6">
-                        <p>Corp Wallet: <span id="statOre">0</span> Ore</p>
-                        <p>Mining Multiplier: <span id="statOreMultiplier">1</span>x</p>
-                        <p>Server Tick #: <span id="statWorldAge"></span></p>
-                        <p>Secondary Modifier Key: <span id="statSecondaryModifierKey">1</span></p>
-                    </div>
-                </div>
-            </div>
-            <div id="chatBox" class="col s4 walls">
-                <div>
-                    <span id="chatBoxStatus">Connecting...</span>
-                    <input type="text" id="chatBoxInput" disabled="disabled"  tabindex="2"/>
-                </div>
-              <div id="chatBoxContent">
+				<!-- Modal Structure -->
+				<div id="modal2" class="modal">
+					<div class="modal-content">
+						<div class="row">
+							<h4>Welcome to And/Ore</h4>
+							<hr>
+							<div class="col s6">
+								<a class="waves-effect waves-light btn" id="rejoin_game">ReJoin Game</a>
+							</div>
+							<div class="col s6">
+								<a class="waves-effect waves-light btn" id="start_anew">Start Anew</a>
+							</div>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<p class="center">
 
-              </div>
-            </div>
-        </div>
+						</p>
+					</div>
+				</div>
+			</div>
+			<!-- Game View -->
+			<div class="row" id="game-view">
+				<!-- World View -->
+				<div id="worldview" class="col s10 walls" tabindex="1">
+
+				</div>
+				<!-- Right Column -->
+				<div id="right-column" class="col s2">
+					<div class="walls">
+						<p><b>System: <span id="currentNodeName">Connecting...</span></b></p>
+					</div>
+					<div class="walls">
+						<div class="tooltipped" data-position="bottom" data-delay="50" data-tooltip="Region Connection Status" id="box_node"></div>
+						<div class="tooltipped" data-position="bottom" data-delay="50" data-tooltip="Sleipnir Connection Status" id="box_sleipnir"></div>
+					</div>
+					<div class="walls">
+						<p><b>RTL: <span id="rtl">-0</span>ms</b></p>
+
+						<hr>
+
+						<p><span id="number-of-players-online">?</span> Players Online!</p>
+
+						<hr>
+
+						<p>You are in <b><span id="infoModeMeaning">move</span></b> mode</p>
+
+						<hr>
+
+						<p>Found a bug? Have an idea for a feature? Please create an issue</p>
+						<a class="github-button" href="https://github.com/baxter-oop/AndOre/issues" data-icon="octicon-issue-opened" data-style="mega" data-count-api="/repos/baxter-oop/AndOre#open_issues_count" data-count-aria-label="# issues on GitHub" aria-label="Issue baxter-oop/AndOre on GitHub">Issue</a>
+
+						<hr>
+
+						<a class="github-button" href="https://github.com/baxter-oop/AndOre/fork" data-icon="octicon-repo-forked" data-style="mega" data-count-href="/baxter-oop/AndOre/network" data-count-api="/repos/baxter-oop/AndOre#forks_count" data-count-aria-label="# forks on GitHub" aria-label="Fork baxter-oop/AndOre on GitHub">Help Develop: Fork</a>
+
+						<hr>
+
+						<p>Region Version: <span id="region-git-version">??????</span></p>
+						<p>Sleipnir Version: <span id="sleipnir-git-version">??????</span></p>
+					</div>
+				</div>
+			</div>
+			<!-- Bottom Stats -->
+			<div id="bottom-stats" class="row">
+				<div class="col s4 walls">
+					<b>Inventory</b>
+					<hr>
+					<p id="inventory"></p>
+				</div>
+				<div id="playerStatsDiv" class="col s4 walls">
+					<b>Player Stats</b>
+					<hr>
+					<div class="row">
+						<div class="col s6">
+							<p>Health: <span id="statHealth">0</span>/<span id="statHealthCap">100</span></p>
+							<p>Attack Power: <span id="statAttackPower">10</span></p>
+							<p>Row: <span id="statRow">0</span> Column: <span id="statCol">0</span></p>
+							<p>Modifier Key: <span id="statModifierKey">m</span></p>
+						</div>
+						<div class="col s6">
+							<p>Corp Wallet: <span id="statOre">0</span> Ore</p>
+							<p>Mining Multiplier: <span id="statOreMultiplier">1</span>x</p>
+							<p>Server Tick #: <span id="statWorldAge"></span></p>
+							<p>Secondary Modifier Key: <span id="statSecondaryModifierKey">1</span></p>
+						</div>
+					</div>
+				</div>
+				<div id="chatBox" class="col s4 walls">
+					<div>
+						<span id="chatBoxStatus">Connecting...</span>
+						<input type="text" id="chatBoxInput" disabled="disabled"  tabindex="2"/>
+					</div>
+				  <div id="chatBoxContent">
+
+				  </div>
+				</div>
+			</div>
+		</div>
 	</body>
 </html>
