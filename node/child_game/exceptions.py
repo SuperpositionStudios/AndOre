@@ -39,3 +39,12 @@ class CellIsNoneException(Exception):
 class NoStarGatePresentException(Exception):
 	def __init__(self):
 		self.message = "No StarGate was found"
+
+
+class NoPlayerFoundException(Exception):
+	def __init__(self):
+		self.message = "No player found"
+
+class NoPlayersToAttackException(Exception):
+	def __init(self):
+		self.message = "No players to attack"
