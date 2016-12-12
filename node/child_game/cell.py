@@ -20,22 +20,6 @@ class Cell:
 		except CellCoordinatesOutOfBoundsError:
 			raise CellCoordinatesOutOfBoundsError(self.row + row_offset, self.col + col_offset)
 
-	def is_next_to_ore_deposit(self) -> bool:
-		directions = [[-1, 0], [-1, 1], [0, 1], [1, 1], [1, 0], [1, -1], [0, -1], [-1, -1]]
-		for tup in directions:
-			try:
-				_cell = self.get_cell_by_offset(tup[0], tup[1])
-				struct = _cell.contains_object_type('OreDeposit')
-				if struct[0]:
-					od = _cell.get_game_object_by_obj_id(struct[1])
-					if od[0]:
-						od_obj = od[1]
-						assert (od_obj.__class__.__name__ == 'OreDeposit')
-						return True
-			except CellCoordinatesOutOfBoundsError:
-				pass
-		return False
-
 	def is_adjacent_to_game_object(self, game_object: str, check_horizontally=True, check_vertically=True,
 								   check_diagonally=False, check_self=False):
 

@@ -455,7 +455,8 @@ class Player(gameObject.GameObject):
 
 	def construct_ore_generator(self, _cell: 'Cell') -> None:
 		if _cell.can_enter(player_obj=self):
-			if _cell.is_next_to_ore_deposit():
+			if _cell.is_adjacent_to_game_object('OreDeposit', check_diagonally=True, check_horizontally=True,
+												check_vertically=True):
 				ore_cost = gameObject.OreGenerator.construction_cost
 				if self.corp.amount_of_ore() >= ore_cost:
 					_cell.add_corp_owned_building(self.corp, 'OreGenerator')
