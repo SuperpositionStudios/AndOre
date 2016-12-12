@@ -30,6 +30,12 @@ class NoGameObjectByThatObjectIDFoundException(Exception):
 	def __init__(self):
 		self.message = "Could not find a game object with the specified object id"
 
+
 class CellIsNoneException(Exception):
 	def __init__(self):
 		self.message = "Cell is None"
+
+
+class NoStarGatePresentException(Exception):
+	def __init__(self):
+		self.message = "No StarGate was found"

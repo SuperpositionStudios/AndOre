@@ -194,10 +194,12 @@ class Player(gameObject.GameObject):
 					return True
 				elif self.try_buying_from_pharmacy(affected_cell):
 					return True
-				elif self.try_activating_star_gate(affected_cell):
-					return True
 				else:
-					return False
+					try:
+						self.activate_star_gate(affected_cell)
+						return True
+					except exceptions.NoStarGatePresentException:
+						return False
 			elif self.primary_modifier_key == 'i':  # Player/Corp is trying to merge corps with another player
 				if self.try_merge_corp(affected_cell):
 					return True
@@ -290,15 +292,17 @@ class Player(gameObject.GameObject):
 		except exceptions.CellCoordinatesOutOfBoundsError:
 			return False
 
-	def try_activating_star_gate(self, _cell):
+	def activate_star_gate(self, _cell):
 		if _cell is not None:
-			struct = _cell.contains_object_type('StarGate')
-			if struct[0]:
-				obj = _cell.get_game_object_by_obj_id(struct[1])
-				if obj[0]:
-					obj[1].use(self)
-					return True
-		return False
+			try:
+				stargate_id = _cell.get_object_id_of_first_game_object_found('StarGate')  # type: str
+				stargate_obj = _cell.new_get_game_object_by_obj_id(stargate_id)  # type: gameObject.StarGate
+				stargate_obj.use(self)
+			except (exceptions.NoGameObjectOfThatClassFoundException,
+					exceptions.NoGameObjectByThatObjectIDFoundException):
+				raise exceptions.NoStarGatePresentException()
+		else:
+			raise exceptions.CellIsNoneException()
 
 	def deconstruct(self, _cell: 'cell.Cell') -> None:
 		if _cell is not None:
