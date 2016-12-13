@@ -201,9 +201,10 @@ class Player(gameObject.GameObject):
 					except exceptions.NoStarGatePresentException:
 						return False
 			elif self.primary_modifier_key == 'i':  # Player/Corp is trying to merge corps with another player
-				if self.try_merge_corp(affected_cell):
+				try:
+					self.action_handler_merge_request(affected_cell)
 					return True
-				else:
+				except (exceptions.NoPlayerFoundException, exceptions.CellIsNoneException):
 					return False
 			elif self.primary_modifier_key == 'b':  # Player is in build mode
 				if self.secondary_modifier_key == '1':  # Player is trying to build a fence
@@ -494,22 +495,23 @@ class Player(gameObject.GameObject):
 		else:
 			raise exceptions.CellCannotBeEnteredException()
 
-	def try_merge_corp(self, _cell):
+	def action_handler_merge_request(self, _cell) -> None:
+		# If you have a better name, please do share.
 		if _cell is not None:
-			struct = _cell.contains_object_type('Player')
-			if struct[0]:
-				other_player = _cell.get_game_object_by_obj_id(struct[1])
-				if other_player[0]:
-					other_player_corp_id = other_player[1].get_corp_id()
-					self.send_merge_invite(other_player_corp_id)
-					return True
-		return False
+			try:
+				target_player_id = _cell.get_object_id_of_first_game_object_found('Player')
+				target_player = _cell.new_get_game_object_by_obj_id(target_player_id)  # type: Player
+				target_player_corp_id = target_player.corp.corp_id
+				self.corp.send_merge_invite(target_player_corp_id)
+			except exceptions.NoPlayerFoundException:
+				raise exceptions.NoPlayerFoundException()
+			except exceptions.NoGameObjectByThatObjectIDFoundException:
+				raise exceptions.NoPlayerFoundException()
+		else:
+			raise exceptions.CellIsNoneException()
 
 	def get_corp_id(self):
 		return self.corp.corp_id
-
-	def send_merge_invite(self, corp_id):
-		self.corp.send_merge_invite(corp_id)
 
 	def receive_merge_invite(self, corp_id):
 		self.corp.receive_merge_invite(corp_id)
