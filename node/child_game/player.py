@@ -276,7 +276,12 @@ class Player(gameObject.GameObject):
 				else:
 					return False
 			elif self.primary_modifier_key == '-':  # Player is trying to worsen their standings towards the target player's corp
-				return self.try_worsening_standing(affected_cell)
+				try:
+					self.worsen_standing_towards_targets_corp(affected_cell)
+				except exceptions.CellIsNoneException:
+					pass
+				except exceptions.NoPlayerFoundException:
+					pass
 			elif self.primary_modifier_key == '+':  # Player is trying to improve their standings towards the target player's corp
 				return self.try_improving_standing(affected_cell)
 			elif self.primary_modifier_key == 'u':  # Player is trying to use something in their corp inventory
@@ -537,16 +542,17 @@ class Player(gameObject.GameObject):
 				exceptions.NoGameObjectByThatObjectIDFoundException):
 			return False
 
-	def try_worsening_standing(self, _cell):
+	def worsen_standing_towards_targets_corp(self, _cell) -> None:
 		if _cell is not None:
-			struct = _cell.contains_object_type('Player')
-			if struct[0]:
-				other_player = _cell.get_game_object_by_obj_id(struct[1])
-				if other_player[0]:
-					self.corp.worsen_standing(other_player[1].corp.corp_id)
-					return True
+			try:
+				target_player_id = _cell.get_object_id_of_first_game_object_found('Player')
+				target_player = _cell.new_get_game_object_by_obj_id(target_player_id)  # type: Player
+				target_player_corp_id = target_player.corp.corp_id
+				self.corp.worsen_standing(target_player_corp_id)
+			except (exceptions.NoPlayerFoundException, exceptions.NoGameObjectByThatObjectIDFoundException):
+				raise exceptions.NoPlayerFoundException()
 		else:
-			return False
+			raise exceptions.CellIsNoneException()
 
 	def try_improving_standing(self, _cell):
 		if _cell is not None:
