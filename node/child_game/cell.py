@@ -7,11 +7,11 @@ from child_game import exceptions
 
 class Cell:
 	def __init__(self, _world: 'world.World', _row: int, _col: int):
-		self.world = _world
-		self.obj_id = str(uuid.uuid4())
+		self.world = _world  # type: world.World
+		self.obj_id = str(uuid.uuid4())  # type: str
 		self.row = _row  # type: int
 		self.col = _col  # type: int
-		self.contents = []
+		self.contents = []  # type: List[any]
 
 	def get_cell_by_offset(self, row_offset: int, col_offset: int) -> 'Cell':
 		try:
@@ -243,6 +243,8 @@ class Cell:
 				}
 				class_type = class_types.get(obj.__class__.__name__, 2)
 
+				obj_standing = None
+
 				if class_type == 0:
 					obj_standing = 'N'
 				elif class_type == 1:
@@ -250,13 +252,13 @@ class Cell:
 				elif class_type == 2:
 					obj_standing = obj.owner_corp.fetch_standing_for_player(player_obj.obj_id)
 
-				if obj.passable[obj_standing] is False:
+				if obj.passable.get(obj_standing, False) is False:
 					return False
 			return True
 		else:
 			for obj in self.contents:
 				obj_standing = 'N'
-				if obj.passable[obj_standing] is False:
+				if obj.passable.get(obj_standing, False) is False:
 					return False
 			return True
 
