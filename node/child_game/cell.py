@@ -214,10 +214,25 @@ class Cell:
 		return False, None
 
 	def new_get_game_object_by_obj_id(self, obj_id: str) -> any:
+		"""
+		Returns a game object with a matching object id residing in the cell.
+		:param obj_id: The id of the game object
+		:return:
+		"""
 		for obj in self.contents:
 			if obj.obj_id == obj_id:
 				return obj
 		raise exceptions.NoGameObjectByThatObjectIDFoundException()
+
+	def can_build(self) -> bool:
+		"""
+		Loops over the cell contents to check if any of them prevent a game object from being built in the cell.
+		:return:
+		"""
+		for obj in self.contents:
+			if obj.prevents_building_in_cell:
+				return False
+		return True
 
 	def can_enter(self, player_obj=None):
 		if player_obj is not None:
