@@ -7,11 +7,11 @@ from child_game import exceptions
 
 class Cell:
 	def __init__(self, _world: 'world.World', _row: int, _col: int):
-		self.world = _world
-		self.obj_id = str(uuid.uuid4())
+		self.world = _world  # type: world.World
+		self.obj_id = str(uuid.uuid4())  # type: str
 		self.row = _row  # type: int
 		self.col = _col  # type: int
-		self.contents = []
+		self.contents = []  # type: List[any]
 
 	def get_cell_by_offset(self, row_offset: int, col_offset: int) -> 'Cell':
 		try:
@@ -42,7 +42,7 @@ class Cell:
 			try:
 				_cell = self.get_cell_by_offset(offset_tuple[0], offset_tuple[1])
 				try:
-					_cell.get_object_id_of_first_game_object_found(game_object)
+					_cell.get_object_id_of_first_object_found(game_object)
 					return True
 				except exceptions.NoGameObjectOfThatClassFoundException:
 					pass
@@ -84,8 +84,8 @@ class Cell:
 
 	def damage_first_player(self, attacking_corp: 'corporation.Corporation', damage):
 		try:
-			target_id = self.get_object_id_of_first_game_object_found('Player')  # type: str
-			target_obj = self.new_get_game_object_by_obj_id(target_id)  # type: 'player.Player'
+			target_id = self.get_object_id_of_first_object_found('Player')  # type: str
+			target_obj = self.get_object_by_obj_id(target_id)  # type: 'player.Player'
 			standing_towards_target = attacking_corp.fetch_standing(target_obj.corp.corp_id)
 			if standing_towards_target in ['N', 'E']:
 				target_obj.take_damage(damage)
@@ -105,7 +105,7 @@ class Cell:
 
 		for player_id in player_ids_in_cell:
 			try:
-				players_in_cell.append(self.new_get_game_object_by_obj_id(player_id))
+				players_in_cell.append(self.get_object_by_obj_id(player_id))
 			except exceptions.NoGameObjectByThatObjectIDFoundException:
 				pass
 
@@ -187,11 +187,12 @@ class Cell:
 				return True, obj.obj_id
 		return False, ''
 
-	def get_object_id_of_first_game_object_found(self, obj_type_name: str) -> str:
+	def get_object_id_of_first_object_found(self, obj_type_name: str) -> str:
 		"""
+		Returns the object id of the first object found that has a matching class name as the one supplied.
 
 		:param obj_type_name: The class name, if you want to find a Hospital in the cell, then input is 'Hospital'
-		:return: The game object's id.
+		:return: The object's id.
 		"""
 		for obj in self.contents:
 			if obj.__class__.__name__ == obj_type_name:
@@ -207,17 +208,26 @@ class Cell:
 
 		return object_ids
 
-	def get_game_object_by_obj_id(self, obj_id: str):
-		for obj in self.contents:
-			if obj.obj_id == obj_id:
-				return True, obj
-		return False, None
-
-	def new_get_game_object_by_obj_id(self, obj_id: str) -> any:
+	def get_object_by_obj_id(self, obj_id: str) -> any:
+		"""
+		Returns an object with a matching object id residing in the cell.
+		:param obj_id: The id of the object
+		:return: An object with an object id identical to the one supplied.
+		"""
 		for obj in self.contents:
 			if obj.obj_id == obj_id:
 				return obj
 		raise exceptions.NoGameObjectByThatObjectIDFoundException()
+
+	def can_build(self) -> bool:
+		"""
+		Loops over the cell contents to check if any of them prevent a game object from being built in the cell.
+		:return:
+		"""
+		for obj in self.contents:
+			if obj.prevents_building_in_cell:
+				return False
+		return True
 
 	def can_enter(self, player_obj=None):
 		if player_obj is not None:
@@ -233,6 +243,8 @@ class Cell:
 				}
 				class_type = class_types.get(obj.__class__.__name__, 2)
 
+				obj_standing = None
+
 				if class_type == 0:
 					obj_standing = 'N'
 				elif class_type == 1:
@@ -240,13 +252,13 @@ class Cell:
 				elif class_type == 2:
 					obj_standing = obj.owner_corp.fetch_standing_for_player(player_obj.obj_id)
 
-				if obj.passable[obj_standing] is False:
+				if obj.passable.get(obj_standing, False) is False:
 					return False
 			return True
 		else:
 			for obj in self.contents:
 				obj_standing = 'N'
-				if obj.passable[obj_standing] is False:
+				if obj.passable.get(obj_standing, False) is False:
 					return False
 			return True
 

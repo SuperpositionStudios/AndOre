@@ -18,6 +18,7 @@ class GameObject:
 			'N': True,
 			'E': True
 		}
+		self.prevents_building_in_cell = True
 		self.blocking = False
 
 	def leave_cell(self):
@@ -26,8 +27,6 @@ class GameObject:
 
 	def delete(self):
 		self.leave_cell()
-
-	# hopefully garbage collection kicks in
 
 	def change_cell(self, new_cell):
 		if self.cell is not None and new_cell is not None:
