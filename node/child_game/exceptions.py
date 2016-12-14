@@ -45,6 +45,12 @@ class NoPlayerFoundException(Exception):
 	def __init__(self):
 		self.message = "No player found"
 
+
 class NoPlayersToAttackException(Exception):
-	def __init(self):
+	def __init__(self):
 		self.message = "No players to attack"
+
+
+class NoPharmacyFoundException(Exception):
+	def __init__(self):
+		self.message = "No Pharmacy Found"

@@ -195,14 +195,18 @@ class Player(gameObject.GameObject):
 					return True
 				elif self.loot(affected_cell):
 					return True
-				elif self.try_buying_from_pharmacy(affected_cell):
-					return True
 				else:
 					try:
-						self.activate_star_gate(affected_cell)
+						self.buy_from_pharmacy(affected_cell)
 						return True
-					except exceptions.NoStarGatePresentException:
+					except exceptions.CellIsNoneException:
 						return False
+					except exceptions.NoPharmacyFoundException:
+						try:
+							self.activate_star_gate(affected_cell)
+							return True
+						except exceptions.NoStarGatePresentException:
+							return False
 			elif self.primary_modifier_key == 'i':  # Player/Corp is trying to merge corps with another player
 				try:
 					self.action_handler_merge_request(affected_cell)
@@ -633,19 +637,22 @@ class Player(gameObject.GameObject):
 		if self.check_if_dead():
 			self.died()
 
-	def try_buying_from_pharmacy(self, _cell):
+	def buy_from_pharmacy(self, _cell):
 		if _cell is not None:
-			struct = _cell.contains_object_type('Pharmacy')
-			if struct[0]:
-				pharmacy = _cell.get_object_by_object_id(struct[1])
-				if pharmacy[0]:
-					pharmacy_obj = pharmacy[1]
-					assert (pharmacy_obj.__class__.__name__ == 'Pharmacy')
-					if int(self.secondary_modifier_key) == 0:
-						item_num = 9
-					else:
-						item_num = int(self.secondary_modifier_key) - 1
-					return pharmacy_obj.buy_item(self.corp, item_num)
+			try:
+				pharmacy_id = _cell.get_object_id_of_first_object_found('Pharmacy')
+				pharmacy = _cell.new_get_object_by_obj_id(pharmacy_id)  # type: gameObject.Pharmacy
+
+				if int(self.secondary_modifier_key) == 0:
+					item_num = 9
+				else:
+					item_num = int(self.secondary_modifier_key) - 1
+				pharmacy.buy_item(self.corp, item_num)
+			except (exceptions.NoGameObjectOfThatClassFoundException,
+					exceptions.NoGameObjectByThatObjectIDFoundException):
+				raise exceptions.NoPharmacyFoundException()
+		else:
+			raise exceptions.CellIsNoneException()
 
 	def try_going_to_hospital(self, _cell):
 		if _cell is not None:
