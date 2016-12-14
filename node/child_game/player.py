@@ -189,24 +189,39 @@ class Player(gameObject.GameObject):
 			elif self.primary_modifier_key == 'k':  # Player is trying to attack something
 				return self.attack(affected_cell)
 			elif self.primary_modifier_key == 'l':  # Player is trying to collect/loot something
-				if self.mine(affected_cell):
-					return True
-				elif self.try_going_to_hospital(affected_cell):
-					return True
-				elif self.loot(affected_cell):
-					return True
-				else:
-					try:
-						self.buy_from_pharmacy(affected_cell)
+				try:
+					if self.mine(affected_cell):
 						return True
-					except exceptions.CellIsNoneException:
-						return False
-					except exceptions.NoPharmacyFoundException:
-						try:
-							self.activate_star_gate(affected_cell)
-							return True
-						except exceptions.NoStarGatePresentException:
-							return False
+				except:
+					pass
+
+				try:
+					self.utilize_hospital(affected_cell)
+					return True
+				except (exceptions.NoHospitalFoundException, exceptions.CellIsNoneException,
+						exceptions.CorporationHasInsufficientFundsException):
+					pass
+
+				try:
+					if self.loot(affected_cell):
+						return True
+				except:
+					pass
+
+				try:
+					self.buy_from_pharmacy(affected_cell)
+					return True
+				except (exceptions.CellIsNoneException, exceptions.NoPharmacyFoundException):
+					pass
+
+				try:
+					self.activate_star_gate(affected_cell)
+					return True
+				except exceptions.NoStarGatePresentException:
+					pass
+
+				return False
+
 			elif self.primary_modifier_key == 'i':  # Player/Corp is trying to merge corps with another player
 				try:
 					self.action_handler_merge_request(affected_cell)
@@ -654,27 +669,30 @@ class Player(gameObject.GameObject):
 		else:
 			raise exceptions.CellIsNoneException()
 
-	def try_going_to_hospital(self, _cell):
+	def utilize_hospital(self, _cell):
 		if _cell is not None:
-			struct = _cell.contains_object_type('Hospital')
-			if struct[0]:
-				hospital = _cell.get_object_by_object_id(struct[1])
-				if hospital[0]:
-					hospital_obj = hospital[1]
-					assert (hospital_obj.__class__.__name__ == 'Hospital')
-					hospital_owners = hospital_obj.owner_corp
-					owner_standings_towards_us = hospital_owners.fetch_standing_for_player(self.obj_id)
-					price_to_use_hospital = hospital_obj.prices_to_use[owner_standings_towards_us]
-					owners_profit = hospital_obj.profits_per_use[owner_standings_towards_us]
+			try:
+				hospital_id = _cell.get_object_id_of_first_object_found('Hospital')
+				hospital = _cell.new_get_object_by_obj_id(hospital_id)  # type: gameObject.Hospital
+				hospital_owner_corp = hospital.owner_corp
+				owner_standings_towards_us = hospital_owner_corp.fetch_standing(self.corp.corp_id)
+				price_to_use_hospital = hospital.prices_to_use.get(owner_standings_towards_us, 0)
+				profit_for_owners = hospital.profits_per_use.get(owner_standings_towards_us, 0)
 
-					if self.corp.amount_of_ore() >= price_to_use_hospital:
-						self.health = min(self.health + hospital_obj.health_regen_per_turn, self.health_cap)
-						# Pay for using hospital
-						self.lose_ore(price_to_use_hospital)
-						# Hospital owners profit
-						hospital_obj.give_profit_to_owners(owner_standings_towards_us)
-						return True
-		return False
+				if self.corp.amount_of_ore() >= price_to_use_hospital:
+					# Healing
+					self.health = min(self.health + hospital.health_regen_per_turn, self.health_cap)
+					# Pay
+					self.lose_ore(price_to_use_hospital)
+					# Profit
+					hospital.give_profit_to_owners(profit_for_owners)
+				else:
+					raise exceptions.CorporationHasInsufficientFundsException(self.corp.corp_id)
+			except (exceptions.NoGameObjectOfThatClassFoundException,
+					exceptions.NoGameObjectByThatObjectIDFoundException):
+				raise exceptions.NoHospitalFoundException()
+		else:
+			raise exceptions.CellIsNoneException()
 
 	def move(self, _cell: 'cell.Cell') -> None:
 		if _cell.can_enter(player_obj=self):
