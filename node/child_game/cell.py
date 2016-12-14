@@ -85,7 +85,7 @@ class Cell:
 	def damage_first_player(self, attacking_corp: 'corporation.Corporation', damage):
 		try:
 			target_id = self.get_object_id_of_first_object_found('Player')  # type: str
-			target_obj = self.new_get_object_by_obj_id(target_id)  # type: 'player.Player'
+			target_obj = self.get_object_by_obj_id(target_id)  # type: 'player.Player'
 			standing_towards_target = attacking_corp.fetch_standing(target_obj.corp.corp_id)
 			if standing_towards_target in ['N', 'E']:
 				target_obj.take_damage(damage)
@@ -105,7 +105,7 @@ class Cell:
 
 		for player_id in player_ids_in_cell:
 			try:
-				players_in_cell.append(self.new_get_object_by_obj_id(player_id))
+				players_in_cell.append(self.get_object_by_obj_id(player_id))
 			except exceptions.NoGameObjectByThatObjectIDFoundException:
 				pass
 
@@ -208,19 +208,7 @@ class Cell:
 
 		return object_ids
 
-	def get_object_by_object_id(self, obj_id: str) -> Tuple[bool, any]:
-		"""
-		Returns a tuple, if the first index is True then the second index will contain an object. If the first index is False, then no game object was found by the supplied object id, and the second index will be false. Due to how there being no game object by the supplied object id is handled with a tuple, this function is deprecated and you should use Cell.new_get_object_by_obj_id().
-
-		:param obj_id: The id of the game object
-		:return:
-		"""
-		for obj in self.contents:
-			if obj.obj_id == obj_id:
-				return True, obj
-		return False, None
-
-	def new_get_object_by_obj_id(self, obj_id: str) -> any:
+	def get_object_by_obj_id(self, obj_id: str) -> any:
 		"""
 		Returns an object with a matching object id residing in the cell.
 		:param obj_id: The id of the object

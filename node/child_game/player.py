@@ -330,7 +330,7 @@ class Player(gameObject.GameObject):
 		if _cell is not None:
 			try:
 				stargate_id = _cell.get_object_id_of_first_object_found('StarGate')  # type: str
-				stargate_obj = _cell.new_get_object_by_obj_id(stargate_id)  # type: gameObject.StarGate
+				stargate_obj = _cell.get_object_by_obj_id(stargate_id)  # type: gameObject.StarGate
 				stargate_obj.use(self)
 			except (exceptions.NoGameObjectOfThatClassFoundException,
 					exceptions.NoGameObjectByThatObjectIDFoundException):
@@ -532,7 +532,7 @@ class Player(gameObject.GameObject):
 		if _cell is not None:
 			try:
 				target_player_id = _cell.get_object_id_of_first_object_found('Player')
-				target_player = _cell.new_get_object_by_obj_id(target_player_id)  # type: Player
+				target_player = _cell.get_object_by_obj_id(target_player_id)  # type: Player
 				target_player_corp_id = target_player.corp.corp_id
 				self.corp.send_merge_invite(target_player_corp_id)
 			except exceptions.NoPlayerFoundException:
@@ -551,7 +551,7 @@ class Player(gameObject.GameObject):
 	def loot(self, _cell):
 		try:
 			target_id = _cell.get_object_id_of_first_object_found('Loot')
-			target = _cell.new_get_object_by_obj_id(target_id)
+			target = _cell.get_object_by_obj_id(target_id)
 			self.gain_ore(target.ore_quantity)
 			target.delete()
 			return True
@@ -562,7 +562,7 @@ class Player(gameObject.GameObject):
 	def mine(self, _cell):
 		try:
 			target_id = _cell.get_object_id_of_first_object_found('OreDeposit')
-			target = _cell.new_get_object_by_obj_id(target_id)
+			target = _cell.get_object_by_obj_id(target_id)
 			self.gain_ore(target.ore_per_turn * self.ore_multiplier)
 			return True
 		except (exceptions.NoGameObjectOfThatClassFoundException,
@@ -573,7 +573,7 @@ class Player(gameObject.GameObject):
 		if _cell is not None:
 			try:
 				target_player_id = _cell.get_object_id_of_first_object_found('Player')
-				target_player = _cell.new_get_object_by_obj_id(target_player_id)  # type: Player
+				target_player = _cell.get_object_by_obj_id(target_player_id)  # type: Player
 				target_player_corp_id = target_player.corp.corp_id
 				self.corp.worsen_standing(target_player_corp_id)
 			except (exceptions.NoPlayerFoundException, exceptions.NoGameObjectByThatObjectIDFoundException):
@@ -585,7 +585,7 @@ class Player(gameObject.GameObject):
 		if _cell is not None:
 			try:
 				target_player_id = _cell.get_object_id_of_first_object_found('Player')
-				target_player = _cell.new_get_object_by_obj_id(target_player_id)  # type: Player
+				target_player = _cell.get_object_by_obj_id(target_player_id)  # type: Player
 				target_player_corp_id = target_player.corp.corp_id
 				self.corp.improve_standing(target_player_corp_id)
 			except (exceptions.NoPlayerFoundException, exceptions.NoGameObjectByThatObjectIDFoundException):
@@ -596,7 +596,7 @@ class Player(gameObject.GameObject):
 	def attack(self, _cell):
 		try:
 			target_player_id = _cell.get_object_id_of_first_object_found('Player')
-			target_player = _cell.new_get_object_by_obj_id(target_player_id)
+			target_player = _cell.get_object_by_obj_id(target_player_id)
 			standing_to_target_player = self.corp.fetch_standing(target_player.corp.corp_id)
 			if standing_to_target_player in ['N', 'E']:
 				# You can attack a Neutral or Enemy
@@ -616,7 +616,7 @@ class Player(gameObject.GameObject):
 		for game_object_class_name in game_object_class_names:
 			try:
 				target_id = _cell.get_object_id_of_first_object_found(game_object_class_name)
-				target = _cell.new_get_object_by_obj_id(target_id)
+				target = _cell.get_object_by_obj_id(target_id)
 				standing_towards_target = self.corp.fetch_standing(target.owner_corp.corp_id)
 				if standing_towards_target in ['N', 'E']:
 					target.take_damage(self.attack_power, self.corp)
@@ -656,7 +656,7 @@ class Player(gameObject.GameObject):
 		if _cell is not None:
 			try:
 				pharmacy_id = _cell.get_object_id_of_first_object_found('Pharmacy')
-				pharmacy = _cell.new_get_object_by_obj_id(pharmacy_id)  # type: gameObject.Pharmacy
+				pharmacy = _cell.get_object_by_obj_id(pharmacy_id)  # type: gameObject.Pharmacy
 
 				if int(self.secondary_modifier_key) == 0:
 					item_num = 9
@@ -673,7 +673,7 @@ class Player(gameObject.GameObject):
 		if _cell is not None:
 			try:
 				hospital_id = _cell.get_object_id_of_first_object_found('Hospital')
-				hospital = _cell.new_get_object_by_obj_id(hospital_id)  # type: gameObject.Hospital
+				hospital = _cell.get_object_by_obj_id(hospital_id)  # type: gameObject.Hospital
 				hospital_owner_corp = hospital.owner_corp
 				owner_standings_towards_us = hospital_owner_corp.fetch_standing(self.corp.corp_id)
 				price_to_use_hospital = hospital.prices_to_use.get(owner_standings_towards_us, 0)
