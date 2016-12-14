@@ -285,8 +285,14 @@ class Player(gameObject.GameObject):
 					pass
 				except exceptions.NoPlayerFoundException:
 					pass
-			elif self.primary_modifier_key == '+':  # Player is trying to improve their standings towards the target player's corp
-				return self.try_improving_standing(affected_cell)
+			elif self.primary_modifier_key == '+':
+				# Player is trying to improve their standings towards the target player's corp
+				try:
+					self.improve_standing_towards_targets_corp(affected_cell)
+				except exceptions.CellIsNoneException:
+					pass
+				except exceptions.NoPlayerFoundException:
+					pass
 			elif self.primary_modifier_key == 'u':  # Player is trying to use something in their corp inventory
 				return self.try_using_inventory()
 			elif self.primary_modifier_key == 'c':  # Player is trying to cancel a building's existence
@@ -304,8 +310,8 @@ class Player(gameObject.GameObject):
 	def activate_star_gate(self, _cell):
 		if _cell is not None:
 			try:
-				stargate_id = _cell.get_object_id_of_first_game_object_found('StarGate')  # type: str
-				stargate_obj = _cell.new_get_game_object_by_obj_id(stargate_id)  # type: gameObject.StarGate
+				stargate_id = _cell.get_object_id_of_first_object_found('StarGate')  # type: str
+				stargate_obj = _cell.new_get_object_by_obj_id(stargate_id)  # type: gameObject.StarGate
 				stargate_obj.use(self)
 			except (exceptions.NoGameObjectOfThatClassFoundException,
 					exceptions.NoGameObjectByThatObjectIDFoundException):
@@ -506,8 +512,8 @@ class Player(gameObject.GameObject):
 		# If you have a better name, please do share.
 		if _cell is not None:
 			try:
-				target_player_id = _cell.get_object_id_of_first_game_object_found('Player')
-				target_player = _cell.new_get_game_object_by_obj_id(target_player_id)  # type: Player
+				target_player_id = _cell.get_object_id_of_first_object_found('Player')
+				target_player = _cell.new_get_object_by_obj_id(target_player_id)  # type: Player
 				target_player_corp_id = target_player.corp.corp_id
 				self.corp.send_merge_invite(target_player_corp_id)
 			except exceptions.NoPlayerFoundException:
@@ -525,8 +531,8 @@ class Player(gameObject.GameObject):
 
 	def loot(self, _cell):
 		try:
-			target_id = _cell.get_object_id_of_first_game_object_found('Loot')
-			target = _cell.new_get_game_object_by_obj_id(target_id)
+			target_id = _cell.get_object_id_of_first_object_found('Loot')
+			target = _cell.new_get_object_by_obj_id(target_id)
 			self.gain_ore(target.ore_quantity)
 			target.delete()
 			return True
@@ -536,8 +542,8 @@ class Player(gameObject.GameObject):
 
 	def mine(self, _cell):
 		try:
-			target_id = _cell.get_object_id_of_first_game_object_found('OreDeposit')
-			target = _cell.new_get_game_object_by_obj_id(target_id)
+			target_id = _cell.get_object_id_of_first_object_found('OreDeposit')
+			target = _cell.new_get_object_by_obj_id(target_id)
 			self.gain_ore(target.ore_per_turn * self.ore_multiplier)
 			return True
 		except (exceptions.NoGameObjectOfThatClassFoundException,
@@ -547,8 +553,8 @@ class Player(gameObject.GameObject):
 	def worsen_standing_towards_targets_corp(self, _cell) -> None:
 		if _cell is not None:
 			try:
-				target_player_id = _cell.get_object_id_of_first_game_object_found('Player')
-				target_player = _cell.new_get_game_object_by_obj_id(target_player_id)  # type: Player
+				target_player_id = _cell.get_object_id_of_first_object_found('Player')
+				target_player = _cell.new_get_object_by_obj_id(target_player_id)  # type: Player
 				target_player_corp_id = target_player.corp.corp_id
 				self.corp.worsen_standing(target_player_corp_id)
 			except (exceptions.NoPlayerFoundException, exceptions.NoGameObjectByThatObjectIDFoundException):
@@ -556,21 +562,22 @@ class Player(gameObject.GameObject):
 		else:
 			raise exceptions.CellIsNoneException()
 
-	def try_improving_standing(self, _cell):
+	def improve_standing_towards_targets_corp(self, _cell) -> None:
 		if _cell is not None:
-			struct = _cell.contains_object_type('Player')
-			if struct[0]:
-				other_player = _cell.get_game_object_by_obj_id(struct[1])
-				if other_player[0]:
-					self.corp.improve_standing(other_player[1].corp.corp_id)
-					return True
+			try:
+				target_player_id = _cell.get_object_id_of_first_object_found('Player')
+				target_player = _cell.new_get_object_by_obj_id(target_player_id)  # type: Player
+				target_player_corp_id = target_player.corp.corp_id
+				self.corp.improve_standing(target_player_corp_id)
+			except (exceptions.NoPlayerFoundException, exceptions.NoGameObjectByThatObjectIDFoundException):
+				raise exceptions.NoPlayerFoundException()
 		else:
-			return False
+			raise exceptions.CellIsNoneException()
 
 	def attack(self, _cell):
 		try:
-			target_player_id = _cell.get_object_id_of_first_game_object_found('Player')
-			target_player = _cell.new_get_game_object_by_obj_id(target_player_id)
+			target_player_id = _cell.get_object_id_of_first_object_found('Player')
+			target_player = _cell.new_get_object_by_obj_id(target_player_id)
 			standing_to_target_player = self.corp.fetch_standing(target_player.corp.corp_id)
 			if standing_to_target_player in ['N', 'E']:
 				# You can attack a Neutral or Enemy
@@ -589,8 +596,8 @@ class Player(gameObject.GameObject):
 
 		for game_object_class_name in game_object_class_names:
 			try:
-				target_id = _cell.get_object_id_of_first_game_object_found(game_object_class_name)
-				target = _cell.new_get_game_object_by_obj_id(target_id)
+				target_id = _cell.get_object_id_of_first_object_found(game_object_class_name)
+				target = _cell.new_get_object_by_obj_id(target_id)
 				standing_towards_target = self.corp.fetch_standing(target.owner_corp.corp_id)
 				if standing_towards_target in ['N', 'E']:
 					target.take_damage(self.attack_power, self.corp)
@@ -630,7 +637,7 @@ class Player(gameObject.GameObject):
 		if _cell is not None:
 			struct = _cell.contains_object_type('Pharmacy')
 			if struct[0]:
-				pharmacy = _cell.get_game_object_by_obj_id(struct[1])
+				pharmacy = _cell.get_object_by_object_id(struct[1])
 				if pharmacy[0]:
 					pharmacy_obj = pharmacy[1]
 					assert (pharmacy_obj.__class__.__name__ == 'Pharmacy')
@@ -644,7 +651,7 @@ class Player(gameObject.GameObject):
 		if _cell is not None:
 			struct = _cell.contains_object_type('Hospital')
 			if struct[0]:
-				hospital = _cell.get_game_object_by_obj_id(struct[1])
+				hospital = _cell.get_object_by_object_id(struct[1])
 				if hospital[0]:
 					hospital_obj = hospital[1]
 					assert (hospital_obj.__class__.__name__ == 'Hospital')
