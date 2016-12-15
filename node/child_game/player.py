@@ -396,7 +396,7 @@ class Player(gameObject.GameObject):
 		self.health = min(self.health_cap, self.health + amount)
 
 	def construct_sentry_turret(self, _cell: 'Cell') -> None:
-		if _cell.can_enter(player_obj=self):
+		if _cell.can_build(player_obj=self):
 			ore_cost = gameObject.SentryTurret.construction_cost
 			if self.corp.amount_of_ore() >= ore_cost:
 				_cell.add_corp_owned_building(self.corp, 'SentryTurret')
@@ -407,7 +407,7 @@ class Player(gameObject.GameObject):
 			raise exceptions.CellCannotBeEnteredException()
 
 	def construct_spike_trap(self, _cell: 'Cell') -> None:
-		if _cell.can_enter(player_obj=self):
+		if _cell.can_build(player_obj=self):
 			ore_cost = gameObject.SpikeTrap.construction_cost
 			if self.corp.amount_of_ore() >= ore_cost:
 				_cell.add_corp_owned_building(self.corp, 'SpikeTrap')
@@ -418,7 +418,7 @@ class Player(gameObject.GameObject):
 			raise exceptions.CellCannotBeEnteredException()
 
 	def construct_pharmacy(self, _cell: 'Cell') -> None:
-		if _cell.can_enter(player_obj=self):
+		if _cell.can_build(player_obj=self):
 			ore_cost = gameObject.Pharmacy.construction_cost
 			if self.corp.amount_of_ore() >= ore_cost:
 				_cell.add_corp_owned_building(self.corp, 'Pharmacy')
@@ -429,7 +429,7 @@ class Player(gameObject.GameObject):
 			raise exceptions.CellCannotBeEnteredException()
 
 	def construct_respawn_beacon(self, _cell: 'Cell') -> None:
-		if _cell.can_enter(player_obj=self):
+		if _cell.can_build(player_obj=self):
 			ore_cost = gameObject.RespawnBeacon.construction_cost
 			if self.corp.amount_of_ore() >= ore_cost:
 				_cell.add_corp_owned_building(self.corp, 'RespawnBeacon')
@@ -440,7 +440,7 @@ class Player(gameObject.GameObject):
 			raise exceptions.CellCannotBeEnteredException()
 
 	def construct_door(self, _cell: 'Cell') -> None:
-		if _cell.can_enter(player_obj=self):
+		if _cell.can_build(player_obj=self):
 			ore_cost = gameObject.Door.construction_cost
 			if self.corp.amount_of_ore() >= ore_cost:
 				_cell.add_corp_owned_building(self.corp, 'Door')
@@ -451,7 +451,7 @@ class Player(gameObject.GameObject):
 			raise exceptions.CellCannotBeEnteredException()
 
 	def construct_ore_generator(self, _cell: 'Cell') -> None:
-		if _cell.can_enter(player_obj=self):
+		if _cell.can_build(player_obj=self):
 			if _cell.next_to_ore_deposit():
 				ore_cost = gameObject.OreGenerator.construction_cost
 				if self.corp.amount_of_ore() >= ore_cost:
@@ -465,7 +465,7 @@ class Player(gameObject.GameObject):
 			raise exceptions.CellCannotBeEnteredException()
 
 	def construct_hospital(self, _cell: 'Cell') -> None:
-		if _cell.can_enter(player_obj=self):
+		if _cell.can_build(player_obj=self):
 			ore_cost = gameObject.Hospital.construction_cost
 			if self.corp.amount_of_ore() >= ore_cost:
 				_cell.add_corp_owned_building(self.corp, 'Hospital')
@@ -476,7 +476,7 @@ class Player(gameObject.GameObject):
 			raise exceptions.CellCannotBeEnteredException()
 
 	def construct_fence(self, _cell: 'Cell') -> None:
-		if _cell.can_enter(player_obj=self):
+		if _cell.can_build (player_obj=self):
 			ore_cost = gameObject.Fence.construction_cost
 			if self.corp.amount_of_ore() >= ore_cost:
 				_cell.add_corp_owned_building(self.corp, 'Fence')
