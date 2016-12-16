@@ -59,3 +59,8 @@ class NoPharmacyFoundException(Exception):
 class NoHospitalFoundException(Exception):
 	def __init__(self):
 		self.message = "No Hospital Found"
+
+
+class NoCorporationOwnedBuildingFoundException(Exception):
+	def __init__(self):
+		self.message = "No Corporation Owned Building was Found"

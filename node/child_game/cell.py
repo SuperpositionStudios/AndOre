@@ -120,17 +120,22 @@ class Cell:
 			if len(attackable_players_in_cell) >= i + 1:
 				attackable_players_in_cell[i].take_damage(damage)
 
-	def deconstruct_first_possible_building_owned_by_corp(self, corp_id):
+	def deconstruct_first_possible_building_owned_by_corp(self, corp: 'corporation.Corporation') -> None:
+		"""
+		Deconstructs the first building found that is owned by the supplied Corporation.
+		:param corp: A pointer to the Corporation Instance
+		:return:
+		"""
 		for building in self.contents:
-			building_owner_id = None
 			try:
-				building_owner_id = building.owner_corp.corp_id
+				building_owner = building.owner_corp
+				if corp is building_owner:
+					building.died()
+					return
 			except:
+				# Must not be a corp owned building
 				pass
-			if corp_id == building_owner_id:
-				building.died()
-				return True
-		return False
+		raise exceptions.NoCorporationOwnedBuildingFoundException()
 
 	def add_game_object(self, x):
 		self.contents.append(x)

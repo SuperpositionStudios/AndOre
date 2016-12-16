@@ -340,7 +340,7 @@ class Player(gameObject.GameObject):
 
 	def deconstruct(self, _cell: 'cell.Cell') -> None:
 		if _cell is not None:
-			_cell.deconstruct_first_possible_building_owned_by_corp(self.corp.corp_id)
+			_cell.deconstruct_first_possible_building_owned_by_corp(self.corp)
 		else:
 			raise exceptions.CellIsNoneException()
 
