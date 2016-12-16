@@ -143,13 +143,8 @@ class Cell:
 				return obj
 		raise exceptions.NoGameObjectByThatObjectIDFoundException()
 
-	def can_build(self, player_obj=None):
-		if len(self.contents)== 0:
-			return True
-		else:
-			return False
-
-
+	def can_build(self):
+		return len(self.contents) == 0
 
 	def can_enter(self, player_obj=None):
 		if player_obj is not None:
