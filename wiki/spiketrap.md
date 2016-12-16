@@ -9,6 +9,7 @@ Spike Trap
 * Services Offered: Damages enemy(E) and neutral(N) players that move onto it.
 * Owner Information: Will not damage anyone in the Corp of the builder
 * Origin: The Spike Trap was added in v1.3.
+
 Contributors
 ============
 - Harrison Cyr
