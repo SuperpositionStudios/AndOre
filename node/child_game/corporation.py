@@ -190,10 +190,7 @@ class Corporation:
 		return int(self.ore_quantity / len(self.members))
 
 	def check_if_in_corp(self, player_id):
-		for member in self.members:
-			if player_id == member.obj_id:
-				return True
-		return False
+		return player_id in [member.obj_id for member in self.members]
 
 	def receive_merge_invite(self, corp_id):
 		self.received_merge_invites.append(corp_id)
