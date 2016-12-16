@@ -1,6 +1,6 @@
 import uuid
 import config
-from child_game import gameObject
+from child_game import gameObject, helper_functions
 import child_game
 
 
@@ -146,26 +146,10 @@ class Corporation:
 			return 'N'
 
 	def worsen_standing(self, corp_id):
-		self.standings[corp_id] = self.calculate_standing(self.fetch_standing(corp_id), -1)
+		self.standings[corp_id] = helper_functions.calculate_standing(self.fetch_standing(corp_id), -1)
 
 	def improve_standing(self, corp_id):
-		self.standings[corp_id] = self.calculate_standing(self.fetch_standing(corp_id), 1)
-
-	def calculate_standing(self, standing, modifier):
-		if standing == 'E' and modifier == 1:
-			return 'N'
-		elif standing == 'E' and modifier == -1:
-			return 'E'
-		elif standing == 'N' and modifier == 1:
-			return 'A'
-		elif standing == 'N' and modifier == -1:
-			return 'E'
-		elif standing == 'A' and modifier == 1:
-			return 'A'
-		elif standing == 'A' and modifier == -1:
-			return 'N'
-		else:
-			return 'N'
+		self.standings[corp_id] = helper_functions.calculate_standing(self.fetch_standing(corp_id), 1)
 
 	def add_member(self, member: 'child_game.player.Player'):
 		self.members.append(member)
