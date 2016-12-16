@@ -11,7 +11,7 @@ Spike Trap
 Damages enemy(E) and neutral(N) players that move onto it.
 
 #### Owner Information
-Will not damage anyone in the Corp of the builder
+Will not damage the builder or anyone in the Corp of the builder.
 
 #### Origin
 The Spike Trap was added in v1.3.
@@ -22,3 +22,4 @@ Contributors
 - Liam Connor-Schaefer
 
 ##### Page last edited on 12/16/16
+##### v1.5 - The Benevolent Bearded Dragon
