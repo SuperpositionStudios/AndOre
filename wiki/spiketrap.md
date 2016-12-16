@@ -7,9 +7,10 @@ Spike Trap
 * Health: `40`
 * Damage: `5`
 
-#### Uses
-Damages enemy(E) and neutral(N) players that move onto it.
-Will not damage the builder or anyone in the Corp of the builder.
+Uses
+=======
+* Damages enemy(E) and neutral(N) players that move onto it.
+* Will not damage the builder or anyone in the Corp of the builder.
 
 Contributors
 ============
