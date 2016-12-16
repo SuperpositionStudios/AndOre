@@ -22,8 +22,8 @@ class CellIsNotAdjacentToOreDepositException(Exception):
 
 
 class NoGameObjectOfThatClassFoundException(Exception):
-	def __init__(self, base_class: str):
-		self.message = "Did not find a game object whose base class is {}".format(base_class)
+	def __init__(self):
+		self.message = "No Game Objects from that class found."
 
 
 class NoGameObjectByThatObjectIDFoundException(Exception):

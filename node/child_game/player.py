@@ -133,7 +133,7 @@ class Player(gameObject.GameObject):
 
 	def get_vitals(self):
 		response = {
-			'ore_quantity': int(self.corp.amount_of_ore()),
+			'ore_quantity': int(self.corp.ore_quantity),
 			'ore_multiplier': round(self.ore_multiplier, 1),
 			'delta_ore': self.delta_ore,
 			'health': round(self.health, 1),
@@ -149,7 +149,7 @@ class Player(gameObject.GameObject):
 
 	def tick(self):
 		self.last_action_at_world_age = self.world.world_age
-		ore_before_tick = int(self.corp.amount_of_ore())  # Used for calculating delta-ore
+		ore_before_tick = int(self.corp.ore_quantity)  # Used for calculating delta-ore
 		# Interaction with cells
 		if self.dir_key == 'w':
 			self.interact_with_cell(-1, 0)
@@ -159,7 +159,7 @@ class Player(gameObject.GameObject):
 			self.interact_with_cell(0, -1)
 		elif self.dir_key == 'd':
 			self.interact_with_cell(0, 1)
-		self.delta_ore = int(self.corp.amount_of_ore() - ore_before_tick)
+		self.delta_ore = int(self.corp.ore_quantity - ore_before_tick)
 		self.dir_key = ''  # Resets the direction key
 		self.health_decay()
 
@@ -438,7 +438,7 @@ class Player(gameObject.GameObject):
 																				 check_vertically=True,
 																				 check_self=True) is False:
 			ore_cost = gameObject.SentryTurret.construction_cost
-			if self.corp.amount_of_ore() >= ore_cost:
+			if self.corp.ore_quantity >= ore_cost:
 				_cell.add_corp_owned_building(self.corp, 'SentryTurret')
 				self.lose_ore(ore_cost)
 			else:
@@ -449,7 +449,7 @@ class Player(gameObject.GameObject):
 	def construct_spike_trap(self, _cell: 'Cell') -> None:
 		if _cell.can_build():
 			ore_cost = gameObject.SpikeTrap.construction_cost
-			if self.corp.amount_of_ore() >= ore_cost:
+			if self.corp.ore_quantity >= ore_cost:
 				_cell.add_corp_owned_building(self.corp, 'SpikeTrap')
 				self.lose_ore(ore_cost)
 			else:
@@ -460,7 +460,7 @@ class Player(gameObject.GameObject):
 	def construct_pharmacy(self, _cell: 'Cell') -> None:
 		if _cell.can_build():
 			ore_cost = gameObject.Pharmacy.construction_cost
-			if self.corp.amount_of_ore() >= ore_cost:
+			if self.corp.ore_quantity >= ore_cost:
 				_cell.add_corp_owned_building(self.corp, 'Pharmacy')
 				self.lose_ore(ore_cost)
 			else:
@@ -471,7 +471,7 @@ class Player(gameObject.GameObject):
 	def construct_respawn_beacon(self, _cell: 'Cell') -> None:
 		if _cell.can_build():
 			ore_cost = gameObject.RespawnBeacon.construction_cost
-			if self.corp.amount_of_ore() >= ore_cost:
+			if self.corp.ore_quantity >= ore_cost:
 				_cell.add_corp_owned_building(self.corp, 'RespawnBeacon')
 				self.lose_ore(ore_cost)
 			else:
@@ -482,7 +482,7 @@ class Player(gameObject.GameObject):
 	def construct_door(self, _cell: 'Cell') -> None:
 		if _cell.can_build():
 			ore_cost = gameObject.Door.construction_cost
-			if self.corp.amount_of_ore() >= ore_cost:
+			if self.corp.ore_quantity >= ore_cost:
 				_cell.add_corp_owned_building(self.corp, 'Door')
 				self.lose_ore(ore_cost)
 			else:
@@ -495,7 +495,7 @@ class Player(gameObject.GameObject):
 			if _cell.is_adjacent_to_game_object('OreDeposit', check_diagonally=True, check_horizontally=True,
 												check_vertically=True):
 				ore_cost = gameObject.OreGenerator.construction_cost
-				if self.corp.amount_of_ore() >= ore_cost:
+				if self.corp.ore_quantity >= ore_cost:
 					_cell.add_corp_owned_building(self.corp, 'OreGenerator')
 					self.lose_ore(ore_cost)
 				else:
@@ -508,7 +508,7 @@ class Player(gameObject.GameObject):
 	def construct_hospital(self, _cell: 'Cell') -> None:
 		if _cell.can_build():
 			ore_cost = gameObject.Hospital.construction_cost
-			if self.corp.amount_of_ore() >= ore_cost:
+			if self.corp.ore_quantity >= ore_cost:
 				_cell.add_corp_owned_building(self.corp, 'Hospital')
 				self.lose_ore(ore_cost)
 			else:
@@ -519,7 +519,7 @@ class Player(gameObject.GameObject):
 	def construct_fence(self, _cell: 'Cell') -> None:
 		if _cell.can_build():
 			ore_cost = gameObject.Fence.construction_cost
-			if self.corp.amount_of_ore() >= ore_cost:
+			if self.corp.ore_quantity >= ore_cost:
 				_cell.add_corp_owned_building(self.corp, 'Fence')
 				self.lose_ore(ore_cost)
 			else:
@@ -541,9 +541,6 @@ class Player(gameObject.GameObject):
 				raise exceptions.NoPlayerFoundException()
 		else:
 			raise exceptions.CellIsNoneException()
-
-	def get_corp_id(self):
-		return self.corp.corp_id
 
 	def receive_merge_invite(self, corp_id):
 		self.corp.receive_merge_invite(corp_id)
@@ -679,7 +676,7 @@ class Player(gameObject.GameObject):
 				price_to_use_hospital = hospital.prices_to_use.get(owner_standings_towards_us, 0)
 				profit_for_owners = hospital.profits_per_use.get(owner_standings_towards_us, 0)
 
-				if self.corp.amount_of_ore() >= price_to_use_hospital:
+				if self.corp.ore_quantity >= price_to_use_hospital:
 					# Healing
 					self.health = min(self.health + hospital.health_regen_per_turn, self.health_cap)
 					# Pay

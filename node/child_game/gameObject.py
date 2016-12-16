@@ -207,8 +207,8 @@ class CorpOwnedStore(CorpOwnedBuilding):
 		assert (_corp.__class__.__name__ == 'Corporation')
 
 		# Checking if both parties are able to pay
-		if (_corp.amount_of_ore() >= self.get_price(_corp,
-													item_num) and self.owner_corp.amount_of_ore() >= self.product_price_from_product_num(
+		if (_corp.ore_quantity >= self.get_price(_corp,
+													item_num) and self.owner_corp.ore_quantity >= self.product_price_from_product_num(
 			item_num)) is False:
 			return False
 

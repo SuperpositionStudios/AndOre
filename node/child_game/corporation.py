@@ -1,6 +1,7 @@
 import uuid
 import config
 from child_game import gameObject
+import child_game
 
 
 class Corporation:
@@ -166,29 +167,24 @@ class Corporation:
 		else:
 			return 'N'
 
-	def add_member(self, member):
-		assert (member.__class__.__name__ == 'Player')
+	def add_member(self, member: 'child_game.player.Player'):
 		self.members.append(member)
 
-	def remove_member(self, member):
-		assert (member.__class__.__name__ == 'Player')
+	def remove_member(self, member: 'child_game.player.Player'):
 		member_id = member.obj_id
 		for i in range(0, len(self.members)):
 			if self.members[i].obj_id == member_id:
 				del self.members[i]
 				return
 
-	def gain_ore(self, amount):
+	def gain_ore(self, amount: float):
 		self.pending_requests['ore_delta'] += amount
 
-	def lose_ore(self, amount):
+	def lose_ore(self, amount: float):
 		self.pending_requests['ore_delta'] -= amount
 
-	def set_ore_quantity(self, amount):
+	def set_ore_quantity(self, amount: float):
 		self.ore_quantity = amount
-
-	def amount_of_ore(self):
-		return self.ore_quantity
 
 	def calculate_ore_loss_on_death(self):
 		return int(self.ore_quantity / len(self.members))
