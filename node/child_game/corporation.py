@@ -74,12 +74,12 @@ class Corporation:
 	def render_inventory(self):
 		rendered_inventory = ''
 		self.usage_inventory = []
-		for itemName in self.assets["inventory"]:
-			itemDict = self.assets["inventory"][itemName]
-			if itemDict.get("quantity", 0) > 0:
-				icon = itemDict["item"].icon
-				rendered_inventory += '{icon}: {quantity} '.format(icon=icon, quantity=itemDict.get("quantity", 0))
-				self.usage_inventory.append(itemDict["item"])
+		for item_name in self.assets["inventory"]:
+			item_dict = self.assets["inventory"][item_name]
+			if item_dict.get("quantity", 0) > 0:
+				icon = item_dict["item"].icon
+				rendered_inventory += '{icon}: {quantity} '.format(icon=icon, quantity=item_dict.get("quantity", 0))
+				self.usage_inventory.append(item_dict["item"])
 		return rendered_inventory.ljust(self.world.cols)
 
 	def return_obj_selected_in_rendered_inventory(self, selected):
