@@ -1,0 +1,23 @@
+#floater {
+    float: left;
+    height: 30%;
+    width: 100%;
+    margin-bottom: -50px;
+}
+
+#child {
+    clear: both;
+}
+
+body {
+    height: 100%;
+}
+
+html {
+    height: 100%;
+    font-family: 'Ubuntu Mono', monospace;
+}
+
+.container {
+    height: 100%;
+}

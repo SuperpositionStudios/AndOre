@@ -25,86 +25,12 @@
 
 		<link href="https://fonts.googleapis.com/css?family=Ubuntu+Mono" rel="stylesheet">
 
-		<script src="{{ url_for('static', filename='shared/external/js/jquery-2.1.1.min.js') }}"></script>
-
 		<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='shared/external/css/materialize.min.css') }}">
-		<script src="{{ url_for('static', filename='shared/external/js/materialize.min.js') }}"></script>
 
-        <script src="{{ url_for('static', filename='shared/external/js/googleAnalytics.js') }}"></script>
-		<!--<script src="{{ url_for('static', filename='shared/internal/gameClient/js/testData.js') }}"></script>-->
-		<script src="{{ url_for('static', filename='shared/external/js/rl.js') }}"></script>
-		<script src="{{ url_for('static', filename='shared/internal/gameClient/js/ai.js') }}"></script>
-        <script src="{{ url_for('static', filename='shared/internal/gameClient/js/Bengal.js') }}"></script>
-		<script src="{{ url_for('static', filename='shared/internal/gameClient/js/view.js') }}"></script>
-		<script src="{{ url_for('static', filename='shared/internal/gameClient/js/app.js') }}"></script>
 		<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='shared/internal/gameClient/css/style.css') }}">
-
-        <script async defer src="https://buttons.github.io/buttons.js"></script>
-
 	</head>
 	<body>
 		<div id="wrapper">
-			<!-- Modals -->
-			<div>
-				<!-- Modal Structure -->
-				<div id="modal1" class="modal">
-					<div class="modal-content">
-						<div class="row">
-							<h4>Welcome to And/Ore</h4>
-							<hr>
-							<div class="col s12">
-								<div class="row">
-									<div class="col s6">
-										<div class="input-field col s12">
-											<input placeholder="JCharante" id="username" type="text" class="validate">
-											<label for="username">Username</label>
-										</div>
-									</div>
-									<div class="col s6">
-										<a class="waves-effect waves-light btn col s4" id="login">Login</a>
-									</div>
-								</div>
-								<div class="row">
-									<div class="col s6">
-										<div class="input-field col s12">
-											<input placeholder="hunter2" id="password" type="password" class="validate">
-											<label for="password">Password</label>
-										</div>
-									</div>
-									<div class="col s6">
-										<a class="waves-effect waves-light btn col s4" id="signup">Signup</a>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-					<div class="modal-footer">
-						<p class="center">
-
-						</p>
-					</div>
-				</div>
-				<!-- Modal Structure -->
-				<div id="modal2" class="modal">
-					<div class="modal-content">
-						<div class="row">
-							<h4>Welcome to And/Ore</h4>
-							<hr>
-							<div class="col s6">
-								<a class="waves-effect waves-light btn" id="rejoin_game">ReJoin Game</a>
-							</div>
-							<div class="col s6">
-								<a class="waves-effect waves-light btn" id="start_anew">Start Anew</a>
-							</div>
-						</div>
-					</div>
-					<div class="modal-footer">
-						<p class="center">
-
-						</p>
-					</div>
-				</div>
-			</div>
 			<!-- Game View -->
 			<div class="row" id="game-view">
 				<!-- World View -->
@@ -113,6 +39,11 @@
 				</div>
 				<!-- Right Column -->
 				<div id="right-column" class="col s2">
+					<div class="walls">
+						<a href="/">
+							<img src="{{ url_for('static', filename='shared/internal/img/Logo-Lossy.png') }}" id="andore-logo">
+						</a>
+					</div>
 					<div class="walls">
 						<p><b>System: <span id="currentNodeName">Connecting...</span></b></p>
 					</div>
@@ -183,5 +114,16 @@
 				</div>
 			</div>
 		</div>
+		<script src="{{ url_for('static', filename='shared/external/js/jquery-2.1.1.min.js') }}"></script>
+		<script src="{{ url_for('static', filename='shared/external/js/materialize.min.js') }}"></script>
+
+        <script src="{{ url_for('static', filename='shared/external/js/googleAnalytics.js') }}"></script>
+		<!--<script src="{{ url_for('static', filename='shared/internal/gameClient/js/testData.js') }}"></script>-->
+		<script src="{{ url_for('static', filename='shared/external/js/rl.js') }}"></script>
+		<script src="{{ url_for('static', filename='shared/internal/gameClient/js/ai.js') }}"></script>
+        <script src="{{ url_for('static', filename='shared/internal/gameClient/js/Bengal.js') }}"></script>
+		<script src="{{ url_for('static', filename='shared/internal/gameClient/js/view.js') }}"></script>
+		<script src="{{ url_for('static', filename='shared/internal/gameClient/js/app.js') }}"></script>
+		<script async defer src="https://buttons.github.io/buttons.js"></script>
 	</body>
 </html>
