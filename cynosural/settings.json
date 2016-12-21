@@ -1,5 +1,5 @@
 {
-	"inProduction": false,
+	"inProduction": true,
 	"urls": {
 		"erebus": {
 			"production": "http://erebus.andore.online",
