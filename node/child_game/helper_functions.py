@@ -15,6 +15,23 @@ def flatten_2d_list(x):
 	return response
 
 
+def calculate_standing(standing, modifier):
+	if standing == 'E' and modifier == 1:
+		return 'N'
+	elif standing == 'E' and modifier == -1:
+		return 'E'
+	elif standing == 'N' and modifier == 1:
+		return 'A'
+	elif standing == 'N' and modifier == -1:
+		return 'E'
+	elif standing == 'A' and modifier == 1:
+		return 'A'
+	elif standing == 'A' and modifier == -1:
+		return 'N'
+	else:
+		return 'N'
+
+
 def get_git_revision_hash(return_bytes=False):
 	if return_bytes:
 		return subprocess.check_output(['git', 'rev-parse', 'HEAD'])

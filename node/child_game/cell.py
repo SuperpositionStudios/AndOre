@@ -93,10 +93,9 @@ class Cell:
 
 	def damage_players_with_standing(self, attacking_corp: 'corporation.Corporation', damage: float,
 									 standings: List[str], max_attacked_players=1) -> None:
-
-		player_ids_in_cell = self.get_object_id_of_game_objects_in_cell('Player')  # type: List[str]
-
-		if len(player_ids_in_cell) == 0:
+		try:
+			player_ids_in_cell = self.get_object_id_of_game_objects_in_cell('Player')
+		except exceptions.NoGameObjectOfThatClassFoundException:
 			raise exceptions.NoPlayersToAttackException()
 
 		players_in_cell = []  # type: List['Player']
@@ -173,21 +172,6 @@ class Cell:
 				del self.contents[i]
 				return
 
-	def contains_object_type(self, obj_type_name: str) -> Tuple[bool, any]:
-		"""
-
-		:param obj_type_name: The class name, example: 'Cell'
-		:return: A tuple, [0] = a bool, true if cell contains obj_type_name. [1] = obj_id to first obj found of that class in the cell.
-		"""
-		# obj_type_name is the class name, example: 'Cell'
-		# Returns a tuple, a boolean answering if the cell contains an object with the same class name as the input
-		# and a string, if the boolean is true then it will return the object's obj_id
-		# Returns as soon as one of the objects is found, so this may be unreliable in some use cases
-		for obj in self.contents:
-			if obj.__class__.__name__ == obj_type_name:
-				return True, obj.obj_id
-		return False, ''
-
 	def get_object_id_of_first_object_found(self, obj_type_name: str) -> str:
 		"""
 		Returns the object id of the first object found that has a matching class name as the one supplied.
@@ -198,7 +182,7 @@ class Cell:
 		for obj in self.contents:
 			if obj.__class__.__name__ == obj_type_name:
 				return obj.obj_id
-		raise exceptions.NoGameObjectOfThatClassFoundException(obj_type_name)
+		raise exceptions.NoGameObjectOfThatClassFoundException()
 
 	def get_object_id_of_game_objects_in_cell(self, game_object_class: str) -> List[str]:
 		object_ids = []
@@ -206,6 +190,9 @@ class Cell:
 		for obj in self.contents:
 			if obj.__class__.__name__ == game_object_class:
 				object_ids.append(obj.obj_id)
+
+		if len(object_ids) == 0:
+			raise exceptions.NoGameObjectOfThatClassFoundException()
 
 		return object_ids
 

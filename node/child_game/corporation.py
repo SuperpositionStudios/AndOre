@@ -1,6 +1,7 @@
 import uuid
 import config
-from child_game import gameObject
+from child_game import gameObject, helper_functions
+import child_game
 
 
 class Corporation:
@@ -73,12 +74,12 @@ class Corporation:
 	def render_inventory(self):
 		rendered_inventory = ''
 		self.usage_inventory = []
-		for itemName in self.assets["inventory"]:
-			itemDict = self.assets["inventory"][itemName]
-			if itemDict.get("quantity", 0) > 0:
-				icon = itemDict["item"].icon
-				rendered_inventory += '{icon}: {quantity} '.format(icon=icon, quantity=itemDict.get("quantity", 0))
-				self.usage_inventory.append(itemDict["item"])
+		for item_name in self.assets["inventory"]:
+			item_dict = self.assets["inventory"][item_name]
+			if item_dict.get("quantity", 0) > 0:
+				icon = item_dict["item"].icon
+				rendered_inventory += '{icon}: {quantity} '.format(icon=icon, quantity=item_dict.get("quantity", 0))
+				self.usage_inventory.append(item_dict["item"])
 		return rendered_inventory.ljust(self.world.cols)
 
 	def return_obj_selected_in_rendered_inventory(self, selected):
@@ -145,59 +146,35 @@ class Corporation:
 			return 'N'
 
 	def worsen_standing(self, corp_id):
-		self.standings[corp_id] = self.calculate_standing(self.fetch_standing(corp_id), -1)
+		self.standings[corp_id] = helper_functions.calculate_standing(self.fetch_standing(corp_id), -1)
 
 	def improve_standing(self, corp_id):
-		self.standings[corp_id] = self.calculate_standing(self.fetch_standing(corp_id), 1)
+		self.standings[corp_id] = helper_functions.calculate_standing(self.fetch_standing(corp_id), 1)
 
-	def calculate_standing(self, standing, modifier):
-		if standing == 'E' and modifier == 1:
-			return 'N'
-		elif standing == 'E' and modifier == -1:
-			return 'E'
-		elif standing == 'N' and modifier == 1:
-			return 'A'
-		elif standing == 'N' and modifier == -1:
-			return 'E'
-		elif standing == 'A' and modifier == 1:
-			return 'A'
-		elif standing == 'A' and modifier == -1:
-			return 'N'
-		else:
-			return 'N'
-
-	def add_member(self, member):
-		assert (member.__class__.__name__ == 'Player')
+	def add_member(self, member: 'child_game.player.Player'):
 		self.members.append(member)
 
-	def remove_member(self, member):
-		assert (member.__class__.__name__ == 'Player')
+	def remove_member(self, member: 'child_game.player.Player'):
 		member_id = member.obj_id
 		for i in range(0, len(self.members)):
 			if self.members[i].obj_id == member_id:
 				del self.members[i]
 				return
 
-	def gain_ore(self, amount):
+	def gain_ore(self, amount: float):
 		self.pending_requests['ore_delta'] += amount
 
-	def lose_ore(self, amount):
+	def lose_ore(self, amount: float):
 		self.pending_requests['ore_delta'] -= amount
 
-	def set_ore_quantity(self, amount):
+	def set_ore_quantity(self, amount: float):
 		self.ore_quantity = amount
-
-	def amount_of_ore(self):
-		return self.ore_quantity
 
 	def calculate_ore_loss_on_death(self):
 		return int(self.ore_quantity / len(self.members))
 
 	def check_if_in_corp(self, player_id):
-		for member in self.members:
-			if player_id == member.obj_id:
-				return True
-		return False
+		return player_id in [member.obj_id for member in self.members]
 
 	def receive_merge_invite(self, corp_id):
 		self.received_merge_invites.append(corp_id)
