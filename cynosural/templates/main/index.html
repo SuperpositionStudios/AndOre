@@ -1,13 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>And/Ore</title>
+	<meta charset="UTF-8">
+	<title>And/Ore</title>
+	<link href="https://fonts.googleapis.com/css?family=Ubuntu+Mono" rel="stylesheet">
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='shared/external/css/materialize.min.css') }}">
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='shared/internal/main/css/style.css') }}">
 </head>
 <body>
-    <h1>And/Ore</h1>
-    <a href="{{ url_for('gameclient') }}">
-		<p>Play</p>
-	</a>
+<!-- Dropdown Structure -->
+<ul id="dropdown1" class="dropdown-content">
+
+</ul>
+<nav>
+	<div class="nav-wrapper">
+		<a href="#" class="brand-logo" id="nav-brand-logo">And/Ore</a>
+		<ul class="right hide-on-med-and-down">
+			<li><a href="{{ url_for('gameclient') }}">Play Game</a></li>
+			<li><a href="#">Sphere</a></li>
+			<!-- Dropdown Trigger -->
+			<li>
+				<a class="dropdown-button" href="#" data-activates="dropdown1">
+					Account<i class="material-icons right">arrow_drop_down</i>
+				</a>
+			</li>
+		</ul>
+	</div>
+</nav>
+<div class="container">
+	<p class="center">
+		Thank you for visiting And/Ore. We don't have much to put here yet, but the above navbar has everything you need.
+	</p>
+</div>
+<script src="{{ url_for('static', filename='shared/external/js/jquery-2.1.1.min.js') }}"></script>
+<script src="{{ url_for('static', filename='shared/external/js/materialize.min.js') }}"></script>
+<script src="{{ url_for('static', filename='shared/internal/main/js/script.js') }}"></script>
 </body>
 </html>

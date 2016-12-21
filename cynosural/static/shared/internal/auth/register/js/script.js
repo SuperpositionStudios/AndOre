@@ -5,7 +5,7 @@ function setAID(aid) {
 function getURLs(callback) {
 	$.getJSON('/urls',
 		function (data) {
-			console.log("URLs: ", data);
+			console.log("Cynosural: ", "URLs: ", data);
 			callback(data);
 		}
 	);
@@ -16,11 +16,12 @@ function redirectToHomePage() {
 }
 
 function hasAnAidValue() {
-	aid = localStorage.getItem('aid') | null;
-	return aid != null;
+	aid = localStorage.getItem('aid') || null;
+	return null != aid;
 }
 
 function startSubmitButtonListener(erebusURL) {
+	console.log("Starting to listen to the submit button");
 	$('#submit').click(function () {
 		var username = $('#username').val();
 		var password = $('#password').val();
@@ -46,7 +47,7 @@ function startSubmitButtonListener(erebusURL) {
 			},
 			error: function (jqXHR, exception) {
 				if (jqXHR.status === 401) {
-					Materialize.toast('Invalid Credentials', 3000, 'rounded red accent-4');
+					Materialize.toast('Username Taken', 3000, 'rounded red accent-4');
 				} else {
 					Materialize.toast('So something bad happened, but I don\'t exactly know what happened.', 3000, 'rounded red accent-4');
 					console.log('Unknown Error. \n ' + jqXHR.responseText);
