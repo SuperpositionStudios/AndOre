@@ -206,79 +206,40 @@ App.prototype = {
 	},
 	GetAuthId: function (callback) {
 		var self = this;
-		$('#modal1').openModal({
-			dismissible: false
-		});
-		$('#login').click(function () {
-			var username = $('#username').val();
-			var password = $('#password').val();
-			var data = {
-				username: username,
-				password: password
-			};
-			Materialize.toast("Logging in...!", 2000, 'rounded');
-			$.ajax({
-				method: 'POST',
-				url: erebusURL + '/account/login',
-				data: JSON.stringify(data),
+		var stored_aid = localStorage.getItem('aid') || null;
+		if (null == stored_aid) {
+			window.location.replace('/auth/login');
+		}
+
+		$.ajax({
+				method: 'GET',
+				url: erebusURL + '/get/username',
+				data: {
+					'aid': stored_aid
+				},
 				dataType: "json",
 				contentType: "application/json",
 				success: function (data) {
-					if (data['status'] == 'Success') {
+					if (data['valid_aid']) {
 						Materialize.toast("Logged in", 2000, 'rounded light-green accent-4');
-						self.authId = data['uid'];
-						$('#modal1').closeModal();
+						self.authId = stored_aid;
 						CallCallback(callback);
-						//console.log(auth_id);
 					} else {
 						console.log(data);
+						window.location.replace('/auth/logout');
 					}
 				},
 				error: function (jqXHR, exception) {
 					if (jqXHR.status === 401) {
 						Materialize.toast('Invalid Credentials', 3000, 'rounded red accent-4');
+						window.location.replace('/auth/logout');
 					} else {
 						Materialize.toast('So something bad happened, but I don\'t exactly know what happened.', 3000, 'rounded red accent-4');
 						console.log('Unknown Error. \n ' + jqXHR.responseText);
+						window.location.replace('/auth/logout');
 					}
 				}
 			});
-		});
-		$('#signup').click(function () {
-			Materialize.toast("Signing up...", 2000, 'rounded');
-			var username = $('#username').val();
-			var password = $('#password').val();
-			var data = {
-				username: username,
-				password: password
-			};
-			$.ajax({
-				method: 'POST',
-				url: erebusURL + '/account/create',
-				data: JSON.stringify(data),
-				dataType: "json",
-				contentType: "application/json",
-				success: function (data) {
-					if (data['status'] == 'Success') {
-						Materialize.toast("Signed up", 2000, 'rounded light-green accent-4');
-						Materialize.toast("Logged in", 2000, 'rounded light-green accent-4');
-						self.authId = data['uid'];
-						$('#modal1').closeModal();
-						CallCallback(callback);
-						//console.log(auth_id);
-					} else {
-						console.log(data);
-					}
-				},
-				error: function (jqXHR, exception) {
-					if (jqXHR.status === 401) {
-						Materialize.toast('Invalid Credentials', 3000, 'rounded red accent-4');
-					} else {
-						Materialize.toast('Unknown Error. \n ' + jqXHR.responseText, 3000, 'rounded red accent-4');
-					}
-				}
-			});
-		});
 	},
 
 	StartSleipnirWS: function (callback) {

@@ -1,7 +1,6 @@
 import uuid
 from child_game import gameObject, world, corporation
 from typing import Tuple, List
-from child_game.exceptions import CellCoordinatesOutOfBoundsError
 from child_game import exceptions
 
 
@@ -17,8 +16,8 @@ class Cell:
 		try:
 			fetched_cell = self.world.get_cell(self.row + row_offset, self.col + col_offset)
 			return fetched_cell
-		except CellCoordinatesOutOfBoundsError:
-			raise CellCoordinatesOutOfBoundsError(self.row + row_offset, self.col + col_offset)
+		except exceptions.CellCoordinatesOutOfBoundsError:
+			raise exceptions.CellCoordinatesOutOfBoundsError(self.row + row_offset, self.col + col_offset)
 
 	def is_adjacent_to_game_object(self, game_object: str, check_horizontally=True, check_vertically=True,
 								   check_diagonally=False, check_self=False):
@@ -47,7 +46,7 @@ class Cell:
 				except exceptions.NoGameObjectOfThatClassFoundException:
 					pass
 
-			except CellCoordinatesOutOfBoundsError:
+			except exceptions.CellCoordinatesOutOfBoundsError:
 				pass
 
 		return False
@@ -77,7 +76,7 @@ class Cell:
 				_cell = self.get_cell_by_offset(offset_tuple[0], offset_tuple[1])
 				cells.append(_cell)
 
-			except CellCoordinatesOutOfBoundsError:
+			except exceptions.CellCoordinatesOutOfBoundsError:
 				pass
 
 		return cells
@@ -94,7 +93,6 @@ class Cell:
 
 	def damage_players_with_standing(self, attacking_corp: 'corporation.Corporation', damage: float,
 									 standings: List[str], max_attacked_players=1) -> None:
-
 		try:
 			player_ids_in_cell = self.get_object_id_of_game_objects_in_cell('Player')
 		except exceptions.NoGameObjectOfThatClassFoundException:
@@ -145,25 +143,22 @@ class Cell:
 		self.contents.append(a)
 
 	def add_corp_owned_building(self, owner_corp: 'corporation.Corporation', building_type: str):
-		assert (owner_corp.__class__.__name__ == 'Corporation')
-		a = None
-		if building_type == 'SentryTurret':
-			a = gameObject.SentryTurret(self, owner_corp)
-		elif building_type == 'SpikeTrap':
-			a = gameObject.SpikeTrap(self, owner_corp)
-		elif building_type == 'RespawnBeacon':
-			a = gameObject.RespawnBeacon(self, owner_corp)
-		elif building_type == 'Door':
-			a = gameObject.Door(self, owner_corp)
-		elif building_type == 'Pharmacy':
-			a = gameObject.Pharmacy(self, owner_corp)
-		elif building_type == 'Hospital':
-			a = gameObject.Hospital(self, owner_corp)
-		elif building_type == 'OreGenerator':
-			a = gameObject.OreGenerator(self, owner_corp)
-		elif building_type == 'Fence':
-			a = gameObject.Fence(self, owner_corp)
-		self.add_game_object(a)
+		building_types = {
+			'SentryTurret': gameObject.SentryTurret,
+			'SpikeTrap': gameObject.SpikeTrap,
+			'RespawnBeacon': gameObject.RespawnBeacon,
+			'Door': gameObject.Door,
+			'Pharmacy': gameObject.Pharmacy,
+			'Hospital': gameObject.Hospital,
+			'OreGenerator': gameObject.OreGenerator,
+			'Fence': gameObject.Fence
+		}
+
+		pointer_to_building_class = building_types.get(building_type, None)
+		if pointer_to_building_class is not None:
+			self.add_game_object(pointer_to_building_class(owner_corp))
+		else:
+			pass
 
 	def add_structure(self, building_type: str, star_gate_target=''):
 		obj = None
