@@ -1,5 +1,19 @@
 # Nickname: Cynosural
 from flask import Flask, request, jsonify, make_response, abort, Response, render_template
+import os, json
+
+
+def path_to_this_files_directory():
+	dir_path = os.path.dirname(os.path.realpath(__file__))
+	return dir_path + '/'
+
+
+# Generate whitelisted_words set
+with open(path_to_this_files_directory() + 'settings.json') as json_data:
+	d = json.load(json_data)
+in_production = d.get('inProduction', False)
+url_key = "production" if in_production else "development"
+urls = d.get('urls', None)
 
 app = Flask(__name__)
 
@@ -14,7 +28,7 @@ def home_cor(obj):
 
 @app.route('/')
 def index():
-	return render_template("gameClient/index.html")
+	return render_template("main/index.html")
 
 
 @app.route('/auth/login')
@@ -25,6 +39,11 @@ def auth_login():
 @app.route('/auth/register')
 def auth_register():
 	return render_template("auth/register.html")
+
+
+@app.route('/auth/logout')
+def auth_logout():
+	return render_template("auth/logout.html")
 
 
 @app.route('/admin')
@@ -44,10 +63,11 @@ def bengal():
 
 @app.route('/urls')
 def get_urls():
-	urls = {
-		'erebus': 'http://erebus.andore.online'
+	global urls
+	response = {
+		'erebus': urls['erebus'][url_key]
 	}
-	return home_cor(jsonify(**urls))
+	return home_cor(jsonify(**response))
 
 
 app.run(debug=True, host='0.0.0.0', port=7002, threaded=True)

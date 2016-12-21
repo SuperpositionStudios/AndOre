@@ -1,0 +1,9 @@
+{
+	"inProduction": false,
+	"urls": {
+		"erebus": {
+			"production": "http://erebus.andore.online",
+			"development": "http://localhost:7004"
+		}
+	}
+}
