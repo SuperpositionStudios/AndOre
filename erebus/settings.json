@@ -1,229 +1,39 @@
 {
-  "permissions": {
-    "normalPlayer": {
-      "canSpawnOre": false,
-      "canMuteUser": false,
-      "canSpawnInventory": false,
-      "canBeInvincible": false,
-      "canSmite": false,
-      "canNoClip": false,
-      "canBecomeInvisible": false,
-      "canPromoteOthersToPremiumPlayer": false,
-      "canPromoteOthersToChatModerator": false,
-      "canPromoteOthersToGameModerator": false,
-      "canPromoteOthersToSeniorGameModerator": false,
-      "canPromoteOthersToQualityAssurance": false,
-      "canPromoteOthersToAdmin": false,
-      "canPromoteOthersToSeniorAdmin": false,
-      "canDemoteOthersToNormalPlayer": false,
-      "canDemoteOthersToPremiumPlayer": false,
-      "canDemoteOthersToChatModerator": false,
-      "canDemoteOthersToGameModerator": false,
-      "canDemoteOthersToSeniorGameModerator": false,
-      "canDemoteOthersToQualityAssurance": false,
-      "canDemoteOthersToAdmin": false,
-      "canDemoteOthersToSeniorAdmin": false,
-      "canTeleportToOtherPlayers": false,
-      "canTeleportOtherPlayers": false
-    },
-    "premiumPlayer": {
-      "canSpawnOre": false,
-      "canMuteUser": false,
-      "canSpawnInventory": false,
-      "canBeInvincible": false,
-      "canSmite": false,
-      "canNoClip": false,
-      "canBecomeInvisible": false,
-      "canPromoteOthersToPremiumPlayer": false,
-      "canPromoteOthersToChatModerator": false,
-      "canPromoteOthersToGameModerator": false,
-      "canPromoteOthersToSeniorGameModerator": false,
-      "canPromoteOthersToQualityAssurance": false,
-      "canPromoteOthersToAdmin": false,
-      "canPromoteOthersToSeniorAdmin": false,
-      "canDemoteOthersToNormalPlayer": false,
-      "canDemoteOthersToPremiumPlayer": false,
-      "canDemoteOthersToChatModerator": false,
-      "canDemoteOthersToGameModerator": false,
-      "canDemoteOthersToSeniorGameModerator": false,
-      "canDemoteOthersToQualityAssurance": false,
-      "canDemoteOthersToAdmin": false,
-      "canDemoteOthersToSeniorAdmin": false,
-      "canTeleportToOtherPlayers": false,
-      "canTeleportOtherPlayers": false
-    },
-    "chatModerator": {
-      "canSpawnOre": false,
-      "canMuteUser": true,
-      "canSpawnInventory": false,
-      "canBeInvincible": false,
-      "canSmite": false,
-      "canNoClip": false,
-      "canBecomeInvisible": false,
-      "canPromoteOthersToPremiumPlayer": false,
-      "canPromoteOthersToChatModerator": false,
-      "canPromoteOthersToGameModerator": false,
-      "canPromoteOthersToSeniorGameModerator": false,
-      "canPromoteOthersToQualityAssurance": false,
-      "canPromoteOthersToAdmin": false,
-      "canPromoteOthersToSeniorAdmin": false,
-      "canDemoteOthersToNormalPlayer": false,
-      "canDemoteOthersToPremiumPlayer": false,
-      "canDemoteOthersToChatModerator": false,
-      "canDemoteOthersToGameModerator": false,
-      "canDemoteOthersToSeniorGameModerator": false,
-      "canDemoteOthersToQualityAssurance": false,
-      "canDemoteOthersToAdmin": false,
-      "canDemoteOthersToSeniorAdmin": false,
-      "canTeleportToOtherPlayers": false,
-      "canTeleportOtherPlayers": false
-    },
-    "gameModerator": {
-      "canSpawnOre": false,
-      "canMuteUser": true,
-      "canSpawnInventory": false,
-      "canBeInvincible": false,
-      "canSmite": false,
-      "canNoClip": true,
-      "canBecomeInvisible": true,
-      "canPromoteOthersToPremiumPlayer": false,
-      "canPromoteOthersToChatModerator": false,
-      "canPromoteOthersToGameModerator": false,
-      "canPromoteOthersToSeniorGameModerator": false,
-      "canPromoteOthersToQualityAssurance": false,
-      "canPromoteOthersToAdmin": false,
-      "canPromoteOthersToSeniorAdmin": false,
-      "canDemoteOthersToNormalPlayer": false,
-      "canDemoteOthersToPremiumPlayer": false,
-      "canDemoteOthersToChatModerator": false,
-      "canDemoteOthersToGameModerator": false,
-      "canDemoteOthersToSeniorGameModerator": false,
-      "canDemoteOthersToQualityAssurance": false,
-      "canDemoteOthersToAdmin": false,
-      "canDemoteOthersToSeniorAdmin": false,
-      "canTeleportToOtherPlayers": true,
-      "canTeleportOtherPlayers": true
-    },
-    "seniorGameModerator": {
-      "canSpawnOre": true,
-      "canMuteUser": true,
-      "canSpawnInventory": true,
-      "canBeInvincible": true,
-      "canSmite": true,
-      "canNoClip": true,
-      "canBecomeInvisible": true,
-      "canPromoteTheseToPremiumPlayer": {
-        "normalPlayer": true,
-        "premiumPlayer": false,
-        "chatModerator": false,
-        "gameModerator": false,
-        "seniorGameModerator": false,
-        "qualityAssurance": false,
-        "admin": false,
-        "seniorAdmin": false
-      },
-      "canPromoteOthersToChatModerator": {
-        "normalPlayer": true,
-        "premiumPlayer": true,
-        "chatModerator": false,
-        "gameModerator": false,
-        "seniorGameModerator": false,
-        "qualityAssurance": false,
-        "admin": false,
-        "seniorAdmin": false
-      },
-      "canPromoteOthersToGameModerator": {
-        "normalPlayer": true,
-        "premiumPlayer": true,
-        "chatModerator": true,
-        "gameModerator": false,
-        "seniorGameModerator": false,
-        "qualityAssurance": false,
-        "admin": false,
-        "seniorAdmin": false
-      },
-      "canPromoteOthersToSeniorGameModerator": {
-        "normalPlayer": false,
-        "premiumPlayer": false,
-        "chatModerator": false,
-        "gameModerator": false,
-        "seniorGameModerator": false,
-        "qualityAssurance": false,
-        "admin": false,
-        "seniorAdmin": false
-      },
-      "canPromoteOthersToQualityAssurance": {
-        "normalPlayer": false,
-        "premiumPlayer": false,
-        "chatModerator": false,
-        "gameModerator": false,
-        "seniorGameModerator": false,
-        "qualityAssurance": false,
-        "admin": false,
-        "seniorAdmin": false
-      },
-      "canPromoteOthersToAdmin": false,
-      "canPromoteOthersToSeniorAdmin": false,
-      "canDemoteTheseToNormalPlayer": {
-        "normalPlayer": true,
-        "premiumPlayer": true,
-        "chatModerator": true,
-        "gameModerator": false,
-        "seniorGameModerator": false,
-        "qualityAssurance": false,
-        "admin": false,
-        "seniorAdmin": false
-      },
-      "canDemoteOthersToPremiumPlayer": {
-        "normalPlayer": true,
-        "premiumPlayer": true,
-        "chatModerator": true,
-        "gameModerator": true,
-        "seniorGameModerator": false,
-        "qualityAssurance": false,
-        "admin": false,
-        "seniorAdmin": false
-      },
-      "canDemoteOthersToChatModerator": true,
-      "canDemoteOthersToGameModerator": false,
-      "canDemoteOthersToSeniorGameModerator": false,
-      "canDemoteOthersToQualityAssurance": false,
-      "canDemoteOthersToAdmin": false,
-      "canDemoteOthersToSeniorAdmin": false,
-      "canTeleportToOtherPlayers": true,
-      "canTeleportOtherPlayers": true
-    },
-    "qualityAssurance": {
-
-    },
-    "admin": {
-
-    },
-    "seniorAdmin": {
-      "canSpawnOre": true,
-      "canMuteUser": true,
-      "canSpawnInventory": true,
-      "canBeInvincible": true,
-      "canSmite": true,
-      "canNoClip": true,
-      "canBecomeInvisible": true,
-      "canPromoteOthersToPremiumPlayer": true,
-      "canPromoteOthersToChatModerator": true,
-      "canPromoteOthersToGameModerator": true,
-      "canPromoteOthersToSeniorGameModerator": true,
-      "canPromoteOthersToQualityAssurance": true,
-      "canPromoteOthersToAdmin": true,
-      "canPromoteOthersToSeniorAdmin": true,
-      "canDemoteOthersToNormalPlayer": true,
-      "canDemoteOthersToPremiumPlayer": true,
-      "canDemoteOthersToChatModerator": true,
-      "canDemoteOthersToGameModerator": true,
-      "canDemoteOthersToSeniorGameModerator": true,
-      "canDemoteOthersToQualityAssurance": true,
-      "canDemoteOthersToAdmin": true,
-      "canDemoteOthersToSeniorAdmin": true,
-      "canTeleportToOtherPlayers": true,
-      "canTeleportOtherPlayers": true
-    }
-  }
+	"permissions": {
+		"0": {},
+		"1": {
+			"canPlayAndOre": true
+		},
+		"2": {
+			"canPlayAndOre": true
+		},
+		"3": {
+			"canPlayAndOre": true
+		},
+		"4": {
+			"canPlayAndOre": true
+		},
+		"5": {
+			"canPlayAndOre": true
+		},
+		"6": {
+			"canPlayAndOre": true
+		},
+		"7": {
+			"canPlayAndOre": true
+		},
+		"8": {
+			"Synergy": {
+				"canCreateRoom": true,
+				"canAddUserToRoom": true
+			}
+		},
+		"9": {
+			"canPlayAndOre": true,
+			"Cynosural": {
+				"canViewProductionDetails": true
+			}
+		}
+	},
+	"public_address": "http://localhost:7004"
 }
