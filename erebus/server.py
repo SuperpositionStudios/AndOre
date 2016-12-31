@@ -1,8 +1,13 @@
-from flask import Flask, request, jsonify, make_response, abort, Response
-import database_functions, config, json
+from flask import Flask, request, jsonify, make_response, abort, Response, url_for
+import database_functions
+import config
+import erebus_util
 import exceptions
+import json
 
 app = Flask(__name__)
+
+public_address = json.load(open(erebus_util.path_to_this_files_directory() + 'settings.json')).get('public_address', '')
 
 
 def home_cor(obj):
@@ -73,6 +78,21 @@ def get_username():
 		return home_cor(jsonify(**{}))
 
 
+@app.route('/users/<aid>', methods=['OPTIONS', 'GET'])
+def users(aid: str):
+	if request.method == 'GET':
+		response = {
+			'endpoints': {
+				'username': public_address + url_for('users_username', aid=aid),
+				'privileges': public_address + url_for('users_privileges', aid=aid),
+				'last_login': public_address + url_for('users_last_login', aid=aid)
+			}
+		}
+		return home_cor(jsonify(**response))
+	else:
+		return home_cor(jsonify(**{}))
+
+
 @app.route('/users/<aid>/username', methods=['OPTIONS', 'GET'])
 def users_username(aid: str):
 	if request.method == 'GET':
@@ -90,7 +110,40 @@ def users_username(aid: str):
 		return home_cor(jsonify(**{}))
 
 
-print("Starting Auth Server...")
+@app.route('/users/<aid>/privileges', methods=['OPTIONS', 'GET'])
+def users_privileges(aid: str):
+	if request.method == 'GET':
+		response = {}
+		try:
+			privileges = database_functions.get_privilege(aid)
+		except exceptions.InvalidAid:
+			response['valid_aid'] = False
+		else:
+			response['privileges'] = privileges
+			response['valid_aid'] = True
+		finally:
+			return home_cor(jsonify(**response))
+	else:
+		return home_cor(jsonify(**{}))
+
+
+@app.route('/users/<aid>/last_login', methods=['OPTIONS', 'GET'])
+def users_last_login(aid: str):
+	if request.method == 'GET':
+		response = {}
+		try:
+			last_login = database_functions.get_last_login(aid)
+		except exceptions.InvalidAid:
+			response['valid_aid'] = False
+		else:
+			response['last_login'] = last_login
+			response['valid_aid'] = True
+		finally:
+			return home_cor(jsonify(**response))
+	else:
+		return home_cor(jsonify(**{}))
+
+print("Starting Erebus with Public Address: {}".format(public_address))
 print("Database file located at: {}".format(config.path_to_db()))
 
 app.run(debug=True, host='0.0.0.0', port=7004)
