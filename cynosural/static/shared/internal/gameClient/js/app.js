@@ -269,7 +269,8 @@ App.prototype = {
 				authenticated = true;
 				self.FindCurrentNode(null);  // Join Game
 			} else if (message.request == 'git_version') {
-				$('#sleipnir-git-version').text(message.git_version);
+				$('#sleipnir-git-version-text').text(message.git_version);
+				$('#sleipnir-git-version-link').attr('href', 'https://github.com/AI-Productions/AndOre/commit/' + message.git_version);
 			} else if (message.request == 'update_node') {
 				currentnodeURL = message.node_address;
 				self.EstablishCurrentNodeWS(callback);
@@ -314,7 +315,8 @@ App.prototype = {
 				self.corpId = message.corp_id;
 				self.view.ClientSideDraw(message);
 			} else if (message.request == 'git_version') {
-				$('#region-git-version').text(message.git_version);
+				$('#region-git-version-text').text(message.git_version);
+				$('#region-git-version-link').attr('href', 'https://github.com/AI-Productions/AndOre/commit/' + message.git_version);
 			}
 		};
 
