@@ -29,7 +29,7 @@ function startSubmitButtonListener(erebusURL) {
 			username: username,
 			password: password
 		};
-		Materialize.toast("Logging in...!", 2000, 'rounded');
+
 		$.ajax({
 			method: 'POST',
 			url: erebusURL + '/account/login',
@@ -47,7 +47,7 @@ function startSubmitButtonListener(erebusURL) {
 			},
 			error: function (jqXHR, exception) {
 				if (jqXHR.status === 401) {
-					Materialize.toast('Username Taken', 3000, 'rounded red accent-4');
+					Materialize.toast('Invalid Username And/Or[e] Password', 3000, 'rounded red accent-4');
 				} else {
 					Materialize.toast('So something bad happened, but I don\'t exactly know what happened.', 3000, 'rounded red accent-4');
 					console.log('Unknown Error. \n ' + jqXHR.responseText);
