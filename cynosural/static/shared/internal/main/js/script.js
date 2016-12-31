@@ -24,11 +24,11 @@ function populateNavbarWithPrivilegeSpecificButtons(urls) {
 			success: function (data) {
 				console.log("Cynosural: Privileges: ", data);
 
-				if (data.privileges.Cynosural.canViewProductionDetails || false) {
+				if ( ((data.privileges || {}).Cynosural || {}).canViewProductionDetails || false) {
 					$('#navbar-production-overview').removeClass('invisible');
 				}
 
-				if (data.privileges.Cynosural.canViewSphere || false) {
+				if ( ((data.privileges || {}).Cynosural || {}).canViewSphere || false) {
 					$('#navbar-sphere').removeClass('invisible');
 				}
 			},
