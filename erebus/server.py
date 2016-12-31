@@ -1,7 +1,6 @@
-# Nickname: Erebus
-
 from flask import Flask, request, jsonify, make_response, abort, Response
 import database_functions, config, json
+import exceptions
 
 app = Flask(__name__)
 
@@ -59,12 +58,34 @@ def account_login():
 def get_username():
 	if request.method == 'GET':
 		response = {}
-		aid = request.args.get('aid')
-		username = database_functions.get_username_from_aid(aid)
-		response['valid_aid'] = username[0]
-		response['username'] = username[1]
-		return home_cor(jsonify(**response))
+		aid = request.args.get('aid', '')
+		if aid is not '':
+			try:
+				username = database_functions.get_username(aid)
+			except exceptions.InvalidAid:
+				response['valid_aid'] = False
+			else:
+				response['valid_aid'] = True
+				response['username'] = username
+			finally:
+				return home_cor(jsonify(**response))
+	else:
+		return home_cor(jsonify(**{}))
 
+
+@app.route('/users/<aid>/username', methods=['OPTIONS', 'GET'])
+def users_username(aid: str):
+	if request.method == 'GET':
+		response = {}
+		try:
+			username = database_functions.get_username(aid)
+		except exceptions.InvalidAid:
+			response['valid_aid'] = False
+		else:
+			response['valid_aid'] = True
+			response['username'] = username
+		finally:
+			return home_cor(jsonify(**response))
 	else:
 		return home_cor(jsonify(**{}))
 
