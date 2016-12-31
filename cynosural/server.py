@@ -1,6 +1,8 @@
 # Nickname: Cynosural
 from flask import Flask, request, jsonify, make_response, abort, Response, render_template
-import os, json
+import os
+import json
+import util
 
 
 def path_to_this_files_directory():
@@ -59,6 +61,16 @@ def gameclient():
 @app.route('/bengal')
 def bengal():
 	return render_template("Bengal/index.html")
+
+
+@app.route('/version', methods=['GET', 'OPTIONS'])
+def version():
+	if request.method == 'OPTIONS':
+		return home_cor(jsonify(**{}))
+	elif request.method == 'GET':
+		return home_cor(jsonify(**{
+			"git_version": util.get_git_revision_short_hash()
+		}))
 
 
 @app.route('/urls')

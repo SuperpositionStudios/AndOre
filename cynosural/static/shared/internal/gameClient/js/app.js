@@ -127,14 +127,14 @@ App.prototype = {
 	Init: function () {
 		var self = this;
 		this.actionsLut = ArrayToKeys(this.actions);
+		self.GetCynosuralVersion(null);
 		self.GetAuthId(function () {
-			self.StartChat(function () {
-				self.StartSleipnirWS(function () {
-					self.ListenToStartAi(function () {
-						self.view = new View();
-						//self.view.SetupView(this, App.GetDisplay);
-						self.view.SetupView(self, null);
-					});
+			self.StartChat(null);
+			self.StartSleipnirWS(function () {
+				self.ListenToStartAi(function () {
+					self.view = new View();
+					//self.view.SetupView(this, App.GetDisplay);
+					self.view.SetupView(self, null);
 				});
 			});
 		});
@@ -149,6 +149,23 @@ App.prototype = {
 
 
 		}));
+	},
+	GetCynosuralVersion: function (callback) {
+		var self = this;
+
+		$.ajax({
+			method: 'GET',
+			url: '/version',
+			contentType: "application/json",
+			success: function (data) {
+				$('#client-git-version-text').text(data.git_version);
+				$('#client-git-version-link').attr('href', 'https://github.com/AI-Productions/AndOre/commit/' + data.git_version);
+				CallCallback(callback);
+			},
+			error: function (jqXHR, exception) {
+				console.log("Cynosural: Failed to get git version");
+			}
+		});
 	},
 	StartChat: function (callback) {
 		var self = this;
@@ -212,34 +229,34 @@ App.prototype = {
 		}
 
 		$.ajax({
-				method: 'GET',
-				url: erebusURL + '/get/username',
-				data: {
-					'aid': stored_aid
-				},
-				dataType: "json",
-				contentType: "application/json",
-				success: function (data) {
-					if (data['valid_aid']) {
-						Materialize.toast("Logged in", 2000, 'rounded light-green accent-4');
-						self.authId = stored_aid;
-						CallCallback(callback);
-					} else {
-						console.log(data);
-						window.location.replace('/auth/logout');
-					}
-				},
-				error: function (jqXHR, exception) {
-					if (jqXHR.status === 401) {
-						Materialize.toast('Invalid Credentials', 3000, 'rounded red accent-4');
-						window.location.replace('/auth/logout');
-					} else {
-						Materialize.toast('So something bad happened, but I don\'t exactly know what happened.', 3000, 'rounded red accent-4');
-						console.log('Unknown Error. \n ' + jqXHR.responseText);
-						window.location.replace('/auth/logout');
-					}
+			method: 'GET',
+			url: erebusURL + '/get/username',
+			data: {
+				'aid': stored_aid
+			},
+			dataType: "json",
+			contentType: "application/json",
+			success: function (data) {
+				if (data['valid_aid']) {
+					Materialize.toast("Logged in", 2000, 'rounded light-green accent-4');
+					self.authId = stored_aid;
+					CallCallback(callback);
+				} else {
+					console.log(data);
+					window.location.replace('/auth/logout');
 				}
-			});
+			},
+			error: function (jqXHR, exception) {
+				if (jqXHR.status === 401) {
+					Materialize.toast('Invalid Credentials', 3000, 'rounded red accent-4');
+					window.location.replace('/auth/logout');
+				} else {
+					Materialize.toast('So something bad happened, but I don\'t exactly know what happened.', 3000, 'rounded red accent-4');
+					console.log('Unknown Error. \n ' + jqXHR.responseText);
+					window.location.replace('/auth/logout');
+				}
+			}
+		});
 	},
 
 	StartSleipnirWS: function (callback) {
@@ -269,7 +286,8 @@ App.prototype = {
 				authenticated = true;
 				self.FindCurrentNode(null);  // Join Game
 			} else if (message.request == 'git_version') {
-				$('#sleipnir-git-version').text(message.git_version);
+				$('#sleipnir-git-version-text').text(message.git_version);
+				$('#sleipnir-git-version-link').attr('href', 'https://github.com/AI-Productions/AndOre/commit/' + message.git_version);
 			} else if (message.request == 'update_node') {
 				currentnodeURL = message.node_address;
 				self.EstablishCurrentNodeWS(callback);
@@ -314,7 +332,8 @@ App.prototype = {
 				self.corpId = message.corp_id;
 				self.view.ClientSideDraw(message);
 			} else if (message.request == 'git_version') {
-				$('#region-git-version').text(message.git_version);
+				$('#region-git-version-text').text(message.git_version);
+				$('#region-git-version-link').attr('href', 'https://github.com/AI-Productions/AndOre/commit/' + message.git_version);
 			}
 		};
 
