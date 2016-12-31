@@ -19,44 +19,98 @@ def home_cor(obj):
 
 
 @app.errorhandler(401)
-def custom_401(error):
-	return home_cor(Response('Invalid Credentials', 401, {'Erebus': 'error="Invalid Credentials"'}))
+def http_401(message=''):
+	if message == '':
+		return home_cor(Response('Invalid Credentials', 401, {'Erebus': 'error="Invalid Credentials"'}))
+	else:
+		return home_cor(Response(message, 401))
 
 
-@app.route('/account/create', methods=['POST', 'OPTIONS'])
+@app.route('/', methods=['OPTIONS', 'GET'])
+def root():
+	if request.method == 'GET':
+		response = {
+			'endpoints': {
+				'users': public_address + url_for('users', aid='aid_here'),
+				'account': public_address + url_for('account')
+			}
+		}
+		return home_cor(jsonify(**response))
+	else:
+		return home_cor(jsonify(**{}))
+
+
+@app.route('/account', methods=['OPTIONS', 'GET'])
+def account():
+	if request.method == 'GET':
+		response = {
+			'endpoints': {
+				'create': public_address + url_for('account_create'),
+				'login': public_address + url_for('account_login')
+			}
+		}
+		return home_cor(jsonify(**response))
+	else:
+		return home_cor(jsonify(**{}))
+
+
+@app.route('/account/create', methods=['POST', 'OPTIONS', 'GET'])
 def account_create():
-	data = request.json
 	response = dict()
+
 	if request.method == 'OPTIONS':
 		return home_cor(jsonify(**response))
-	if data is not None:
-		username = data.get('username', None)
-		password = data.get('password', None)
-		if username is not None and password is not None:
-			db_response = database_functions.create_user(username, password)
-			if db_response[0]:
-				response['status'] = 'Success'
-				response['uid'] = db_response[1]
-				return home_cor(jsonify(**response))
-	abort(401)
+	elif request.method == 'GET':
+		username = request.args.get('username', '')
+		password = request.args.get('password', '')
+
+		db_response = database_functions.create_user(username, password)
+
+		if db_response[0]:
+			response['status'] = 'Success'
+			response['uid'] = db_response[1]
+			return home_cor(jsonify(**response))
+		else:
+			return http_401('Username Taken.')
+	elif request.method == 'POST':
+		data = request.json
+		if data is not None:
+			username = data.get('username', None)
+			password = data.get('password', None)
+			if username is not None and password is not None:
+				db_response = database_functions.create_user(username, password)
+				if db_response[0]:
+					response['status'] = 'Success'
+					response['uid'] = db_response[1]
+					return home_cor(jsonify(**response))
+		return http_401()
 
 
-@app.route('/account/login', methods=['POST', 'OPTIONS'])
+@app.route('/account/login', methods=['POST', 'OPTIONS', 'GET'])
 def account_login():
-	data = request.json
 	response = dict()
+
 	if request.method == 'OPTIONS':
 		return home_cor(jsonify(**response))
-	if data is not None:
-		username = data.get('username', None)
-		password = data.get('password', None)
-		if username is not None and password is not None:
-			db_response = database_functions.login(username, password)
-			if db_response[0]:
-				response['status'] = 'Success'
-				response['uid'] = db_response[1]
-				return home_cor(jsonify(**response))
-	abort(401)
+	elif request.method == 'GET':
+		username = request.args.get('username', '')
+		password = request.args.get('password', '')
+		aid = database_functions.login(username, password)
+		response['valid_aid'] = aid[0]
+		response['aid'] = aid[1]
+		return home_cor(jsonify(**response))
+	elif request.method == 'POST':
+		data = request.json
+		if data is not None:
+			username = data.get('username', None)
+			password = data.get('password', None)
+			if username is not None and password is not None:
+				db_response = database_functions.login(username, password)
+				if db_response[0]:
+					response['status'] = 'Success'
+					response['uid'] = db_response[1]
+					return home_cor(jsonify(**response))
+		return http_401()
 
 
 @app.route('/get/username', methods=['OPTIONS', 'GET'])
