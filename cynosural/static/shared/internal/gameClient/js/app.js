@@ -128,13 +128,12 @@ App.prototype = {
 		var self = this;
 		this.actionsLut = ArrayToKeys(this.actions);
 		self.GetAuthId(function () {
-			self.StartChat(function () {
-				self.StartSleipnirWS(function () {
-					self.ListenToStartAi(function () {
-						self.view = new View();
-						//self.view.SetupView(this, App.GetDisplay);
-						self.view.SetupView(self, null);
-					});
+			self.StartChat(null);
+			self.StartSleipnirWS(function () {
+				self.ListenToStartAi(function () {
+					self.view = new View();
+					//self.view.SetupView(this, App.GetDisplay);
+					self.view.SetupView(self, null);
 				});
 			});
 		});
