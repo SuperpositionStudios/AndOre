@@ -69,3 +69,12 @@ def update_last_login(aid: str) -> None:
 	if user is not None:
 		user.last_login = datetime.now()
 		session.commit()
+
+
+def get_last_login(aid: str) -> str:
+	row = session.query(UserV2).filter(UserV2.aid == aid).first()
+	if row is not None:
+		row = row  # type: UserV2
+		return row.last_login
+	else:
+		raise exceptions.InvalidAid(aid)
