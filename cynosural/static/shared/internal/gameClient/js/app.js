@@ -127,6 +127,7 @@ App.prototype = {
 	Init: function () {
 		var self = this;
 		this.actionsLut = ArrayToKeys(this.actions);
+		self.GetCynosuralVersion(null);
 		self.GetAuthId(function () {
 			self.StartChat(null);
 			self.StartSleipnirWS(function () {
@@ -148,6 +149,23 @@ App.prototype = {
 
 
 		}));
+	},
+	GetCynosuralVersion: function (callback) {
+		var self = this;
+
+		$.ajax({
+			method: 'GET',
+			url: '/version',
+			contentType: "application/json",
+			success: function (data) {
+				$('#client-git-version-text').text(data.git_version);
+				$('#client-git-version-link').attr('href', 'https://github.com/AI-Productions/AndOre/commit/' + data.git_version);
+				CallCallback(callback);
+			},
+			error: function (jqXHR, exception) {
+				console.log("Cynosural: Failed to get git version");
+			}
+		});
 	},
 	StartChat: function (callback) {
 		var self = this;
@@ -211,34 +229,34 @@ App.prototype = {
 		}
 
 		$.ajax({
-				method: 'GET',
-				url: erebusURL + '/get/username',
-				data: {
-					'aid': stored_aid
-				},
-				dataType: "json",
-				contentType: "application/json",
-				success: function (data) {
-					if (data['valid_aid']) {
-						Materialize.toast("Logged in", 2000, 'rounded light-green accent-4');
-						self.authId = stored_aid;
-						CallCallback(callback);
-					} else {
-						console.log(data);
-						window.location.replace('/auth/logout');
-					}
-				},
-				error: function (jqXHR, exception) {
-					if (jqXHR.status === 401) {
-						Materialize.toast('Invalid Credentials', 3000, 'rounded red accent-4');
-						window.location.replace('/auth/logout');
-					} else {
-						Materialize.toast('So something bad happened, but I don\'t exactly know what happened.', 3000, 'rounded red accent-4');
-						console.log('Unknown Error. \n ' + jqXHR.responseText);
-						window.location.replace('/auth/logout');
-					}
+			method: 'GET',
+			url: erebusURL + '/get/username',
+			data: {
+				'aid': stored_aid
+			},
+			dataType: "json",
+			contentType: "application/json",
+			success: function (data) {
+				if (data['valid_aid']) {
+					Materialize.toast("Logged in", 2000, 'rounded light-green accent-4');
+					self.authId = stored_aid;
+					CallCallback(callback);
+				} else {
+					console.log(data);
+					window.location.replace('/auth/logout');
 				}
-			});
+			},
+			error: function (jqXHR, exception) {
+				if (jqXHR.status === 401) {
+					Materialize.toast('Invalid Credentials', 3000, 'rounded red accent-4');
+					window.location.replace('/auth/logout');
+				} else {
+					Materialize.toast('So something bad happened, but I don\'t exactly know what happened.', 3000, 'rounded red accent-4');
+					console.log('Unknown Error. \n ' + jqXHR.responseText);
+					window.location.replace('/auth/logout');
+				}
+			}
+		});
 	},
 
 	StartSleipnirWS: function (callback) {
