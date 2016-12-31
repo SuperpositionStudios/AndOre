@@ -5,22 +5,40 @@
 			"canPlayAndOre": true
 		},
 		"2": {
-			"canPlayAndOre": true
+			"canPlayAndOre": true,
+			"Cynosural": {
+				"canViewSphere": true
+			}
 		},
 		"3": {
-			"canPlayAndOre": true
+			"canPlayAndOre": true,
+			"Cynosural": {
+				"canViewSphere": true
+			}
 		},
 		"4": {
-			"canPlayAndOre": true
+			"canPlayAndOre": true,
+			"Cynosural": {
+				"canViewSphere": true
+			}
 		},
 		"5": {
-			"canPlayAndOre": true
+			"canPlayAndOre": true,
+			"Cynosural": {
+				"canViewSphere": true
+			}
 		},
 		"6": {
-			"canPlayAndOre": true
+			"canPlayAndOre": true,
+			"Cynosural": {
+				"canViewSphere": true
+			}
 		},
 		"7": {
-			"canPlayAndOre": true
+			"canPlayAndOre": true,
+			"Cynosural": {
+				"canViewSphere": true
+			}
 		},
 		"8": {
 			"Synergy": {
@@ -31,7 +49,8 @@
 		"9": {
 			"canPlayAndOre": true,
 			"Cynosural": {
-				"canViewProductionDetails": true
+				"canViewProductionDetails": true,
+				"canViewSphere": true
 			}
 		}
 	},
