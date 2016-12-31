@@ -42,7 +42,8 @@ def loads(obj: str):
 
 
 def get_username(aid):
-	req = requests.get(erebus_address + '/get/username', params={'aid': aid}).json()
+	url = '{api_url}/users/{aid}/username'.format(api_url=erebus_address, aid=aid)
+	req = requests.get(url).json()
 	return req
 
 
