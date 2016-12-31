@@ -135,7 +135,7 @@ class Cell:
 				pass
 		raise exceptions.NoCorporationOwnedBuildingFoundException()
 
-	def add_game_object(self, x):
+	def add_game_object(self, x) -> None:
 		self.contents.append(x)
 
 	def add_ore_deposit(self):
@@ -156,7 +156,7 @@ class Cell:
 
 		pointer_to_building_class = building_types.get(building_type, None)
 		if pointer_to_building_class is not None:
-			self.add_game_object(pointer_to_building_class(owner_corp))
+			self.add_game_object(pointer_to_building_class(self, owner_corp))
 		else:
 			pass
 
