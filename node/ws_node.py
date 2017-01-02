@@ -1,11 +1,15 @@
 from child_game import world as world_py
 from child_game import helper_functions
+from child_game.logger import Logger
 import asyncio
 import json
 import requests
 import websockets
 import datetime
 from typing import Dict
+import signal
+import sys
+from child_game import helper_functions
 
 
 class ConnectedClient:
@@ -15,24 +19,10 @@ class ConnectedClient:
 		self.authenticated = True
 
 	async def send_dict(self, obj: dict):
-		await self.connection.send(dumps(obj))
+		await self.connection.send(helper_functions.dumps(obj))
 
 	def is_authenticated(self):
 		return self.authenticated
-
-
-def dumps(obj: dict):
-	try:
-		return json.dumps(obj)
-	except:
-		return "{}"
-
-
-def loads(obj: str):
-	try:
-		return json.loads(obj)
-	except:
-		return {}
 
 
 class Node:
@@ -44,11 +34,14 @@ class Node:
 		self.erebus_address = erebus_address
 		self.sleipnir_address = sleipnir_address
 
+		self.logger = Logger(node_name, 3)
+		signal.signal(signal.SIGINT, self.signal_handler)
+
 		self.sleipnir_connection = None
 
 		self.connected_clients = dict()  # type: Dict[str, ConnectedClient]
 
-		self.world = world_py.World(sleipnir_address, self.new_message_sleipnir)
+		self.world = world_py.World(sleipnir_address, self.new_message_sleipnir, self.logger)
 		self.world.spawn_ore_deposits(5)
 		for target_node in star_gates:
 			self.world.get_random_cell().add_structure('StarGate', target_node)
@@ -56,6 +49,11 @@ class Node:
 		self.tick_server_if_needed()
 
 		print("Running {} on port {}".format(self.name, self.port))
+
+	def signal_handler(self, signal, frame):
+		print('Shutting down ungracefully (graceful exits will be eventually implemented, I hope...)')
+		self.logger.log("Shutting down...", 10)
+		sys.exit(0)
 
 	async def send_state_to_all(self):
 		world_state = self.world.client_side_render()
@@ -99,7 +97,7 @@ class Node:
 			return False
 
 	def new_message_sleipnir(self, data: dict):
-		asyncio.get_event_loop().create_task(self.sleipnir_connection.send(dumps(data)))
+		asyncio.get_event_loop().create_task(self.sleipnir_connection.send(helper_functions.dumps(data)))
 
 	def get_username(self, aid: str):
 		req = requests.get(self.erebus_address + '/get/username', params={'aid': aid}).json()
@@ -120,19 +118,18 @@ class Node:
 		})
 
 	async def game_client(self, websocket, path):
-		# Register.
+		aid = None
+		username = None
+		authenticated = False
 		try:
 			# Implement logic here.
-			aid = None
-			username = None
-			authenticated = False
 			while True:
 				request = await websocket.recv()
-				request = loads(request)
+				request = helper_functions.loads(request)
 
 				if authenticated:
 					if request.get('request', None) == 'ping':
-						await websocket.send(dumps({
+						await websocket.send(helper_functions.dumps({
 							'request': 'pong',
 							'time': datetime.datetime.utcnow().isoformat()
 						}))
@@ -155,7 +152,7 @@ class Node:
 							authenticated = True
 							self.connected_clients[aid] = ConnectedClient(websocket)
 
-							await websocket.send(dumps({
+							await websocket.send(helper_functions.dumps({
 								'request': 'auth',
 								'authenticated': authenticated,
 								'nodeName': self.name
@@ -163,15 +160,17 @@ class Node:
 
 							await self.send_meta_data(self.connected_clients[aid])
 						else:
-							await websocket.send(dumps({
+							await websocket.send(helper_functions.dumps({
 								'authenticated': authenticated,
 								'message': "Invalid aid"
 							}))
 					else:
-						await websocket.send(dumps({
+						await websocket.send(helper_functions.dumps({
 							'authenticated': authenticated,
 							'message': "You must register your connection!"
 						}))
+		except:
+			pass  # if we don't have this, then our console will be spammed by connections closing
 		finally:
 			# Unregister.
 			self.connected_clients.pop(aid, None)
@@ -182,7 +181,7 @@ class Node:
 			try:
 				self.sleipnir_connection = websocket
 
-				await websocket.send(dumps({
+				await websocket.send(helper_functions.dumps({
 					'request': 'register',
 					'type': 'node',
 					'name': self.name,
@@ -191,7 +190,7 @@ class Node:
 
 				while True:
 					request = await websocket.recv()
-					request = loads(request)
+					request = helper_functions.loads(request)
 					# print('Sleipnir: {}'.format(request))
 					request_type = request.get('request', None)
 					if request_type == 'player_enter':
@@ -201,9 +200,10 @@ class Node:
 						if self.world.active_aid(request.get('aid', '')) is False:
 							player_corp_id = request.get('cid')
 							player_aid = request.get('aid')
+							player_username = request.get('username', '')
 							corp_ore_quantity = request.get('coq', 0)
-							new_player_obj = self.world.new_player(player_id=player_aid, corp_id=player_corp_id,
-																   corp_ore_quantity=corp_ore_quantity)
+							new_player_obj = self.world.new_player(player_aid, player_username, player_corp_id,
+																   corp_ore_quantity)
 					elif request_type == 'update_values':
 						response = request.get('data', {})
 						self.world.update_values(response)

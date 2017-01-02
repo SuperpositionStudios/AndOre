@@ -7,6 +7,7 @@ from child_game import helper_functions
 from child_game.exceptions import CellCoordinatesOutOfBoundsError
 from typing import Dict, List, Tuple
 import json
+from child_game.logger import Logger
 
 
 def dumps(obj: dict) -> str:
@@ -25,17 +26,29 @@ def loads(obj: str) -> dict:
 
 class World:  # World is not really world, it's more Level
 
-	def __init__(self, master_node_address, message_master_node):
+	def __init__(self, master_node_address, message_master_node, logger: Logger):
+		self.logger = logger
+
 		print("Initializing World...")
 		self.master_node_address = master_node_address
 		self.message_master_node = message_master_node
 		self.rows = 20  # (9 * 3 - 2) - 5
 		self.cols = 55  # (16 * 3) + 7
+		self.logger.log('Initializing world with {num_rows} rows and {num_columns} columns'
+						' and Sleipnir at {sleipnir_address}'.format(
+			num_rows=self.rows,
+			num_columns=self.cols,
+			sleipnir_address=self.master_node_address
+		), 10)
+
 		self.world = []  # type: List[List[Cell]]
 		self.world_age = 1
 		self.last_tick = datetime.datetime.now()
 		self.microseconds_per_tick = 250000  # type: int
 		self.seconds_per_tick = float(self.microseconds_per_tick) / float(1000000)
+
+		self.logger.log('Running at {spt} seconds per tick'.format(spt=self.seconds_per_tick), 10)
+
 		self.players = dict()  # type: Dict[str, Player]
 		self.corporations = dict()  # type: Dict[str, Corporation]
 		self.buildings = dict()
@@ -57,6 +70,7 @@ class World:  # World is not really world, it's more Level
 	def tick(self):
 		self.last_tick = datetime.datetime.now()
 		self.world_age += 1
+		self.logger.update_tick(self.world_age)
 		self.tick_corp_buildings()
 		self.send_pending_requests()
 
@@ -90,27 +104,20 @@ class World:  # World is not really world, it's more Level
 	def active_aid(self, aid: str):
 		return aid in self.players
 
-	def new_player(self, player_id=None, corp_id=None, corp_ore_quantity=0):
+	def new_player(self, player_id: str, username: str, corp_id: str, corp_ore_quantity: float):
 		spawn_location = self.random_can_enter_cell()  #
 
-		# Player ID
-		if player_id is None:
-			player_id = str(uuid.uuid4())
-
 		# Corporation
-		if corp_id is None:
-			# If we weren't passed a corp_id, we generate one here
-			corp_id = self.new_corporation().corp_id
-		else:
-			# If the corp does not exist in our node we create it here
-			if self.corp_exists(corp_id) is False:
-				self.new_corporation(corp_id=corp_id)
+		# If the corp does not exist in our node we create it here
+		if self.corp_exists(corp_id) is False:
+			self.new_corporation(corp_id=corp_id)
+
 		# at this point, we know there is a corp in our node with the corp_id that was either passed in or generated.
 		_corp = self.corporations[corp_id]
 		# We update our ore quantity for the corp here
 		_corp.ore_quantity = corp_ore_quantity
 
-		new_player = Player(player_id, self, spawn_location, _corp)
+		new_player = Player(player_id, username, self, spawn_location, _corp)
 		_corp.add_member(new_player)
 		spawn_location.add_game_object(new_player)
 		helper_functions.drint("Old players list")
@@ -119,6 +126,7 @@ class World:  # World is not really world, it's more Level
 		helper_functions.drint("New player list")
 		helper_functions.drint(self.players)
 		helper_functions.drint("Successfully had a player transfer in")
+		self.logger.log('{username} joined the region'.format(username=username), 8)
 		return player_id
 
 	def despawn_player(self, player_id):
