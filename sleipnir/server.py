@@ -231,7 +231,8 @@ async def player(websocket, path):
 						await websocket.send(dumps({
 							'authenticated': authenticated
 						}))
-
+	except:
+		pass  # Have to have an except or else we'll get our console spammed with disconnect exceptions
 	finally:
 		connected_players.pop(aid, None)
 		await send_number_of_connected_players(True)
@@ -338,11 +339,14 @@ async def node_client(websocket, path):
 					await websocket.send(dumps({
 						'authenticated': authenticated,
 					}))
+	except:
+		pass  # Have to have this except block here or else we'll get spammed with disconnect exceptions.
 	finally:
 		# Unregister.
 		nodes.pop(client.name, None)
 		print("Removed {} from pool of nodes".format(client.name))
 
+print(f'Running Sleipnir with Node port {node_port} and Client Port {7200}')
 
 start_node_server = websockets.serve(node_client, 'localhost', node_port)
 start_player_server = websockets.serve(player, 'localhost', 7200)
