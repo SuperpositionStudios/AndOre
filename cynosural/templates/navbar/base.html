@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>{% block title %}{% endblock %}</title>
+	<link href="https://fonts.googleapis.com/css?family=Ubuntu+Mono" rel="stylesheet">
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='shared/external/css/materialize.min.css') }}">
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='shared/internal/navbar/css/style.css') }}">
+	{% block head %} {% endblock %}
+</head>
+<body>
+<!-- Dropdown Structure -->
+<ul id="dropdown1" class="dropdown-content">
+
+</ul>
+<nav>
+	<div class="nav-wrapper">
+		<a href="#" class="brand-logo" id="nav-brand-logo">And/Ore</a>
+		<ul class="right hide-on-med-and-down">
+			<li><a href="{{ url_for('gameclient') }}">Play Game</a></li>
+			<li class="invisible" id="navbar-sphere"><a href="{{ url_for('sphere') }}">Sphere</a></li>
+			<li class="invisible" id="navbar-production-overview"><a href="#">Production Overview</a></li>
+			<!-- Dropdown Trigger -->
+			<li>
+				<a class="dropdown-button" href="#" data-activates="dropdown1">
+					Account<i class="material-icons right">arrow_drop_down</i>
+				</a>
+			</li>
+		</ul>
+	</div>
+</nav>
+
+{% block body %} {%  endblock %}
+
+<script src="{{ url_for('static', filename='shared/external/js/jquery-2.1.1.min.js') }}"></script>
+<script src="{{ url_for('static', filename='shared/external/js/materialize.min.js') }}"></script>
+<script src="{{ url_for('static', filename='shared/internal/navbar/js/script.js') }}"></script>
+</body>
+</html>
