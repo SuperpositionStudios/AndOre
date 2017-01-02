@@ -105,7 +105,8 @@ async def transfer_player(aid: str, new_node_name: str) -> bool:
 			'request': 'player_enter',
 			'coq': players[aid].corp.amount_of_ore(),
 			'aid': aid,
-			'cid': players[aid].corp.corp_id
+			'cid': players[aid].corp.corp_id,
+			'username': players[aid].username
 		}))
 
 		# Tell player to abandon their current node ws and make a new connection
@@ -165,15 +166,10 @@ async def player(websocket, path):
 							current_node = get_random_node_name()
 							players[aid].assign_node(current_node)
 						node_obj = nodes[current_node]
-						await nodes[current_node].connection.send(dumps({
-							'request': 'player_enter',
-							'coq': players[aid].corp.amount_of_ore(),
-							'aid': aid,
-							'cid': players[aid].corp.corp_id
-						}))
+						await transfer_player(aid, current_node)
 						await websocket.send(dumps({
 							'request': 'update_node',
-							'node_name': node_obj.name,
+							'node_name': current_node,
 							'node_address': node_obj.public_address
 						}))
 					else:
