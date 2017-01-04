@@ -315,11 +315,12 @@ App.prototype = {
 		self.currentNodeWS = new WebSocket(currentnodeURL);
 		self.currentNodeWS.onmessage = function (message) {
 			message = JSON.parse(message.data);
-			console.log("Region Node: ", message);
+			//console.log("Region Node: ", message);
 
 			if ('time' in message) {
 				var sentTime = new Date(message.time);
 				var receivedTime = new Date();
+				//console.log('Region: Latency | ', 'Message Received At: ', receivedTime.getTime(), ' - ', 'Message Timestamp: ', sentTime.getTime(), ' = ', receivedTime.getTime() - sentTime.getTime());
 				var roundTripLatency = (receivedTime.getTime() - sentTime.getTime()) * 2;
 				$('#rtl').text(roundTripLatency);
 			}
