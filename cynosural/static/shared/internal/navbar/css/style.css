@@ -5,3 +5,11 @@
 .invisible {
     display: none;
 }
+
+body {
+    height: 100%;
+}
+
+html {
+    height: 100%;
+}

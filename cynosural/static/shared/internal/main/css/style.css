@@ -1,7 +1,13 @@
-#nav-brand-logo {
-    margin-left: 25px;
+#play-button-div {
+    width: 100%;
+    text-align: center;
+    margin-top: 20%;
 }
 
-.invisible {
-    display: none;
+#play-button {
+    display: inline-block;
+}
+
+.container {
+    height: 100%;
 }

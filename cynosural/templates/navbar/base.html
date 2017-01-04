@@ -9,16 +9,17 @@
 	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='shared/internal/navbar/css/style.css') }}">
 	{% block head %} {% endblock %}
 </head>
-<body>
+<body class="light-blue lighten-5">
 <!-- Dropdown Structure -->
 <ul id="dropdown1" class="dropdown-content">
 
 </ul>
 <nav>
-	<div class="nav-wrapper">
+	<div class="nav-wrapper light-blue lighten-2">
 		<a href="#" class="brand-logo" id="nav-brand-logo">And/Ore</a>
 		<ul class="right hide-on-med-and-down">
 			<li><a href="{{ url_for('gameclient') }}">Play Game</a></li>
+			<li><a href="{{ url_for('wiki') }}">Wiki</a></li>
 			<li class="invisible" id="navbar-sphere"><a href="{{ url_for('sphere') }}">Sphere</a></li>
 			<li class="invisible" id="navbar-production-overview"><a href="#">Production Overview</a></li>
 			<!-- Dropdown Trigger -->
