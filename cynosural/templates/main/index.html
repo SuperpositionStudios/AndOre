@@ -1,41 +1,21 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-	<meta charset="UTF-8">
-	<title>And/Ore</title>
-	<link href="https://fonts.googleapis.com/css?family=Ubuntu+Mono" rel="stylesheet">
-	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='shared/external/css/materialize.min.css') }}">
-	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='shared/internal/main/css/style.css') }}">
-</head>
-<body>
-<!-- Dropdown Structure -->
-<ul id="dropdown1" class="dropdown-content">
+{%  extends "navbar/base.html" %}
 
-</ul>
-<nav>
-	<div class="nav-wrapper">
-		<a href="#" class="brand-logo" id="nav-brand-logo">And/Ore</a>
-		<ul class="right hide-on-med-and-down">
-			<li><a href="{{ url_for('gameclient') }}">Play Game</a></li>
-			<li class="invisible" id="navbar-sphere"><a href="#">Sphere</a></li>
-			<li class="invisible" id="navbar-production-overview"><a href="#">Production Overview</a></li>
-			<!-- Dropdown Trigger -->
-			<li>
-				<a class="dropdown-button" href="#" data-activates="dropdown1">
-					Account<i class="material-icons right">arrow_drop_down</i>
-				</a>
-			</li>
-		</ul>
-	</div>
-</nav>
+{% block title %}
+And/Ore
+{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='shared/internal/main/css/style.css') }}">
+{% endblock %}
+
+{% block body %}
 <div class="container">
 	<p class="center">
 		Thank you for visiting And/Ore. We don't have much to put here yet, but the above navbar has everything you need.
 	</p>
+	<div class="col s12" id="floater"></div>
+	<div class="col s12" id="play-button-div">
+		<a href="{{ url_for('gameclient') }}" id="play-button" class="waves-effect waves-light btn-large yellow darken-3">Play Now</a>
+	</div>
 </div>
-<script src="{{ url_for('static', filename='shared/external/js/jquery-2.1.1.min.js') }}"></script>
-<script src="{{ url_for('static', filename='shared/external/js/materialize.min.js') }}"></script>
-<script src="{{ url_for('static', filename='shared/internal/main/js/script.js') }}"></script>
-</body>
-</html>
+{% endblock %}

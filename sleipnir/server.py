@@ -105,7 +105,8 @@ async def transfer_player(aid: str, new_node_name: str) -> bool:
 			'request': 'player_enter',
 			'coq': players[aid].corp.amount_of_ore(),
 			'aid': aid,
-			'cid': players[aid].corp.corp_id
+			'cid': players[aid].corp.corp_id,
+			'username': players[aid].username
 		}))
 
 		# Tell player to abandon their current node ws and make a new connection
@@ -144,10 +145,11 @@ async def send_meta_data(client: PlayerConnection):
 async def player(websocket, path):
 	global players
 	global connected_players
+	print(f'{websocket.remote_address} Connected')
+	aid = None
+	username = None
 	try:
 		authenticated = False
-		aid = 'None'
-		username = 'None'
 		current_node = None
 		while True:
 			request = await websocket.recv()
@@ -165,15 +167,10 @@ async def player(websocket, path):
 							current_node = get_random_node_name()
 							players[aid].assign_node(current_node)
 						node_obj = nodes[current_node]
-						await nodes[current_node].connection.send(dumps({
-							'request': 'player_enter',
-							'coq': players[aid].corp.amount_of_ore(),
-							'aid': aid,
-							'cid': players[aid].corp.corp_id
-						}))
+						await transfer_player(aid, current_node)
 						await websocket.send(dumps({
 							'request': 'update_node',
-							'node_name': node_obj.name,
+							'node_name': current_node,
 							'node_address': node_obj.public_address
 						}))
 					else:
@@ -214,14 +211,15 @@ async def player(websocket, path):
 					}))
 			else:
 				if request.get('request', None) == 'register':
-					aid = request.get('aid', 'None')
-					if aid is not 'None':
-						erebus_response = get_username(aid)
+					supplied_aid = request.get('aid', None)
+					if supplied_aid is not None:
+						erebus_response = get_username(supplied_aid)
 						if erebus_response.get('valid_aid', False):
-							aid = aid
+							aid = supplied_aid
 							username = erebus_response.get('username', 'None')
 							authenticated = True
 							connected_players[aid] = PlayerConnection(websocket)
+							print(f'{websocket.remote_address} authenticated as {username}')
 							await websocket.send(dumps({
 								'authenticated': authenticated
 							}))
@@ -235,9 +233,14 @@ async def player(websocket, path):
 						await websocket.send(dumps({
 							'authenticated': authenticated
 						}))
-
+	except:
+		pass  # Have to have an except or else we'll get our console spammed with disconnect exceptions
 	finally:
 		connected_players.pop(aid, None)
+		if username is not None:
+			print(f'{username} Disconnected')
+		else:
+			print(f'{websocket.remote_address} Disconnected')
 		await send_number_of_connected_players(True)
 
 
@@ -342,11 +345,14 @@ async def node_client(websocket, path):
 					await websocket.send(dumps({
 						'authenticated': authenticated,
 					}))
+	except:
+		pass  # Have to have this except block here or else we'll get spammed with disconnect exceptions.
 	finally:
 		# Unregister.
 		nodes.pop(client.name, None)
 		print("Removed {} from pool of nodes".format(client.name))
 
+print(f'Running Sleipnir with Node port {node_port} and Client Port {7200}')
 
 start_node_server = websockets.serve(node_client, 'localhost', node_port)
 start_player_server = websockets.serve(player, 'localhost', 7200)

@@ -6,7 +6,7 @@ import math
 
 
 class Player(gameObject.GameObject):
-	def __init__(self, _id: str, _world: 'child_game.world.World', _cell: 'cell.Cell',
+	def __init__(self, _id: str, username: str, _world: 'child_game.world.World', _cell: 'cell.Cell',
 				 _corp: 'corporation.Corporation'):
 		super().__init__(_cell)
 		assert (_world is not None)
@@ -17,6 +17,8 @@ class Player(gameObject.GameObject):
 		self.obj_id = _id
 		self.world = _world
 		self.cell = _cell
+
+		self.username = username
 
 		self.starting_health_cap = 100
 		self.health_cap = int(100)
@@ -441,6 +443,7 @@ class Player(gameObject.GameObject):
 			if self.corp.ore_quantity >= ore_cost:
 				_cell.add_corp_owned_building(self.corp, 'SentryTurret')
 				self.lose_ore(ore_cost)
+				self.world.logger.log("{player} Spent {cost} to build a Sentry Turret".format(player=self.username, cost=ore_cost), 2)
 			else:
 				raise exceptions.CorporationHasInsufficientFundsException(self.corp.corp_id)
 		else:
@@ -452,6 +455,7 @@ class Player(gameObject.GameObject):
 			if self.corp.ore_quantity >= ore_cost:
 				_cell.add_corp_owned_building(self.corp, 'SpikeTrap')
 				self.lose_ore(ore_cost)
+				self.world.logger.log("{player} Spent {cost} to build a Spike Trap".format(player=self.username, cost=ore_cost), 2)
 			else:
 				raise exceptions.CorporationHasInsufficientFundsException(self.corp.corp_id)
 		else:
@@ -463,6 +467,7 @@ class Player(gameObject.GameObject):
 			if self.corp.ore_quantity >= ore_cost:
 				_cell.add_corp_owned_building(self.corp, 'Pharmacy')
 				self.lose_ore(ore_cost)
+				self.world.logger.log("{player} Spent {cost} to build a Pharmacy".format(player=self.username, cost=ore_cost), 2)
 			else:
 				raise exceptions.CorporationHasInsufficientFundsException(self.corp.corp_id)
 		else:
@@ -474,6 +479,7 @@ class Player(gameObject.GameObject):
 			if self.corp.ore_quantity >= ore_cost:
 				_cell.add_corp_owned_building(self.corp, 'RespawnBeacon')
 				self.lose_ore(ore_cost)
+				self.world.logger.log("{player} Spent {cost} to build a Respawn Beacon".format(player=self.username, cost=ore_cost), 2)
 			else:
 				raise exceptions.CorporationHasInsufficientFundsException(self.corp.corp_id)
 		else:
@@ -485,6 +491,7 @@ class Player(gameObject.GameObject):
 			if self.corp.ore_quantity >= ore_cost:
 				_cell.add_corp_owned_building(self.corp, 'Door')
 				self.lose_ore(ore_cost)
+				self.world.logger.log("{player} Spent {cost} to build a Door".format(player=self.username, cost=ore_cost), 2)
 			else:
 				raise exceptions.CorporationHasInsufficientFundsException(self.corp.corp_id)
 		else:
@@ -498,6 +505,7 @@ class Player(gameObject.GameObject):
 				if self.corp.ore_quantity >= ore_cost:
 					_cell.add_corp_owned_building(self.corp, 'OreGenerator')
 					self.lose_ore(ore_cost)
+					self.world.logger.log("{player} Spent {cost} to build an Ore Generator".format(player=self.username, cost=ore_cost), 2)
 				else:
 					raise exceptions.CorporationHasInsufficientFundsException(self.corp.corp_id)
 			else:
@@ -511,6 +519,7 @@ class Player(gameObject.GameObject):
 			if self.corp.ore_quantity >= ore_cost:
 				_cell.add_corp_owned_building(self.corp, 'Hospital')
 				self.lose_ore(ore_cost)
+				self.world.logger.log("{player} Spent {cost} to build a Hospital".format(player=self.username, cost=ore_cost), 2)
 			else:
 				raise exceptions.CorporationHasInsufficientFundsException(self.corp.corp_id)
 		else:
@@ -522,6 +531,7 @@ class Player(gameObject.GameObject):
 			if self.corp.ore_quantity >= ore_cost:
 				_cell.add_corp_owned_building(self.corp, 'Fence')
 				self.lose_ore(ore_cost)
+				self.world.logger.log("{player} Spent {cost} to build a Fence".format(player=self.username, cost=ore_cost), 2)
 			else:
 				raise exceptions.CorporationHasInsufficientFundsException(self.corp.corp_id)
 		else:
@@ -550,6 +560,8 @@ class Player(gameObject.GameObject):
 			target_id = _cell.get_object_id_of_first_object_found('Loot')
 			target = _cell.get_object_by_obj_id(target_id)
 			self.gain_ore(target.ore_quantity)
+			self.world.logger.log('{player} looted {amount} Ore'.format(player=self.username,
+																		amount=target.ore_quantity), 3)
 			target.delete()
 			return True
 		except (exceptions.NoGameObjectOfThatClassFoundException,
@@ -560,7 +572,9 @@ class Player(gameObject.GameObject):
 		try:
 			target_id = _cell.get_object_id_of_first_object_found('OreDeposit')
 			target = _cell.get_object_by_obj_id(target_id)
-			self.gain_ore(target.ore_per_turn * self.ore_multiplier)
+			ore_quantity = target.ore_per_turn * self.ore_multiplier
+			self.gain_ore(ore_quantity)
+			self.world.logger.log('{} mined {} Ore'.format(self.username, ore_quantity), 3)
 			return True
 		except (exceptions.NoGameObjectOfThatClassFoundException,
 				exceptions.NoGameObjectByThatObjectIDFoundException):
@@ -593,11 +607,14 @@ class Player(gameObject.GameObject):
 	def attack(self, _cell):
 		try:
 			target_player_id = _cell.get_object_id_of_first_object_found('Player')
-			target_player = _cell.get_object_by_obj_id(target_player_id)
+			target_player = _cell.get_object_by_obj_id(target_player_id)  # type: Player
 			standing_to_target_player = self.corp.fetch_standing(target_player.corp.corp_id)
 			if standing_to_target_player in ['N', 'E']:
 				# You can attack a Neutral or Enemy
 				target_player.take_damage(self.attack_power)
+				self.world.logger.log('{attacker} attacked {defender} for {damage_amount} damage'.format(attacker=self.username,
+																										 defender=target_player.username,
+																										 damage_amount=self.attack_power))
 				target_player.corp.worsen_standing(self.corp.corp_id)
 				self.corp.worsen_standing(target_player.corp.corp_id)
 				return True
@@ -630,6 +647,7 @@ class Player(gameObject.GameObject):
 		self.corp.gain_ore(amount)
 
 	def lose_ore(self, amount: float) -> None:
+		self.world.logger.log('{player} spent/lost {amount} Ore'.format(player=self.username, amount=amount), 2)
 		self.corp.lose_ore(amount)
 
 	def drop_ore(self):
@@ -683,6 +701,11 @@ class Player(gameObject.GameObject):
 					self.lose_ore(price_to_use_hospital)
 					# Profit
 					hospital.give_profit_to_owners(profit_for_owners)
+
+					self.world.logger.log('{player} used a hospital owned by {owners}'.format(
+						player=self.username,
+						owners=hospital_owner_corp.corp_id
+					), 2)
 				else:
 					raise exceptions.CorporationHasInsufficientFundsException(self.corp.corp_id)
 			except (exceptions.NoGameObjectOfThatClassFoundException,
@@ -702,6 +725,7 @@ class Player(gameObject.GameObject):
 
 	def died(self):
 		if self.health <= 0:
+			self.world.logger.log('{} died'.format(self.username), 4)
 			self.drop_ore()
 			self.health = int(self.starting_health)
 			self.ore_multiplier = float(self.starting_ore_multiplier)

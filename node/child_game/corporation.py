@@ -147,12 +147,14 @@ class Corporation:
 
 	def worsen_standing(self, corp_id):
 		self.standings[corp_id] = helper_functions.calculate_standing(self.fetch_standing(corp_id), -1)
+		self.world.logger.log('%s lowered their standings for %s to %s' % self.corp_id, corp_id, self.standings[corp_id], 4)
 
 	def improve_standing(self, corp_id):
 		self.standings[corp_id] = helper_functions.calculate_standing(self.fetch_standing(corp_id), 1)
 
 	def add_member(self, member: 'child_game.player.Player'):
 		self.members.append(member)
+		self.world.logger.log('{} was added to Corp {}'.format(member.username, self.corp_id), 5)
 
 	def remove_member(self, member: 'child_game.player.Player'):
 		member_id = member.obj_id

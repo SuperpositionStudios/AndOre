@@ -99,6 +99,10 @@ class CorpOwnedBuilding(GameObject):
 		return
 
 	def delete(self):
+		self.cell.world.logger.log('A {building_name} owned by {corp} was destroyed'.format(
+			building_name=self.__class__.__name__,
+			corp=self.owner_corp.corp_id
+		), 2)
 		self.drop_ore()
 		self.leave_cell()
 		self.owner_corp.remove_corp_building(self)
@@ -164,6 +168,7 @@ class OreGenerator(CorpOwnedBuilding):
 
 	def tick(self):
 		self.owner_corp.gain_ore(self.ore_generated_per_tick)
+		self.cell.world.logger.log(f'An Ore Generator Owned by {self.owner_corp.corp_id} mined {self.ore_generated_per_tick} Ore')
 		self.health -= 1
 		self.check_if_dead_and_if_so_die()
 
@@ -207,9 +212,8 @@ class CorpOwnedStore(CorpOwnedBuilding):
 		assert (_corp.__class__.__name__ == 'Corporation')
 
 		# Checking if both parties are able to pay
-		if (_corp.ore_quantity >= self.get_price(_corp,
-													item_num) and self.owner_corp.ore_quantity >= self.product_price_from_product_num(
-			item_num)) is False:
+		if (_corp.ore_quantity >= self.get_price(_corp, item_num) and
+					self.owner_corp.ore_quantity >= self.product_price_from_product_num(item_num)) is False:
 			return False
 
 		# Financial Transfers

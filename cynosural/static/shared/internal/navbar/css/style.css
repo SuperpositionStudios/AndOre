@@ -1,0 +1,15 @@
+#nav-brand-logo {
+    margin-left: 25px;
+}
+
+.invisible {
+    display: none;
+}
+
+body {
+    height: 100%;
+}
+
+html {
+    height: 100%;
+}
