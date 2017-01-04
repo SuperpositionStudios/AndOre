@@ -4,10 +4,18 @@
 And/Ore
 {% endblock %}
 
+{% block head %}
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='shared/internal/main/css/style.css') }}">
+{% endblock %}
+
 {% block body %}
 <div class="container">
 	<p class="center">
 		Thank you for visiting And/Ore. We don't have much to put here yet, but the above navbar has everything you need.
 	</p>
+	<div class="col s12" id="floater"></div>
+	<div class="col s12" id="play-button-div">
+		<a href="{{ url_for('gameclient') }}" id="play-button" class="waves-effect waves-light btn-large yellow darken-3">Play Now</a>
+	</div>
 </div>
 {% endblock %}
