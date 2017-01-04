@@ -168,8 +168,7 @@ class OreGenerator(CorpOwnedBuilding):
 
 	def tick(self):
 		self.owner_corp.gain_ore(self.ore_generated_per_tick)
-		self.cell.world.logger.log('An Ore Generated Owned by {corp} mined {amount} Ore'.format(corp=self.owner_corp.corp_id,
-																								amount=self.ore_generated_per_tick))
+		self.cell.world.logger.log(f'An Ore Generator Owned by {self.owner_corp.cord_id} mined {self.ore_generated_per_tick} Ore')
 		self.health -= 1
 		self.check_if_dead_and_if_so_die()
 
