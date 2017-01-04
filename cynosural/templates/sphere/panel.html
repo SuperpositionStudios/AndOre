@@ -1,10 +1,22 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends "navbar/base.html" %}
 
-</body>
-</html>
+{% block title %}
+Sphere
+{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='shared/internal/sphere/css/style.css') }}">
+{% endblock %}.
+
+{% block body %}
+<div class="container">
+	<div id="navbar">
+		[[ message ]]
+	</div>
+</div>
+
+<!-- Scripts -->
+
+<script src="{{ url_for('static', filename='shared/external/js/vue.js') }}"></script>
+<script src="{{ url_for('static', filename='shared/internal/sphere/js/script.js') }}"></script>
+{% endblock %}
