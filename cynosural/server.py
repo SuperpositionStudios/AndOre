@@ -63,6 +63,11 @@ def bengal():
 	return render_template("Bengal/index.html")
 
 
+@app.route('/wiki')
+def wiki():
+	return render_template("wiki/index.html")
+
+
 @app.route('/version', methods=['GET', 'OPTIONS'])
 def version():
 	if request.method == 'OPTIONS':
