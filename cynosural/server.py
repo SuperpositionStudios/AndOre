@@ -68,6 +68,11 @@ def wiki():
 	return render_template("wiki/index.html")
 
 
+@app.route('/sphere')
+def sphere():
+	return render_template("sphere/panel.html")
+
+
 @app.route('/version', methods=['GET', 'OPTIONS'])
 def version():
 	if request.method == 'OPTIONS':
