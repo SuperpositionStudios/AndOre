@@ -145,10 +145,11 @@ async def send_meta_data(client: PlayerConnection):
 async def player(websocket, path):
 	global players
 	global connected_players
+	print(f'{websocket.remote_address} Connected')
+	aid = None
+	username = None
 	try:
 		authenticated = False
-		aid = 'None'
-		username = 'None'
 		current_node = None
 		while True:
 			request = await websocket.recv()
@@ -210,14 +211,15 @@ async def player(websocket, path):
 					}))
 			else:
 				if request.get('request', None) == 'register':
-					aid = request.get('aid', 'None')
-					if aid is not 'None':
-						erebus_response = get_username(aid)
+					supplied_aid = request.get('aid', None)
+					if supplied_aid is not None:
+						erebus_response = get_username(supplied_aid)
 						if erebus_response.get('valid_aid', False):
-							aid = aid
+							aid = supplied_aid
 							username = erebus_response.get('username', 'None')
 							authenticated = True
 							connected_players[aid] = PlayerConnection(websocket)
+							print(f'{websocket.remote_address} authenticated as {username}')
 							await websocket.send(dumps({
 								'authenticated': authenticated
 							}))
@@ -235,6 +237,10 @@ async def player(websocket, path):
 		pass  # Have to have an except or else we'll get our console spammed with disconnect exceptions
 	finally:
 		connected_players.pop(aid, None)
+		if username is not None:
+			print(f'{username} Disconnected')
+		else:
+			print(f'{websocket.remote_address} Disconnected')
 		await send_number_of_connected_players(True)
 
 

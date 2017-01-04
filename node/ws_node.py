@@ -118,6 +118,7 @@ class Node:
 		})
 
 	async def game_client(self, websocket, path):
+		print(f'{websocket.remote_address} Connected')
 		aid = None
 		username = None
 		authenticated = False
@@ -150,6 +151,7 @@ class Node:
 
 							username = erebus_response.get('username', '')
 							authenticated = True
+							print(f'{websocket.remote_address} authenticated as {username}')
 							self.connected_clients[aid] = ConnectedClient(websocket)
 
 							await websocket.send(helper_functions.dumps({
@@ -174,7 +176,10 @@ class Node:
 		finally:
 			# Unregister.
 			self.connected_clients.pop(aid, None)
-			print("Bye bye user")
+			if username is not None:
+				print(f'{username} Disconnected')
+			else:
+				print(f'{websocket.remote_address} Disconnected')
 
 	async def sleipnir_client(self):
 		async with websockets.connect(self.sleipnir_address) as websocket:
