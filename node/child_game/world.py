@@ -104,7 +104,7 @@ class World:  # World is not really world, it's more Level
 	def active_aid(self, aid: str):
 		return aid in self.players
 
-	def new_player(self, player_id: str, username: str, corp_id: str, corp_ore_quantity: float):
+	def new_player(self, player_id: str, username: str, corp_id: str, corp_ore_quantity: float) -> None:
 		spawn_location = self.random_can_enter_cell()  #
 
 		# Corporation
@@ -127,7 +127,6 @@ class World:  # World is not really world, it's more Level
 		helper_functions.drint(self.players)
 		helper_functions.drint("Successfully had a player transfer in")
 		self.logger.log('{username} joined the region'.format(username=username), 8)
-		return player_id
 
 	def despawn_player(self, player_id):
 		if self.valid_player_id(player_id):
