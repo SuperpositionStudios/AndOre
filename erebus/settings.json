@@ -42,8 +42,7 @@
 		},
 		"8": {
 			"Synergy": {
-				"canCreateRoom": true,
-				"canAddUserToRoom": true
+				"canBeMaster": true
 			}
 		},
 		"9": {
