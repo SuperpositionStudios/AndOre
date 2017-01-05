@@ -2,6 +2,5 @@
   "inProduction": true,
   "productionErebusAddress": "http://erebus.andore.online",
   "developmentErebusAddress": "http://localhost:7004",
-  "playerPort": 7200,
-  "nodePort": 7100
+  "port": 7100
 }
