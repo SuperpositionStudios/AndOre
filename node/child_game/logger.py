@@ -21,13 +21,16 @@ class Logger:
 	def update_tick(self, new_tick: int):
 		self.tick = child_game.helper_functions.commafy(new_tick, 7)
 
-	def log(self, message, priority=0):
+	def log(self, message, priority=0, verbose=False):
 		"""
 		Write the message into the log.
 		:param message: A string to log
 		:param priority: An integer with the message priority. The default value is 0, and the default log level is 1 so the message wouldn't be written, as it only writes messages higher or equal to the log level.
+		:param verbose: Where in addition to being logged, the message should be printed in the console.
 		:return:
 		"""
 		if priority >= self.log_level:
+			if verbose:
+				print(f'{child_game.helper_functions.get_date_and_time()} | Tick: {self.tick} | Priority: {priority} | {message}')
 			with open(self.filename, 'a') as file:
 				file.write(f'{child_game.helper_functions.get_date_and_time()} | Tick: {self.tick} | Priority: {priority} | {message}\n')

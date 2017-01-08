@@ -19,11 +19,6 @@ def loads(obj: str):
 		return {}
 
 
-def drint(text):
-	if config.developing:
-		print(text)
-
-
 def flatten_2d_list(x):
 	response = []
 	for i in x:

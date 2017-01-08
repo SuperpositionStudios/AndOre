@@ -120,13 +120,8 @@ class World:  # World is not really world, it's more Level
 		new_player = Player(player_id, username, self, spawn_location, _corp)
 		_corp.add_member(new_player)
 		spawn_location.add_game_object(new_player)
-		helper_functions.drint("Old players list")
-		helper_functions.drint(self.players)
 		self.players[player_id] = new_player
-		helper_functions.drint("New player list")
-		helper_functions.drint(self.players)
-		helper_functions.drint("Successfully had a player transfer in")
-		self.logger.log('{username} joined the region'.format(username=username), 8)
+		self.logger.log(f'{username} joined the region', 8, verbose=True)
 
 	def despawn_player(self, player_id):
 		if self.valid_player_id(player_id):
