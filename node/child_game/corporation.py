@@ -5,7 +5,7 @@ import child_game
 
 
 class Corporation:
-	def __init__(self, _world, corp_id=None):
+	def __init__(self, _world: 'child_game.world.World', corp_id=None):
 		if corp_id is None:
 			self.corp_id = str(uuid.uuid4())
 		else:
@@ -147,14 +147,15 @@ class Corporation:
 
 	def worsen_standing(self, corp_id):
 		self.standings[corp_id] = helper_functions.calculate_standing(self.fetch_standing(corp_id), -1)
-		self.world.logger.log('%s lowered their standings for %s to %s' % self.corp_id, corp_id, self.standings[corp_id], 4)
+		self.world.logger.log(f'{self.corp_id} lowered their standings towards {corp_id} to {self.standings[corp_id]}', 4)
 
 	def improve_standing(self, corp_id):
 		self.standings[corp_id] = helper_functions.calculate_standing(self.fetch_standing(corp_id), 1)
+		self.world.logger.log(f'{self.corp_id} improved their standings towards {corp_id} to {self.standings[corp_id]}', 4)
 
 	def add_member(self, member: 'child_game.player.Player'):
 		self.members.append(member)
-		self.world.logger.log('{} was added to Corp {}'.format(member.username, self.corp_id), 5)
+		self.world.logger.log(f'{member.username} was added to Corp {self.corp_id}', 5)
 
 	def remove_member(self, member: 'child_game.player.Player'):
 		member_id = member.obj_id
