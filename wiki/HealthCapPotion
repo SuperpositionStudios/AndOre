@@ -1,0 +1,23 @@
+Health Cap Potion
+=======
+* Cost:
+  Owner: 0
+  Ally: 50
+  Neutral: 100
+  Enemy: 250
+  
+#### Abilities
+
+The health cap potion increases the health cap (maximum health)
+of the player, it can be bought in pharmacies. 
+
+#### Other
+
+The health cap potion can be used multiple times, but does 
+not increase the cap by the same amount each time it is used. 
+
+Contributors
+============
+-Nathan Desjardins
+
+Page last edited on 12/2/16
