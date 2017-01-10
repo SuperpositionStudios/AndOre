@@ -9,21 +9,6 @@ var useSecureHTTP = false;  // Set to true if using https
 var useSecureWS = false;  // Set to true if using wss
 /* End Settings */
 
-/* URL Settings */
-
-var productionDomain = "andore.online";
-var productionSleipnirSubdomain = "player.ws.sleipnir.";
-var productionAbsolutionSubdomain = "absolution.";
-var productionErebusSubdomain = "erebus.";
-var productionSynergySubdomain = "synergy.";
-
-var devServerUrl = "localhost";
-var dev_master_node_endpoint = ":7200";
-var dev_ai_storage_endpoint = ":7003";
-var dev_auth_server_endpoint = ":7004";
-var devSynergyEndpoint = ":7005";
-/* End URL Settings */
-
 var ai_name = '';
 
 var absolutionURL = null;
@@ -33,36 +18,49 @@ var synergyURL = null;
 var currentnodeURL = null;
 
 if (use_dev_server) {
+
+	absolutionURL = "localhost:7003";
+	erebusURL = "localhost:7004";
+	synergyURL = "localhost:7005";
+	sleipnirURL = "localhost:7100";
+
 	if (useSecureHTTP) {
-		absolutionURL = "https://" + devServerUrl + dev_ai_storage_endpoint;
-		erebusURL = "https://" + devServerUrl + dev_auth_server_endpoint;
+		absolutionURL = "https://" + absolutionURL;
+		erebusURL = "https://" + erebusURL;
 	} else {
-		absolutionURL = "http://" + devServerUrl + dev_ai_storage_endpoint;
-		erebusURL = "http://" + devServerUrl + dev_auth_server_endpoint;
+		absolutionURL = "http://" + absolutionURL;
+		erebusURL = "http://" + erebusURL;
 	}
 
 	if (useSecureWS) {
-		synergyURL = "wss://" + devServerUrl + devSynergyEndpoint;
-		sleipnirURL = "wss://" + devServerUrl + dev_master_node_endpoint;
+		synergyURL = "wss://" + synergyURL;
+		sleipnirURL = "wss://" + sleipnirURL;
 	} else {
-		synergyURL = "ws://" + devServerUrl + devSynergyEndpoint;
-		sleipnirURL = "ws://" + devServerUrl + dev_master_node_endpoint;
+		synergyURL = "ws://" + synergyURL;
+		sleipnirURL = "ws://" + sleipnirURL;
 	}
+
 } else {
+
+	absolutionURL = "absolution.andore.online";
+	erebusURL = "erebus.andore.online";
+	synergyURL = "synergy.andore.online";
+	sleipnirURL = "sleipnir.andore.online/player";
+
 	if (useSecureHTTP) {
-		absolutionURL = "https://" + productionAbsolutionSubdomain + productionDomain;
-		erebusURL = "https://" + productionErebusSubdomain + productionDomain;
+		absolutionURL = "https://" + absolutionURL;
+		erebusURL = "https://" + erebusURL;
 	} else {
-		absolutionURL = "http://" + productionAbsolutionSubdomain + productionDomain;
-		erebusURL = "http://" + productionErebusSubdomain + productionDomain;
+		absolutionURL = "http://" + absolutionURL;
+		erebusURL = "http://" + erebusURL;
 	}
 
 	if (useSecureWS) {
-		synergyURL = "wss://" + productionSynergySubdomain + productionDomain;
-		sleipnirURL = "wss://" + productionSleipnirSubdomain + productionDomain;
+		synergyURL = "wss://" + synergyURL;
+		sleipnirURL = "wss://" + sleipnirURL;
 	} else {
-		synergyURL = "ws://" + productionSynergySubdomain + productionDomain;
-		sleipnirURL = "ws://" + productionSleipnirSubdomain + productionDomain;
+		synergyURL = "ws://" + synergyURL;
+		sleipnirURL = "ws://" + sleipnirURL;
 	}
 }
 

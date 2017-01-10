@@ -631,16 +631,16 @@ class Player(gameObject.GameObject):
 			try:
 				target_id = _cell.get_object_id_of_first_object_found(game_object_class_name)
 				target = _cell.get_object_by_obj_id(target_id)
+			except (exceptions.NoGameObjectOfThatClassFoundException,
+					exceptions.NoGameObjectByThatObjectIDFoundException):
+				pass
+			else:
 				standing_towards_target = self.corp.fetch_standing(target.owner_corp.corp_id)
 				if standing_towards_target in ['N', 'E']:
 					target.take_damage(self.attack_power, self.corp)
 					return True
 				else:
 					return False
-			except (exceptions.NoGameObjectOfThatClassFoundException,
-					exceptions.NoGameObjectByThatObjectIDFoundException):
-				pass
-
 		return False
 
 	def gain_ore(self, amount: float) -> None:

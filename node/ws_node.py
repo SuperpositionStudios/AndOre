@@ -207,8 +207,7 @@ class Node:
 							player_aid = request.get('aid')
 							player_username = request.get('username', '')
 							corp_ore_quantity = request.get('coq', 0)
-							new_player_obj = self.world.new_player(player_aid, player_username, player_corp_id,
-																   corp_ore_quantity)
+							self.world.new_player(player_aid, player_username, player_corp_id, corp_ore_quantity)
 					elif request_type == 'update_values':
 						response = request.get('data', {})
 						self.world.update_values(response)
