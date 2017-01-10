@@ -145,7 +145,6 @@ class World:  # World is not really world, it's more Level
 	def new_corporation(self, corp_id=None) -> Corporation:
 		new_corp = Corporation(self, corp_id=corp_id)
 		self.corporations[new_corp.corp_id] = new_corp
-		print(self.corporations)
 		return new_corp
 
 	def spawn_ore_deposits(self, num=1):
