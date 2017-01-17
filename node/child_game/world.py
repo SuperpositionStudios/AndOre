@@ -163,18 +163,19 @@ class World:  # World is not really world, it's more Level
 
 	def transfer_corp_assets(self, acquirer_id, acquiree_id):
 		print("Transferring assets of {} to {}".format(acquiree_id, acquirer_id))
-		acquirer = self.corporations[acquirer_id]
-		acquiree = self.corporations[acquiree_id]
-		acquiree_member_count = len(acquiree.members)
-		for player in acquiree.members:
-			player.corp = acquirer
-			acquirer.add_member(player)
-		acquiree.members = []
-		print("Acquiree going from {} to {} members".format(acquiree_member_count, len(acquiree.members)))
-		for building in acquiree.buildings:
-			building.owner_corp = acquirer
-		acquiree.buildings = []
-		self.corporations.pop(acquiree_id, None)
+		acquirer = self.corporations.get(acquirer_id, None)
+		acquiree = self.corporations.get(acquiree_id, None)
+		if acquiree is not None and acquirer is not None:
+			acquiree_member_count = len(acquiree.members)
+			for player in acquiree.members:
+				player.corp = acquirer
+				acquirer.add_member(player)
+			acquiree.members = []
+			print("Acquiree going from {} to {} members".format(acquiree_member_count, len(acquiree.members)))
+			for building in acquiree.buildings:
+				building.owner_corp = acquirer
+			acquiree.buildings = []
+			self.corporations.pop(acquiree_id, None)
 
 	def transfer_player_to_random_node(self, player_aid: str):
 		self.message_master_node({
