@@ -18,7 +18,7 @@ sudo apt install python3.6
 ```
 
 
-### (Optional) Setup Virtual Environment
+### (Required) Setup Virtual Environment
 
 ```
 virtualenv -p python3.6 env
