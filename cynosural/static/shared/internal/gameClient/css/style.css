@@ -56,29 +56,35 @@ html, body {
 }
 
 #chatBox {
-  border-width: 2px;
-  border-style: inset;
-  overflow: auto;
+    border-width: 2px;
+    border-style: inset;
+    overflow: auto;
 }
 
 #chatBoxContent {
-  height: 8em;
+    height: 8em;
+    overflow-x: hidden;
 }
 
+#chatInput {
+    background-color : white;
+}
+
+
 #box_sleipnir {
-  background-color: black;
-  height: 30px;
-  width: 30px;
-  border: solid 1px black;
-  display: inline-block;
+    background-color: black;
+    height: 30px;
+    width: 30px;
+    border: solid 1px black;
+    display: inline-block;
 }
 
 #box_node {
-  background-color: black;
-  height: 30px;
-  width: 30px;
-  border: solid 1px black;
-  display: inline-block;
+    background-color: black;
+    height: 30px;
+    width: 30px;
+    border: solid 1px black;
+    display: inline-block;
 }
 
 #andore-logo {
