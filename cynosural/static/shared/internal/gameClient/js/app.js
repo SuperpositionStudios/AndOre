@@ -22,7 +22,7 @@ if (use_dev_server) {
 	absolutionURL = "localhost:7003";
 	erebusURL = "localhost:7004";
 	synergyURL = "localhost:7005";
-	sleipnirURL = "localhost:7100";
+	sleipnirURL = "localhost:7100/player";
 
 	if (useSecureHTTP) {
 		absolutionURL = "https://" + absolutionURL;
