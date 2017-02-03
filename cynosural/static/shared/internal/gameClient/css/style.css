@@ -1,86 +1,92 @@
 html, body {
-    height: 100%;
-    margin: 0; padding: 0;  /* to avoid scrollbars */
+	height: 100%;
+	margin: 0; padding: 0;  /* to avoid scrollbars */
 }
 
 #wrapper {
-    display: flex;  /* use the flex model */
-    min-height: 100%;
-    min-width: 100%;
-    flex-direction: column;  /* learn more: http://philipwalton.github.io/solved-by-flexbox/demos/sticky-footer/ */
+	display: flex;  /* use the flex model */
+	min-height: 100%;
+	min-width: 100%;
+	flex-direction: column;  /* learn more: http://philipwalton.github.io/solved-by-flexbox/demos/sticky-footer/ */
 }
 
 #game-view {
-    flex: 1;
-    margin: 0px;
-    height: 100;
+	flex: 1;
+	margin: 0px;
+	height: 100px;
 }
 
 #worldview {
-    /*#display: block;*/
-    font-family: 'Ubuntu Mono', monospace;
-    /*#white-space: pre;*/
-    /*margin: 1em 0;*/
+	/*#display: block;*/
+	font-family: 'Ubuntu Mono', monospace;
+	/*#white-space: pre;*/
+	/*margin: 1em 0;*/
 }
 
 .modal-footer {
-    font-size: 9px;
+	font-size: 9px;
 }
 
 .walls {
-    border-width: 2px;
-    border-style: inset;
+	border-width: 2px;
+	border-style: inset;
 }
 
 
 .cell {
-    display: inline-block;
-    width: 1.8%;
-    /*height: 3.22%;*/
-    height: 5%;
-    text-align: center;
-    vertical-align: middle;
-    margin-top: 0em;
-    margin-bottom: 0em;
-    margin-left: 0em;
-    margin-right: 0em;
+	display: inline-block;
+	width: 1.8%;
+	/*height: 3.22%;*/
+	height: 5%;
+	text-align: center;
+	vertical-align: middle;
+	margin-top: 0em;
+	margin-bottom: 0em;
+	margin-left: 0em;
+	margin-right: 0em;
 }
 
 #bottom-stats {
-    margin: 0px;
+	margin: 0px;
 }
 
 #right-column {
-    overflow: auto;
-    height: 100%;
+	overflow: auto;
+	height: 100%;
 }
 
 #chatBox {
-  border-width: 2px;
-  border-style: inset;
-  overflow: auto;
+	border-width: 2px;
+	border-style: inset;
+	overflow: auto;
 }
 
 #chatBoxContent {
-  height: 8em;
+	height: 8em;
+	overflow-x: hidden;
 }
 
+#chatInput {
+	background-color : white;
+}
+
+
 #box_sleipnir {
-  background-color: black;
-  height: 30px;
-  width: 30px;
-  border: solid 1px black;
-  display: inline-block;
+	background-color: black;
+	height: 30px;
+	width: 30px;
+	border: solid 1px black;
+	display: inline-block;
 }
 
 #box_node {
-  background-color: black;
-  height: 30px;
-  width: 30px;
-  border: solid 1px black;
-  display: inline-block;
+	background-color: black;
+	height: 30px;
+	width: 30px;
+	border: solid 1px black;
+	display: inline-block;
 }
 
 #andore-logo {
-    width: 100%;
+	width: 100%;
 }
