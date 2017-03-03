@@ -84,6 +84,11 @@ def get_username(aid):
 	return req
 
 
+def get_privilege(aid):
+	url = f'{erebus_address}/get/{aid}/privileges'
+	req = requests.get(url).json()
+	return req
+
 def get_random_node_name(skip=None):
 	choice = random.choice(list(nodes.keys()))
 	while choice == skip:
@@ -207,6 +212,18 @@ async def new_connection_handler(websocket, path):
 							'authenticated': authenticated,
 							'numConnectedPlayers': len(connected_players)
 						}))
+					elif request.get('request', None) == "hax":
+						can_use_hax = False
+						try:
+							url = f'{erebus_address}/users/{aid}/privileges'
+							req = requests.get(url).json()
+							can_use_hax = req.get('privileges', {}).get('Sleipnir', {}).get('canUseHax', False)
+						except:
+							pass
+						if can_use_hax:
+							ore_delta = request.get('ore_delta', 0)
+							ore_delta = int(ore_delta)
+							players[aid].corp.gain_ore(ore_delta)
 				else:
 					if request.get('request', None) == 'register':
 						supplied_aid = request.get('aid', None)
@@ -324,6 +341,7 @@ async def new_connection_handler(websocket, path):
 						player_aid = request.get('player_aid', '')
 						if player_aid != '' and target_node != '':
 							await transfer_player(player_aid, target_node)
+
 
 				else:
 					if request_type == 'register':

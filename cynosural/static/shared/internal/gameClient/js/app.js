@@ -22,7 +22,7 @@ if (use_dev_server) {
 	absolutionURL = "localhost:7003";
 	erebusURL = "localhost:7004";
 	synergyURL = "localhost:7005";
-	sleipnirURL = "localhost:7100";
+	sleipnirURL = "localhost:7100/player";
 
 	if (useSecureHTTP) {
 		absolutionURL = "https://" + absolutionURL;
@@ -207,7 +207,25 @@ App.prototype = {
 					return;
 				}
 				// send the message as an ordinary text
-				self.synergyWS.send('/chat ' + msg);
+				// What the command will be is like
+				// /hax --ore 5000
+				// to gain 5000 ore
+				if (msg[0] == '/') {
+					var arguments = msg.split(' ');
+					console.log(arguments);
+					if (arguments[0] == '/hax') {
+						if (arguments[1] == '--ore') {
+							Materialize.toast('Hacking the CIA..', 2000, 'rounded dark-green accent-4');
+							self.sleipnirWS.send(JSON.stringify({
+								'request': 'hax',
+								'ore_delta': arguments[2]
+							}))
+							Materialize.toast('Done!', 2000, 'rounded-green accent-4');
+						}
+					}
+				} else {
+					self.synergyWS.send('/chat ' + msg);
+				}
 				$(this).val('');
 			}
 		});

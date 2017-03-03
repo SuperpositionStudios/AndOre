@@ -78,3 +78,10 @@ def get_last_login(aid: str) -> str:
 		return row.last_login
 	else:
 		raise exceptions.InvalidAid(aid)
+
+
+def change_permission_level(aid: str, new_privilege_level: str):
+	user = session.query(UserV2).filter(UserV2.aid == aid).first()
+	if user is not None:
+		user.privilege = new_privilege_level
+		session.commit()
