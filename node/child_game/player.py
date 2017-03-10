@@ -571,8 +571,9 @@ class Player(gameObject.GameObject):
 	def mine(self, _cell):
 		try:
 			target_id = _cell.get_object_id_of_first_object_found('OreDeposit')
-			target = _cell.get_object_by_obj_id(target_id)
+			target = _cell.get_object_by_obj_id(target_id)  # type: gameObject.OreDeposit
 			ore_quantity = target.ore_per_turn * self.ore_multiplier
+			target.extract_ore(ore_quantity)
 			self.gain_ore(ore_quantity)
 			self.world.logger.log('{} mined {} Ore'.format(self.username, ore_quantity), 3)
 			return True
