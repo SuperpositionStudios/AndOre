@@ -189,7 +189,7 @@ App.prototype = {
 				console.log('This doesn\'t look like a valid JSON: ', message.data);
 				return;
 			}
-			if (validAid == false) {
+			if (!validAid) {
 				if (json.author == 'Synergy' && json.color == 'red') {
 					if (json.authenticated) {
 						validAid = true;
@@ -214,7 +214,18 @@ App.prototype = {
 
 
 		function addMessage(author, message, color) {
-			content.prepend('<p><span style="color:' + color + '">' + author + '</span>: ' + message + '</p>');
+			content.append('<p><span style="color:' + color + '">' + author + '</span>: ' + message + '</p>');
+			autoScroll();
+		}
+
+		function autoScroll() {
+			/* Checks to see if we're scrolled at the bottom.
+			If not we will not force scroll to the bottom so you can continue reading some earlier messages.
+			If so we'll scroll you to the bottom. */
+			var element = document.getElementById("chatBoxContent");
+			if ( $(element).scrollTop() > element.scrollHeight - 159) {
+				element.scrollTop = element.scrollHeight;
+			}
 		}
 
 		CallCallback(callback);
