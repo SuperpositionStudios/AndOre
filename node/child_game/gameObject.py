@@ -149,6 +149,7 @@ class OreDeposit(GameObject):
 	def extract_ore(self, amount):
 		self.ore -= amount
 		if self.ore <= 0:
+			self.cell.world.spawn_ore_deposits(num=1)
 			self.delete()
 
 
