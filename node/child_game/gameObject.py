@@ -144,6 +144,13 @@ class OreDeposit(GameObject):
 		}
 		self.blocking = True
 		self.ore_per_turn = 3
+		self.ore = 5000
+
+	def extract_ore(self, amount):
+		self.ore -= amount
+		if self.ore <= 0:
+			self.cell.world.spawn_ore_deposits(num=1)
+			self.delete()
 
 
 class OreGenerator(CorpOwnedBuilding):
@@ -161,16 +168,39 @@ class OreGenerator(CorpOwnedBuilding):
 			'E': False
 		}
 		self.blocking = True
-
 		self.ore_generated_per_tick = 3
 		self.price_to_construct = OreGenerator.construction_cost
 		self.health = 225
 
 	def tick(self):
-		self.owner_corp.gain_ore(self.ore_generated_per_tick)
-		self.cell.world.logger.log(f'An Ore Generator Owned by {self.owner_corp.corp_id} mined {self.ore_generated_per_tick} Ore')
-		self.health -= 1
+		self.extract_ore()
 		self.check_if_dead_and_if_so_die()
+
+	def extract_ore(self):
+		try:
+			ore_deposit = self.fetch_ore_deposit()
+			ore_deposit.extract_ore(self.ore_generated_per_tick)
+			self.owner_corp.gain_ore(self.ore_generated_per_tick)
+			self.cell.world.logger.log(f'An Ore Generator Owned by {self.owner_corp.corp_id} mined {self.ore_generated_per_tick} Ore')
+		except exceptions.NoGameObjectOfThatClassFoundException:
+			self.delete()
+
+	def fetch_ore_deposit(self) -> OreDeposit:
+		nearby_cells = self.cell.get_list_of_adjacent_cells(check_horizontally=True, check_vertically=True, check_diagonally=True)
+		ore_deposit = None
+		for cell in nearby_cells:
+			try:
+				ore_deposit_id = cell.get_object_id_of_first_object_found('OreDeposit')
+				ore_deposit = cell.get_object_by_obj_id(ore_deposit_id)
+				break
+			except exceptions.NoGameObjectOfThatClassFoundException:
+				pass
+			except exceptions.NoGameObjectByThatObjectIDFoundException:
+				pass
+		if ore_deposit is None:
+			raise exceptions.NoGameObjectOfThatClassFoundException()
+		return ore_deposit
+
 
 
 class CorpOwnedStore(CorpOwnedBuilding):
