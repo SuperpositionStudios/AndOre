@@ -19,12 +19,10 @@ html, body {
 #worldview {
 	/*#display: block;*/
 	font-family: 'Ubuntu Mono', monospace;
+	width: 100%;
+	height: 100%;
 	/*#white-space: pre;*/
 	/*margin: 1em 0;*/
-}
-
-.modal-footer {
-	font-size: 9px;
 }
 
 .walls {
@@ -37,8 +35,9 @@ html, body {
 	display: inline-block;
 	width: 1.8%;
 	/*height: 3.22%;*/
-	height: 5%;
-	text-align: center;
+	/*height: 7.14%;
+	text-align: center;*/
+	height: 100%;
 	vertical-align: middle;
 	margin-top: 0em;
 	margin-bottom: 0em;
@@ -89,4 +88,63 @@ html, body {
 
 #andore-logo {
 	width: 100%;
+}
+
+/* Structure */
+
+#gameview {
+    /*background: #689f38;*/
+    height: 100%;
+}
+
+#help {
+    /*background: #afb42b;*/
+    height: 100%;
+	overflow: auto;
+}
+
+#stats-1 {
+    height: 100%;
+    /*background: #fbc02d;*/
+}
+
+#stats-2 {
+    height: 100%;
+    /*background: #ffa000;*/
+	overflow: auto;
+}
+
+#stats-3 {
+    height: 100%;
+    /*background: #f57c00;*/
+}
+
+#game-row {
+    height: 75%;
+    margin: 0px;
+}
+
+#stats-row {
+    height: 25%;
+	margin: 0px;
+}
+
+#game {
+    height: 100%;
+    width: 100%;
+}
+
+html {
+    height: 100%;
+    width: 100%;
+	overflow-y: hidden;
+}
+
+body {
+    height: 100%;
+    width: 100%
+}
+
+.world_row {
+	height: 5%;
 }
