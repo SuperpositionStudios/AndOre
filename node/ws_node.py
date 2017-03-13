@@ -182,40 +182,51 @@ class Node:
 				print(f'{websocket.remote_address} Disconnected')
 
 	async def sleipnir_client(self):
-		async with websockets.connect(self.sleipnir_address) as websocket:
+		timer = 0
+		while True:
+			await asyncio.sleep(timer)
 			try:
-				self.sleipnir_connection = websocket
+				async with websockets.connect(self.sleipnir_address) as websocket:
+					self.sleipnir_connection = websocket
 
-				await websocket.send(helper_functions.dumps({
-					'request': 'register',
-					'type': 'node',
-					'name': self.name,
-					'public_address': self.public_address
-				}))
+					print(f'Connected to Sleipnir at {self.sleipnir_address}')
+					timer = 0
 
-				while True:
-					request = await websocket.recv()
-					request = helper_functions.loads(request)
-					# print('Sleipnir: {}'.format(request))
-					request_type = request.get('request', None)
-					if request_type == 'player_enter':
-						# Checking to see if the player is not in the world.
-						# We check this because if the node (we) don't know about a player and they try to join
-						# bad stuff happens.
-						if self.world.active_aid(request.get('aid', '')) is False:
-							player_corp_id = request.get('cid')
-							player_aid = request.get('aid')
-							player_username = request.get('username', '')
-							corp_ore_quantity = request.get('coq', 0)
-							self.world.new_player(player_aid, player_username, player_corp_id, corp_ore_quantity)
-					elif request_type == 'update_values':
-						response = request.get('data', {})
-						self.world.update_values(response)
-					elif request_type == 'transfer_assets':
-						acquiree_id = request.get('acquiree_id', '')
-						acquirer_id = request.get('acquirer_id', '')
-						if acquiree_id != '' and acquirer_id != '':
-							self.world.transfer_corp_assets(acquirer_id, acquiree_id)
-			finally:
-				print("Connection to sleipnir closed")
-				asyncio.get_event_loop().create_task(self.sleipnir_client)
+					await websocket.send(helper_functions.dumps({
+						'request': 'register',
+						'type': 'node',
+						'name': self.name,
+						'public_address': self.public_address
+					}))
+					try:
+						while True:
+							request = await websocket.recv()
+							request = helper_functions.loads(request)
+							# print('Sleipnir: {}'.format(request))
+							request_type = request.get('request', None)
+							if request_type == 'player_enter':
+								# Checking to see if the player is not in the world.
+								# We check this because if the node (we) don't know about a player and they try to join
+								# bad stuff happens.
+								if self.world.active_aid(request.get('aid', '')) is False:
+									player_corp_id = request.get('cid')
+									player_aid = request.get('aid')
+									player_username = request.get('username', '')
+									corp_ore_quantity = request.get('coq', 0)
+									self.world.new_player(player_aid, player_username, player_corp_id, corp_ore_quantity)
+							elif request_type == 'update_values':
+								response = request.get('data', {})
+								self.world.update_values(response)
+							elif request_type == 'transfer_assets':
+								acquiree_id = request.get('acquiree_id', '')
+								acquirer_id = request.get('acquirer_id', '')
+								if acquiree_id != '' and acquirer_id != '':
+									self.world.transfer_corp_assets(acquirer_id, acquiree_id)
+					except:
+						print("Connection to Sleipnir Lost...")
+						raise ValueError()
+			except Exception as e:
+				#print(repr(e))
+				timer = round(timer + 0.1337, 4)
+				print(f'Sleipnir at {self.sleipnir_address} still down. Will try again in {timer}s')
+				pass
