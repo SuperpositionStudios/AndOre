@@ -166,11 +166,6 @@ async def new_connection_handler(websocket, path):
 								players[aid].assign_node(current_node)
 							node_obj = nodes[current_node]
 							await transfer_player(aid, current_node)
-							await websocket.send(dumps({
-								'request': 'update_node',
-								'node_name': current_node,
-								'node_address': node_obj.public_address
-							}))
 						else:
 							new_corp = game_classes.Corporation()
 							if in_production is False:
