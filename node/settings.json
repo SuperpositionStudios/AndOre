@@ -1,7 +1,0 @@
-{
-  "inProduction": true,
-  "productionErebusAddress": "http://erebus.andore.online",
-  "developmentErebusAddress": "http://localhost:7004",
-  "productionSleipnirAddress": "ws://sleipnir.andore.online/node",
-  "developmentSleipnirAddress": "ws://localhost:7100/node"
-}

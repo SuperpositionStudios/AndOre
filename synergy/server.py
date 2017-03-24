@@ -52,9 +52,8 @@ async def handler(websocket, path):
 	# Register.
 	connected.add(websocket)
 	try:
-		# Implement logic here.
-		aid = None
 		username = None
+		aid = None
 		while True:
 			message = await websocket.recv()
 			if aid is None:
@@ -101,7 +100,7 @@ async def handler(websocket, path):
 
 
 print("Running Synergy on port {}".format(server_port))
-start_server = websockets.serve(handler, public_address, server_port)
+start_server = websockets.serve(handler, '0.0.0.0', server_port)
 
 asyncio.get_event_loop().run_until_complete(start_server)
 asyncio.get_event_loop().run_forever()

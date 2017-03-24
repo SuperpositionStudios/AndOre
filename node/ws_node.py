@@ -6,7 +6,7 @@ import json
 import requests
 import websockets
 import datetime
-from typing import Dict
+from typing import Dict, List
 import signal
 import sys
 from child_game import helper_functions
@@ -26,8 +26,7 @@ class ConnectedClient:
 
 
 class Node:
-	def __init__(self, node_name: str, node_port: int, node_public_address, erebus_address, sleipnir_address,
-				 star_gates=['Panagoul']):
+	def __init__(self, node_name: str, node_port: int, node_public_address: str, erebus_address: str, sleipnir_address: str, star_gates: List[str]):
 		self.name = node_name
 		self.port = node_port
 		self.public_address = node_public_address

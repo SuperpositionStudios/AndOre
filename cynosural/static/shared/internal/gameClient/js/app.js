@@ -2,7 +2,7 @@
 //also uses rl.js -- http://cs.stanford.edu/people/karpathy/reinforcejs/
 
 /* Begin Settings */
-var use_dev_server = false; // Set back to false when comitting
+var use_dev_server = true; // Set back to false when comitting
 var use_ai_storage_server = true;
 var internetOff = false;  // Used for testing view.js with testData.js
 var useSecureHTTP = false;  // Set to true if using https
@@ -247,7 +247,7 @@ App.prototype = {
 			contentType: "application/json",
 			success: function (data) {
 				if (data['valid_aid']) {
-					Materialize.toast("Logged in", 2000, 'rounded light-green accent-4');
+					Materialize.toast("Client Authorized.", 500, 'rounded light-green accent-4');
 					self.authId = stored_aid;
 					CallCallback(callback);
 				} else {

@@ -184,18 +184,7 @@ async def new_connection_handler(websocket, path):
 							current_node = players[aid].get_current_node()
 							node_obj = nodes[current_node]
 
-							await nodes[current_node].connection.send(dumps({
-								'request': 'player_enter',
-								'coq': current_player.corp.amount_of_ore(),
-								'aid': aid,
-								'cid': new_corp.corp_id
-							}))
-
-							await websocket.send(dumps({
-								'request': 'update_node',
-								'node_name': node_obj.name,
-								'node_address': node_obj.public_address
-							}))
+							await transfer_player(aid, current_node)
 					elif request.get('request', None) == 'numConnectedPlayers':
 						await websocket.send(dumps({
 							'request': 'numConnectedPlayers',
@@ -344,7 +333,7 @@ async def new_connection_handler(websocket, path):
 
 print(f'Running Sleipnir on port {port}')
 
-start_server = websockets.serve(new_connection_handler, 'localhost', port)
+start_server = websockets.serve(new_connection_handler, '0.0.0.0', port)
 
 asyncio.get_event_loop().run_until_complete(start_server)
 asyncio.get_event_loop().run_forever()
