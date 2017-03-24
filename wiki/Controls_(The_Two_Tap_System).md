@@ -1,6 +1,6 @@
-# Controls in And/Ore work on what we call "The Triple-Tap System." 
+# Controls in And/Ore work on what we call "The Double-Tap System." 
 
-The Triple-Tap System involves pressing a "mode" key which determines which mode you are in, and then a modifier key to change the exact actions. The various modes and their mode keys are: 
+The Two-Tap System involves pressing a "mode" key which determines which mode you are in, and then a modifier key to change the exact actions. The various modes and their mode keys are: 
 
 <table>
     <tr>
@@ -16,7 +16,11 @@ The Triple-Tap System involves pressing a "mode" key which determines which mode
         <td>B</td>
     </tr>
     <tr>
-        <td>Loot</td>
+      <td>Deconstruct</td>
+        <td>C</td>
+    </tr>
+    <tr>
+      <td>Loot</td>
         <td>L</td>
     </tr>
     <tr>
@@ -73,28 +77,10 @@ Master Table:
         <th>Direction</th>
     </tr>
     <tr>
-        <td>Move North</td>
+        <td>Move</td>
         <td>m</td>
         <td>*</td>
-        <td>w</td>
-    </tr>
-    <tr>
-        <td>Move West</td>
-        <td>m</td>
-        <td>*</td>
-        <td>a</td>
-    </tr>
-    <tr>
-        <td>Move South</td>
-        <td>m</td>
-        <td>*</td>
-        <td>s</td>
-    </tr>
-    <tr>
-        <td>Move East</td>
-        <td>m</td>
-        <td>*</td>
-        <td>d</td>
+        <td>Direction in which you want to move</td>
     </tr>
     <tr>
         <td>Build Fence</td>
@@ -142,6 +128,12 @@ Master Table:
         <td>Build Spiketrap</td>
         <td>b</td>
         <td>8</td>
+        <td>Desired Location Relative to You</td>
+    </tr>
+    <tr>
+        <td>Deconstruct Corp Owned Building</td>
+        <td>c</td>
+        <td>*</td>
         <td>Desired Location Relative to You</td>
     </tr>
     <tr>
@@ -229,28 +221,10 @@ Master Table:
         <td>*</td>
     </tr>
     <tr>
-        <td>Attack Player/Building to your North</td>
+        <td>Attack Player/Building</td>
         <td>k</td>
         <td>*</td>
-        <td>w</td>
-    </tr>
-    <tr>
-        <td>Attack Player/Building to your West</td>
-        <td>k</td>
-        <td>*</td>
-        <td>a</td>
-    </tr>
-    <tr>
-        <td>Attack Player/Building to your South</td>
-        <td>k</td>
-        <td>*</td>
-        <td>s</td>
-    </tr>
-    <tr>
-        <td>Attack Player/Building to your East</td>
-        <td>k</td>
-        <td>*</td>
-        <td>d</td>
+        <td>Direction of Player/Building Adjacent to You</td>
     </tr>
     <tr>
         <td>Increase Corporation Standing</td>
